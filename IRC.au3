@@ -286,6 +286,7 @@ EndFunc   ;==>_IRCConnect
 ;                  Failure - Returns 0 and sets @error:
 ;                  |1 = Invalid Socket Identifier, sets @extended: (1, if empty; 2, if -1)
 ;                  |2 = Error Sending, sets @extended to TCPSend error returned
+;                  |3 = Error Closing Socket, sets @extended to TCPCloseSocket error returned
 ; Author ........: Robert Maehl (rcmaehl)
 ; Modified ......: 09/28/2014
 ; Remarks .......: Modified from Chips' coding
@@ -303,6 +304,8 @@ Func _IRCDisconnect($_vIRC, $_sMsg = "IRC.au3 04/20/2014")
 	If Not $_sMsg = "" Then $_sMsg = " :" & $_sMsg
 	TCPSend($_vIRC, "QUIT" & $_sMsg & @CRLF)
 	If @error Then Return SetError(2, @error & @extended, 0)
+	TCPCloseSocket($_vIRC)
+	If @error Then Return SetError(3, @error & @extended, 0)
 	Return 1
 EndFunc   ;==>_IRCDisconnect
 
