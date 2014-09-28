@@ -253,7 +253,7 @@ Func _IRCConnect($_sServer, $_iPort, $_sNick, $_sMode = 0, $_sRealName = $_sNick
 			Return SetError(3, 1, 0)
 		Case StringInStr($_sNick, " ")
 			Return SetError(2, 2, 0)
-		Case $_sMode = ""
+		Case StringLen($_sMode) = 0
 			Return SetError(4, 1, 0)
 		Case Not IsInt($_sMode)
 			Return SetError(4, 2, 0)
@@ -344,11 +344,11 @@ Func _IRCGetMsg($_vIRC, $_iChars = -1)
 		Local $_vRecv = ""; Required due to '&=' below
 		Do
 			$_vRecv &= TCPRecv($_vIRC, 512)
-			If @error Then Return SetError(3, @error, 0)
+			If @error and Not @error = -1 Then Return SetError(3, @error, 0)
 		Until AscW(StringRight($_vRecv, 1)) = 10
 	Else
 		$_vRecv = TCPRecv($_vIRC, $_iChars)
-		If @error Then Return SetError(3, @error, 0)
+		If @error and Not @error = -1 Then Return SetError(3, @error, 0)
 	EndIf
 	Return $_vRecv
 EndFunc   ;==>_IRCGetMsg
