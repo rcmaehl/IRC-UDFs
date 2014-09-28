@@ -46,6 +46,7 @@ Func Main()
 					_IRCChannelPart($Sock, $sChannels[1], "Leaving.")
 				Case ":Closing" ; Connection Closed
 					ConsoleWrite($sData[$i] & @CRLF); Output to Console for Visual Example of Data Received
+					TCPShutdown()
 					Exit(0)
 				Case "PRIVMSG" ; Message Received in a Channel or PM
 					ConsoleWrite($sData[$i] & @CRLF); Output to Console for Visual Example of Data Received
@@ -55,6 +56,8 @@ Func Main()
 					Switch $Message
 						Case "!quit"
 							_IRCDisconnect($Sock, $User & " told me to.")
+							TCPShutdown()
+							Exit(0)
 						Case Else
 							;;;
 					EndSwitch
