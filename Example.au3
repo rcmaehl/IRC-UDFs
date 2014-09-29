@@ -12,6 +12,7 @@ Func Main()
 	Local $Pass = ""; IRC Server Password
 	Local $Channels = "#channel1,#channel2"; Channels to Join
 	Local $Keys = "key1,key2"; Channel Passwords
+	Local $UserLists = ""
 
 	TCPStartup()
 	Local $Sock = _IRCConnect($Server, $Port, $Nick, $Mode, $RealName, $Pass); Connects to IRC. Sends Password, if any. Declares User Identity.
@@ -39,6 +40,13 @@ Func Main()
 					ConsoleWrite($sData[$i]); Output to Console for Visual Example of Data Received
 					_IRCChannelJoin($Sock, $Channels, $Keys); Join the Channels Specified
 					_IRCMultiMode($Sock, $Nick, "+i")
+				Case "353"; Parse Channel User List
+					$Filtered = StringReplace($sTemp[5], "#", "p"); Filter out # as you can't use it in Assign()
+					$UserLists &= $Filtered & " "
+					$UserList = StringMid($sData[$i], StringInStr($sData[$i], ":", 0, 2) + 1); Get User List
+					If Not IsDeclared($Filtered & "_users") Then Assign($Filtered & "_users", ""); Create variable so the Eval in Assign doesn't fail
+					Assign($Filtered & "_users", Eval($Filtered & "_users") & $UserList); Add users to userlist
+					ConsoleWrite($sData[$i] & @CRLF); Output to Console for Visual Example of Data Received
 				Case "366"; Joined Channel (Actually End of Channel User List)
 					ConsoleWrite($sData[$i]); Output to Console for Visual Example of Data Received
 					_IRCMultiSendMsg($Sock, $sChannels[1], "Hello, this is an example IRC script")
@@ -48,16 +56,24 @@ Func Main()
 					ConsoleWrite($sData[$i] & @CRLF); Output to Console for Visual Example of Data Received
 					TCPShutdown()
 					Exit(0)
+				Case "NICK"
+					$User = StringMid($sTemp[1], 2, StringInStr($sTemp[1], "!") - 2); Get User Who Changed Nicks
+					$NewNick = StringMid($sData[$i], StringInStr($sData[$i], ":", 0, 2) + 1); Get User's New Nick
+					$sCurrent = StringSplit($UserLists, " "); Get channel lists and update nicks
+					; Parse and Replace User's Old Nick with New Nick in User lists here.
 				Case "PRIVMSG" ; Message Received in a Channel or PM
 					ConsoleWrite($sData[$i] & @CRLF); Output to Console for Visual Example of Data Received
-					$User = StringMid($stemp[1], 2, StringInStr($stemp[1], "!") - 2); Get User Who Sent the Message
-					$Message = StringMid($sdata[$i], StringInStr($sdata[$i], ":", 0, 2) + 1); Get Full Message
-					$Recipient = $sData[3]
+					$User = StringMid($sTemp[1], 2, StringInStr($sTemp[1], "!") - 2); Get User Who Sent the Message
+					$Message = StringMid($sData[$i], StringInStr($sData[$i], ":", 0, 2) + 1); Get Full Message
+					$Recipient = $sTemp[3]
 					Switch $Message
 						Case "!quit"
 							_IRCDisconnect($Sock, $User & " told me to.")
 							TCPShutdown()
 							Exit(0)
+						Case "!users"
+							_IRCMultiSendMsg($Sock, $Recipient, Eval(StringReplace($Recipient, "#", "pound") & "_users"))
+							If @error Then MsgBox(1, "IRC Example", "User List Error: " & @error & " Extended: " & @extended); Display message on Error
 						Case Else
 							;;;
 					EndSwitch
