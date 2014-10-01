@@ -71,7 +71,7 @@ Func Main()
                                     $Status = StringLeft($Split[$ii], 1)
                                 EndIf
                             EndIf
-                            $After &= $Status & StringRegExpReplace($Split[$i2], "^[@~+%&]*" & $User & "$", $NewNick) & " "
+                            $After &= $Status & StringRegExpReplace($Split[$ii], "^[@~+%&]*" & $User & "$", $NewNick) & " "
                         Next
                         Assign($sCurrent[$i] & "_users", StringTrimRight($After,1))
                     Next
