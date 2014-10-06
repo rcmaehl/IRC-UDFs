@@ -37,11 +37,11 @@ EndFunc
 ; Example .......: No
 ; ===============================================================================================================================
 Func _IRCStripSpecial($_sData, $_bNoCTCP = False)
-	$_sData = StringReplace($_sData, "", "")
-	$_sData = StringReplace($_sData, "", "")
-	$_sData = StringReplace($_sData, "", "")
+	$_sData = StringReplace($_sData, "", "") ;Reset
+	$_sData = StringReplace($_sData, "", "") ;Underline
+	$_sData = StringReplace($_sData, "", "") ;Bold
 	$_sData = StringReplace($_sData, "", "")
-	$_sData = StringRegExpReplace($_sData, "..", "")
+	$_sData = StringRegExpReplace($_sMsg, "\d\d(?:,\d\d)?", "") ;Colors
 	If $_bNoCTCP Then $_sData = StringReplace($_sData, "", "")
 	Return $_sData
 EndFunc
