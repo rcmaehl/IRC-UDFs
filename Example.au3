@@ -4,15 +4,21 @@ Main()
 
 Func Main()
 
-    Local $Server = "irc.freenode.net"; IRC Server
-    Local $Port = 6667; IRC Server Port
-    Local $Nick = "Au3Bot"; Nick to Use
-    Local $Mode = 0; User Mode to Use
-    Local $RealName = "Au3Bot"; Real Name to Use
-    Local $Pass = ""; IRC Server Password
-    Local $Channels = "#channel1,#channel2"; Channels to Join
-    Local $Keys = "key1,key2"; Channel Passwords
-    Local $UserLists = ""
+	;Connection Variables
+
+	;Server Specific Connection Variables
+    Local $Server = "irc.freenode.net"      ; IRC Server
+    Local $Port = 6667                      ; IRC Server Port
+	Local $Pass = ""                        ; IRC Server Password
+
+	;User Specific Connection Variables
+    Local $Nick = "Au3Bot"                  ; Nick Name to Use
+    Local $Mode = 0                         ; User Mode to Use
+    Local $RealName = "Au3Bot"              ; Real Name to Use
+
+	;Channel Variables
+    Local $Channels = "#channel1,#channel2" ; Channels to Join
+    Local $Keys = "key1,key2"               ; Channel Passwords
 
     TCPStartup()
     Local $Sock = _IRCConnect($Server, $Port, $Nick, $Mode, $RealName, $Pass); Connects to IRC. Sends Password, if any. Declares User Identity.
@@ -36,45 +42,27 @@ Func Main()
                 ContinueLoop
             EndIf
             Switch $sTemp[2]; What to do on each Command
+                Case ":Closing" ; Connection Closed
+                    ConsoleWrite($sData[$i] & @CRLF); Output to Console for Visual Example of Data Received
+                    TCPShutdown()
+                    Exit(0)
                 Case "001"; Connected to Server (Actually Server Welcome)
                     ConsoleWrite($sData[$i]); Output to Console for Visual Example of Data Received
                     _IRCChannelJoin($Sock, $Channels, $Keys); Join the Channels Specified
                     _IRCMultiMode($Sock, $Nick, "+i")
                 Case "353"; Parse Channel User List
-                    $Filtered = StringReplace($sTemp[5], "#", "p"); Filter out # as you can't use it in Assign()
-                    $UserLists &= $Filtered & " "
-                    $UserList = StringMid($sData[$i], StringInStr($sData[$i], ":", 0, 2) + 1); Get User List
-                    If Not IsDeclared($Filtered & "_users") Then Assign($Filtered & "_users", ""); Create variable so the Eval in Assign doesn't fail
-                    Assign($Filtered & "_users", Eval($Filtered & "_users") & $UserList); Add users to userlist
                     ConsoleWrite($sData[$i] & @CRLF); Output to Console for Visual Example of Data Received
                 Case "366"; Joined Channel (Actually End of Channel User List)
                     ConsoleWrite($sData[$i]); Output to Console for Visual Example of Data Received
                     _IRCMultiSendMsg($Sock, $sChannels[1], "Hello, this is an example IRC script")
                     _IRCSelfSetNick($Sock, "Au2Bot")
                     _IRCChannelPart($Sock, $sChannels[1], "Leaving.")
-                Case ":Closing" ; Connection Closed
+				Case "JOIN"
                     ConsoleWrite($sData[$i] & @CRLF); Output to Console for Visual Example of Data Received
-                    TCPShutdown()
-                    Exit(0)
-                Case "NICK"
+				Case "NICK"
                     ConsoleWrite($sData[$i] & @CRLF); Output to Console for Visual Example of Data Received
-                    $User = StringMid($sTemp[1], 2, StringInStr($sTemp[1], "!") - 2); Get User Who Changed Nicks
-                    $NewNick = StringMid($sData[$i], StringInStr($sData[$i], ":", 0, 2) + 1); Get User's New Nick
-                    $sCurrent = StringSplit($UserLists, " "); Get channel lists and update nicks
-                    For $i = 1 To $sCurrent[0] Step 1
-                        $After = ""
-                        $Split = StringSplit(Eval($sCurrent[$i] & "_users"), " ")
-                        For $ii = 1 to $Split[0] Step 1
-                            $Status = ""
-                            If StringRegExp(StringLeft($Split[$ii],1), "[@~+%&]") Then
-                                If StringRegExp($Split[$ii], "^[@~+%&]*" & $User & "$") Then
-                                    $Status = StringLeft($Split[$ii], 1)
-                                EndIf
-                            EndIf
-                            $After &= $Status & StringRegExpReplace($Split[$ii], "^[@~+%&]*" & $User & "$", $NewNick) & " "
-                        Next
-                        Assign($sCurrent[$i] & "_users", StringTrimRight($After,1))
-                    Next
+				Case "PART"
+                    ConsoleWrite($sData[$i] & @CRLF); Output to Console for Visual Example of Data Received
                 Case "PRIVMSG" ; Message Received in a Channel or PM
                     ConsoleWrite($sData[$i] & @CRLF); Output to Console for Visual Example of Data Received
                     $User = StringMid($sTemp[1], 2, StringInStr($sTemp[1], "!") - 2); Get User Who Sent the Message
@@ -146,7 +134,6 @@ KICK:
 
     EXAMPLE:
         :rcmaehl!~why@unaffiliated/why KICK #fcofix Au3Bot :No Bots Allowed
-
 
 
 MODE:
