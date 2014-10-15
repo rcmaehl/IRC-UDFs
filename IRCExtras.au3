@@ -31,7 +31,7 @@ EndFunc
 ;                  $_bNoCTCP            - [optional] Cleans CTCP characters if True. Default is False.
 ; Return values .: Returns cleaned up message.
 ; Author ........: Robert Maehl (rcmaehl)
-; Modified ......: 09/25/2014
+; Modified ......: 10/14/2014
 ; Related .......:
 ; Link ..........:
 ; Example .......: No
