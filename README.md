@@ -13,6 +13,14 @@ Notes:
     These commands should work on every server following either RFC 1459 (legacy) or RFC 2812 (preferred).  
     The majority of the old functions have been modified. It will break most, if not all, scripts using the old UDF.  
 
+Future Goals: 
+
+    User Lists (In The Works)
+    Config File
+    User Ranks
+    Single Network IRC Client
+    Multi Network IRC Client
+
 Last Commit Shared with AutoIt Forums:
 
     7025ded01f14648fdde61fd56b1cfa323e1a17c9
