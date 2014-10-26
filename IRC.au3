@@ -224,8 +224,8 @@ EndFunc   ;==>_IRCChannelTopic
 ;                  $_sPass              - [optional] Password for the IRC server. Default is "".
 ; Return values .: Success - Returns Socket Identifier
 ;                  Failure - Returns 0 and sets @error:
-;                  |1 = Invalid Server, sets @extended: (1, if blank; 2 if invalid address)
-;                  |2 = Invalid Port, sets @extended: (1, if blank; 2, if not an interger)
+;                  |1 = Invalid Server, sets @extended: (1, if blank; 2 if invalid address/IP)
+;                  |2 = Invalid Port, sets @extended: (1, if blank; 2, if not a 1-5 digit interger; 3, if out of range)
 ;                  |3 = Invalid Nick, sets @extended: (1, if empty; 2, if not IRC compliant)
 ;                  |4 = Invalid Mode, sets @extended: (1, if blank; 2, if not an interger)
 ;                  |5 = Invalid Real Name
@@ -233,22 +233,26 @@ EndFunc   ;==>_IRCChannelTopic
 ;                  |7 = Connection Error, sets @extended to TCPConnect error returned
 ;                  |8 = Error Sending, sets @extended to TCPSend error returned
 ; Author ........: Robert Maehl (rcmaehl)
-; Modified ......: 09/28/2014
+; Modified ......: 10/25/2014
 ; Remarks .......: Modified from Chips' coding
 ; Related .......: _IRCDisconnect
 ; Link ..........:
 ; Example .......: No
 ; ===============================================================================================================================s
 Func _IRCConnect($_sServer, $_iPort, $_sNick, $_sMode = 0, $_sRealName = $_sNick, $_sPass = "")
+	Local $_iCheck1 = StringRegExp($_sServer,"^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$")
+	Local $_iCheck2 = StringRegExp($_sServer,"^([a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,6}$")
 	Select ;Parameter Checking, Trust No One
 		Case $_sServer = ""
 			Return SetError(1, 1, 0)
-		Case Not StringIsAlNum(StringReplace($_sServer, ".", ""))
+		Case $_iCheck1 <> 1 And $_iCheck2 <> 1
 			Return SetError(1, 2, 0)
 		Case $_iPort = ""
 			Return SetError(2, 1, 0)
-		Case Not IsInt($_iPort)
+		Case StringRegExp($_iPort,"^\d{1,5}$") <> 1
 			Return SetError(2, 2, 0)
+		Case $_iPort < 1 Or $_iPort > 65535
+			Return SetError(3, 2, 0)
 		Case $_sNick = ""
 			Return SetError(3, 1, 0)
 		Case StringInStr($_sNick, " ")
