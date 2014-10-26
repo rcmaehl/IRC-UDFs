@@ -328,7 +328,7 @@ EndFunc   ;==>_IRCDisconnect
 ; Author ........: Robert Maehl (rcmaehl)
 ; Modified ......: 09/28/2014
 ; Remarks .......: Due to variable packet length, _IRCGetMsg may recieve more than 1 packet. Default _iChars setting receives
-;                  characters at 512 characters per loop until it gets an End Of Line as the last character.
+;                  characters at 1 characters per loop until it gets a Line Feed as the last character.
 ;                  To Do: Have _IRCGetMsg operate similar to GUIGetMsg(1)
 ; Related .......:
 ; Link ..........:
@@ -350,7 +350,7 @@ Func _IRCGetMsg($_vIRC, $_iChars = -1)
 	If $_iChars = -1 Then
 		Local $_vRecv = ""; Required due to '&=' below
 		Do
-			$_vRecv &= TCPRecv($_vIRC, 512)
+			$_vRecv &= TCPRecv($_vIRC, 1)
 			If @error and Not @error = -1 Then SetError(3, @error & @extended, 0)
 		Until AscW(StringRight($_vRecv, 1)) = 10
 	Else
