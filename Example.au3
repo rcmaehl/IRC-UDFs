@@ -15,6 +15,7 @@ Func Main()
 
 	;User Specific Connection Variables
     Local $Nick = "Au3Bot"                  ; Nick Name to Use
+	Local $Nick2 = "Au3Bot2"                ; Nick Name to Use if First Choice isn't available
     Local $Mode = 0                         ; User Mode to Use
     Local $RealName = "Au3Bot"              ; Real Name to Use
 
@@ -24,6 +25,7 @@ Func Main()
 
 	;Channel User List Variables
     Local $aUsers = ""
+	Local $aChannels[0] = []
 
     TCPStartup()
     Local $Sock = _IRCConnect($Server, $Port, $Nick, $Mode, $RealName, $Pass); Connects to IRC. Sends Password, if any. Declares User Identity.
@@ -39,7 +41,7 @@ Func Main()
 		Local $sTemp = StringSplit($sRecv, " "); Splits Packet into Command Message and Parameters
 		If $sTemp[1] = "PING" Then
 			_IRCServerPong($Sock, $sTemp[2]); Checks for Pings from Server and Replies
-			ConsoleWrite($sRecv & @CRLF)
+			ConsoleWrite($sRecv)
 		ElseIf $sTemp[0] <= 2 Then; Error Handling
 			ConsoleWrite($sRecv)
 			ContinueLoop
@@ -55,45 +57,65 @@ Func Main()
 				_IRCMultiMode($Sock, $Nick, "+i")
 			Case "353"; Parse Channel User List
 				ConsoleWrite($sRecv); Output to Console for Visual Example of Data Received
-				$sChannel = StringReplace($sTemp[5], "#", "p"); Filter out # as you can't use it in Assign()
-				$sUserList = StringTrimLeft($sRecv, StringInStr($sRecv,":")); Get User List
-				$aUsers &= StringSplit($sNameList," ",2); Split User List ;;; Not even sure if this'll work...
-				If Not IsDeclared($Filtered & "_users") Then Assign($sChannel & "_users", ""); Create variable so the Eval in Assign doesn't fail
+
+;				$sChannel = StringReplace($sTemp[5], "#", "p"); Filter out # as you can't use it in Assign()
+;				$sUserList = StringTrimLeft($sRecv, StringInStr($sRecv,":")); Get User List
+;				$aUsers &= StringSplit($sUserList," ",2); Split User List ;;; Not even sure if this'll work...
+;				If Not IsDeclared($sChannel & "_users") Then Assign($sChannel & "_users", ""); Create variable so the Eval in Assign doesn't fail
+
 			Case "366"; Joined Channel (Actually End of Channel User List)
 				ConsoleWrite($sRecv); Output to Console for Visual Example of Data
-				Assign($sChannel & "_users", $aUsers)
-				$aUsers = ""
-				_IRCMultiSendMsg($Sock, $sChannels[1], "Hello, this is an example IRC script")
-				_IRCSelfSetNick($Sock, "Au2Bot")
-				_IRCChannelPart($Sock, $sChannels[1], "Leaving.")
+
+;				Assign($sChannel & "_users", $aUsers)
+;				$aUsers = ""
+
+				If @error Then MsgBox(0,0,@error & @CRLF & @extended)
+				If $sTemp[4] = $sChannels[1] Then
+					_IRCMultiSendMsg($Sock, $sChannels[1], "Hello, this is an example IRC script")
+					_IRCSelfSetNick($Sock, "Au2Bot")
+					_IRCChannelPart($Sock, $sChannels[1], "Leaving.")
+				EndIf
+			Case "443" ; Nick already in use
+				ConsoleWrite($sRecv); Output to Console for Visual Example of Data
+				_IRCSelfSetNick($Sock, $Nick2)
 			Case "JOIN"
 				ConsoleWrite($sRecv); Output to Console for Visual Example of Data Received
 				$sUser = StringMid($sTemp[1], 2, StringInStr($sTemp[1], "!") - 2); Get User Who Joined
-				$sChannel = StringReplace($sTemp[5], "#", "p"); Filter out # as you can't use it in Assign()
+
+;				$sChannel = StringReplace($sTemp[3], "#", "p"); Filter out # as you can't use it in Assign()
+
 				If $sUser <> $Nick Then
-					;;; Stuff here
+					;;; Userlist Stuff here
+				Else
+					_ArrayAdd($aChannels, $sTemp[3])
 				EndIf
-			Case "NICK"
+				Case "NICK"
 				ConsoleWrite($sRecv); Output to Console for Visual Example of Data Received
 			Case "PART"
 				ConsoleWrite($sRecv); Output to Console for Visual Example of Data Received
 				$sUser = StringMid($sTemp[1], 2, StringInStr($sTemp[1], "!") - 2); Get User Who Left
-				$sChannel = StringReplace($sTemp[5], "#", "p"); Filter out # as you can't use it in Assign()
+
+;				$sChannel = StringReplace($sTemp[3], "#", "p"); Filter out # as you can't use it in Assign()
+
 				If $sUser <> $Nick Then
-					;;; Stuff here
+					;;; Userlist Stuff here
+				Else
+					_ArrayDelete($aChannels, $sTemp[3])
 				EndIf
-			Case "PRIVMSG" ; Message Received in a Channel or PM
+				Case "PRIVMSG" ; Message Received in a Channel or PM
 				ConsoleWrite($sRecv); Output to Console for Visual Example of Data Received
 				$sUser = StringMid($sTemp[1], 2, StringInStr($sTemp[1], "!") - 2); Get User Who Sent the Message
 				$sMessage = StringMid($sRecv, StringInStr($sRecv, ":", 0, 2) + 1); Get Full Message
 				$sRecipient = $sTemp[3]
 				Switch $sMessage
-					Case "!quit"
+					Case "!quit" & @CRLF
 						_IRCDisconnect($Sock, $sUser & " told me to.")
 						TCPShutdown()
 						Exit(0)
-					Case "!users"
+					Case "!users" & @CRLF
 						_IRCMultiSendMsg($Sock, $sRecipient, Eval(StringReplace($sRecipient, "#", "p") & "_users"))
+					Case "!channels" & @CRLF
+						_IRCMultiSendMsg($Sock, $sRecipient, _ArrayToString($aChannels, ","))
 					Case Else
 						;;;
 				EndSwitch
