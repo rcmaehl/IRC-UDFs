@@ -69,10 +69,8 @@ Func Main()
 ;				Assign($sChannel & "_users", $aUsers)
 ;				$aUsers = ""
 
-				If @error Then MsgBox(0,0,@error & @CRLF & @extended)
 				If $sTemp[4] = $sChannels[1] Then
 					_IRCMultiSendMsg($Sock, $sChannels[1], "Hello, this is an example IRC script")
-					_IRCSelfSetNick($Sock, "Au2Bot")
 					_IRCChannelPart($Sock, $sChannels[1], "Leaving.")
 				EndIf
 			Case "443" ; Nick already in use
@@ -87,9 +85,20 @@ Func Main()
 				If $sUser <> $Nick Then
 					;;; Userlist Stuff here
 				Else
+					$sTemp[3] = StringReplace(StringReplace($sTemp[3], @CR, ""), @LF, "")
 					_ArrayAdd($aChannels, $sTemp[3])
 				EndIf
-				Case "NICK"
+			Case "KICK"
+				$sUser = $sTemp[4]
+				$sChannel = $sTemp[3]
+				If $sUser <> $Nick Then
+					;;; Userlist Stuff here
+				Else
+					$sTemp[3] = StringReplace(StringReplace($sTemp[3], @CR, ""), @LF, "")
+					$iIndex = _ArraySearch($aChannels, $sTemp[3])
+					_ArrayDelete($aChannels, $iIndex)
+				EndIf
+			Case "NICK"
 				ConsoleWrite($sRecv); Output to Console for Visual Example of Data Received
 			Case "PART"
 				ConsoleWrite($sRecv); Output to Console for Visual Example of Data Received
@@ -100,21 +109,24 @@ Func Main()
 				If $sUser <> $Nick Then
 					;;; Userlist Stuff here
 				Else
-					_ArrayDelete($aChannels, $sTemp[3])
+					$sTemp[3] = StringReplace(StringReplace($sTemp[3], @CR, ""), @LF, "")
+					$iIndex = _ArraySearch($aChannels, $sTemp[3])
+					_ArrayDelete($aChannels, $iIndex)
 				EndIf
-				Case "PRIVMSG" ; Message Received in a Channel or PM
+			Case "PRIVMSG" ; Message Received in a Channel or PM
 				ConsoleWrite($sRecv); Output to Console for Visual Example of Data Received
 				$sUser = StringMid($sTemp[1], 2, StringInStr($sTemp[1], "!") - 2); Get User Who Sent the Message
 				$sMessage = StringMid($sRecv, StringInStr($sRecv, ":", 0, 2) + 1); Get Full Message
+				$sMessage = StringReplace(StringReplace($sMessage, @CR, ""), @LF, ""); Strip Carrage Returns and Line Feeds
 				$sRecipient = $sTemp[3]
 				Switch $sMessage
-					Case "!quit" & @CRLF
+					Case "!quit"
 						_IRCDisconnect($Sock, $sUser & " told me to.")
 						TCPShutdown()
 						Exit(0)
-					Case "!users" & @CRLF
+					Case "!users"
 						_IRCMultiSendMsg($Sock, $sRecipient, Eval(StringReplace($sRecipient, "#", "p") & "_users"))
-					Case "!channels" & @CRLF
+					Case "!channels"
 						_IRCMultiSendMsg($Sock, $sRecipient, _ArrayToString($aChannels, ","))
 					Case Else
 						;;;
