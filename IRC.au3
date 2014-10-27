@@ -551,13 +551,13 @@ EndFunc   ;==>_IRCSelfOper
 ; Syntax ........: _IRCSelfSetNick($_vIRC, $_sNick)
 ; Parameters ....: $_vIRC               - Socket Identifier from _IRCConnect().
 ;                  $_sNick              - Nick to use.
-; Return values .: Success - Returns new Nick
+; Return values .: Success - Returns 1
 ;                  Failure - Returns 0 and sets @error:
 ;                  |1 = Invalid Socket Identifier, sets @extended: (1, if empty; 2, if -1)
 ;                  |2 = Invalid Nick, sets @extended: (1, if empty; 2, if not IRC compliant)
 ;                  |3 = Failure Sending, sets @extended to TCPSend error returned
 ; Author ........: Robert Maehl (rcmaehl)
-; Modified ......: 10/26/2014
+; Modified ......: 09/28/2014
 ; Remarks .......:
 ; Related .......:
 ; Link ..........:
@@ -576,7 +576,7 @@ Func _IRCSelfSetNick($_vIRC, $_sNick)
 	EndSelect
 	TCPSend($_vIRC, "NICK " & $_sNick & @CRLF)
 	If @error Then Return SetError(3, @error & @extended, 0)
-	Return $_sNick
+	Return 1
 EndFunc   ;==>_IRCSelfSetNick
 
 
