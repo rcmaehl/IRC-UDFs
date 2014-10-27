@@ -100,6 +100,13 @@ Func Main()
 				EndIf
 			Case "NICK"
 				ConsoleWrite($sRecv); Output to Console for Visual Example of Data Received
+				$sUser = StringMid($sTemp[1], 2, StringInStr($sTemp[1], "!") - 2); Get User Who Changed Nicks
+				$sTemp[3] = StringReplace(StringReplace($sTemp[3], @CR, ""), @LF, "")
+				If $sUser <> $Nick Then
+					;;; Userlist Stuff here
+				Else
+					$Nick = $sTemp[3]
+				EndIf
 			Case "PART"
 				ConsoleWrite($sRecv); Output to Console for Visual Example of Data Received
 				$sUser = StringMid($sTemp[1], 2, StringInStr($sTemp[1], "!") - 2); Get User Who Left
@@ -120,14 +127,16 @@ Func Main()
 				$sMessage = StringReplace(StringReplace($sMessage, @CR, ""), @LF, ""); Strip Carrage Returns and Line Feeds
 				$sRecipient = $sTemp[3]
 				Switch $sMessage
+					Case "!channels"
+						_IRCMultiSendMsg($Sock, $sRecipient, _ArrayToString($aChannels, ","))
+					Case "!nick"
+						_IRCSelfSetNick($Sock, "Au2Bot")
 					Case "!quit"
 						_IRCDisconnect($Sock, $sUser & " told me to.")
 						TCPShutdown()
 						Exit(0)
 					Case "!users"
 						_IRCMultiSendMsg($Sock, $sRecipient, Eval(StringReplace($sRecipient, "#", "p") & "_users"))
-					Case "!channels"
-						_IRCMultiSendMsg($Sock, $sRecipient, _ArrayToString($aChannels, ","))
 					Case Else
 						;;;
 				EndSwitch
