@@ -16,9 +16,9 @@ Notes:
 Future Goals: 
 
     User Lists (In The Works)
-    Config File
+    Config File (To Be Forked)
     User Ranks
-    Single Network IRC Client
+    Single Network IRC Client (To Be Forked)
     Multi Network IRC Client
 
 Last Commit Shared with AutoIt Forums:
