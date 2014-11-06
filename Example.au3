@@ -155,11 +155,6 @@ Nick = A User who the message is from
 Name = Settable by user, set in the USER command
 Host = Host Mask (Can be your IP or something that represents it)
 
-Notes:
-    This list is not complete as there's dozens of IRC Daemons
-    This list is based on the second part of the received info
-
-
 Any 3 digit Code:
     Contains information based on various events
     Check https://www.alien.net.au/irc/irc2numerics.html for specifics
@@ -174,9 +169,8 @@ Any 3 digit Code:
         :hobana.freenode.net 002 Au3Bot :Your host is hobana.freenode.net[62.231.75.133/6667], running version ircd-seven-1.1.3
         :hobana.freenode.net 461 Au3Bot PING :Not enough parameters
 
-
 JOIN:
-    You receive this when someone (Including yourself) joins a channel.
+    You receive this when someone, including yourself, joins a channel.
     Check http://tools.ietf.org/html/rfc1459#section-4.2.1 and http://tools.ietf.org/html/rfc2812#section-3.2.1 for specifics
 
     SYNTAXES:
@@ -195,8 +189,6 @@ KICK:
 
     EXAMPLE:
         :rcmaehl!~why@unaffiliated/why KICK #fcofix Au3Bot :No Bots Allowed
-
-
 
 MODE:
     You receive this when a user or channel mode is changed.
@@ -219,7 +211,7 @@ MODE:
 
 
 NICK:
-    You receive this when someone (Including yourself) changes their nick.
+    You receive this when someone, including yourself, changes their nick.
     Check http://tools.ietf.org/html/rfc1459#section-4.1.2 and http://tools.ietf.org/html/rfc2812#section-3.1.2 for specifics
 
     SYNTAXES:
@@ -228,9 +220,8 @@ NICK:
     EXAMPLES:
         :rcmaehl!~why@unaffiliated/why NICK :rcmaehl2
 
-
 PART:
-    You receive this when someone (Including yourself) parts a channel.
+    You receive this when someone, including yourself, parts a channel.
     Check http://tools.ietf.org/html/rfc1459#section-4.2.2 and http://tools.ietf.org/html/rfc2812#section-3.2.2 for specifics
 
     SYNTAXES:
@@ -241,6 +232,17 @@ PART:
         :rcmaehl!~why@unaffiliated/why PART #fcofix
         :rcmaehl!~why@unaffiliated/why PART #fcofix :"test message"
 
+PING:
+    You receive this when there's been no activity on your connection to the server for a certain period of time to confirm you're still connected.
+    Check https://tools.ietf.org/html/rfc1459#section-4.6.2 and http://tools.ietf.org/html/rfc2812#section-3.7.2 for specifics
+
+    SYNTAXES:
+        PING :Server
+        PING :RandomString
+
+    EXAMPLES:
+        PING :cameron.freenode.net
+        PING :3dS4UmiS
 
 PRIVMSG:
     You receive this when someone has sent a message in a channel or to you personally.
@@ -253,6 +255,5 @@ PRIVMSG:
     EXAMPLES:
         :rcmaehl!~why@unaffiliated/why PRIVMSG #Channel :test message
         :rcmaehl!~why@unaffiliated/why PRIVMSG Au3Bot :Hi Au3bot
-
 
 #ce
