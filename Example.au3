@@ -42,7 +42,6 @@ Func Main()
 		If $sTemp[1] = "PING" Then
 			_IRCServerPong($Sock, $sTemp[2]); Checks for Pings from Server and Replies
 		ElseIf $sTemp[0] <= 2 Then; Error Handling
-			ConsoleWrite($sRecv)
 			ContinueLoop
 		EndIf
 
@@ -123,22 +122,28 @@ Func Main()
 				$sUser = StringMid($sTemp[1], 2, StringInStr($sTemp[1], "!") - 2); Get User Who Sent the Message
 				$sMessage = StringMid($sRecv, StringInStr($sRecv, ":", 0, 2) + 1); Get Full Message
 				$sMessage = StringReplace(StringReplace($sMessage, @CR, ""), @LF, ""); Strip Carrage Returns and Line Feeds
+				$aMessage = StringSplit($sMessage, " ")
 				$sRecipient = $sTemp[3]
 
-				Switch $sMessage
+				Select
 
-					Case "!channels"
+					Case $sMessage = "!channels"
 						_IRCMultiSendMsg($Sock, $sRecipient, _ArrayToString($aChannels, ","))
 
-					Case "!nick"
+					Case $sMessage = "!nick"
 						_IRCSelfSetNick($Sock, "Au2Bot")
 
-					Case "!quit"
-						_IRCDisconnect($Sock, $sUser & " told me to.")
+					Case $aMessage[1] = "!quit"
+						If $aMessage[0] > 1 Then
+							$sQuitMsg = StringReplace($sMessage, "!quit ", "", 1)
+							_IRCDisconnect($Sock, $sQuitMsg)
+						Else
+							_IRCDisconnect($Sock, $sUser & " told me to.")
+						EndIf
 						TCPShutdown()
 						Exit(0)
 
-					Case "!users"
+					Case $sMessage = "!users"
 						_IRCMultiSendMsg($Sock, $sRecipient, Eval(StringReplace($sRecipient, "#", "p") & "_users"))
 
 					Case Else
