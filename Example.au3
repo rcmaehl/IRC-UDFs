@@ -26,7 +26,9 @@ Func Main()
     Local $aUsers = ""
 	Local $aChannels[0] = []
 
+	;Start Up Networking
     TCPStartup()
+
     Local $Sock = _IRCConnect($Server, $Port, $Nick, $Mode, $RealName, $Pass); Connects to IRC. Sends Password, if any. Declares User Identity.
     If @error Then
         MsgBox(1, "IRC Example", "Server Connection Error: " & @error & " Extended: " & @extended); Display message on Error
@@ -34,34 +36,41 @@ Func Main()
     EndIf
 
     While 1
-        $sRecv = _IRCGetMsg($Sock); Receive Packets from the Server
-        If Not $sRecv Then ContinueLoop ;If Nothing Received then Continue Checking
-		ConsoleWrite($sRecv)
+        $sRecv = _IRCGetMsg($Sock) ; Receive Packets from the Server
+        If Not $sRecv Then ContinueLoop ; If Nothing Received then Continue Checking
+		ConsoleWrite($sRecv) ; Write Received Data to Visual Console
 		Local $sChannels = StringSplit($Channels, ",")
-		Local $sTemp = StringSplit($sRecv, " "); Splits Packet into Command Message and Parameters
-		If $sTemp[1] = "PING" Then
-			_IRCServerPong($Sock, $sTemp[2]); Checks for Pings from Server and Replies
-		ElseIf $sTemp[0] <= 2 Then; Error Handling
-			ContinueLoop
-		EndIf
+		Local $sTemp = StringSplit($sRecv, " ") ; Splits Packet into Command Message and Parameters
 
-		Switch $sTemp[2] ; What to do on each Command
+		Switch $sTemp[1] ; Server Handling
+
+			Case "PING"
+				_IRCServerPong($Sock, $sTemp[2]); Checks for Pings from Server and Replies
+
+			Case Else
+				; Server Handling Stuff
+
+		EndSwitch
+
+		If $sTemp[0] <= 2 Then ContinueLoop ; Error Handling
+
+		Switch $sTemp[2] ; Message Handling
 
 			Case ":Closing" ; Connection Closed
 				TCPShutdown()
 				Exit(0)
 
-			Case "001"; Connected to Server (Actually Server Welcome)
+			Case "001" ; Connected to Server (Actually Server Welcome)
 				_IRCChannelJoin($Sock, $Channels, $Keys); Join the Channels Specified
 				_IRCMultiMode($Sock, $Nick, "+i")
 
-			Case "353"; Parse Channel User List
+			Case "353" ; Parse Channel User List
 ;				$sChannel = StringReplace($sTemp[5], "#", "p"); Filter out # as you can't use it in Assign()
 ;				$sUserList = StringTrimLeft($sRecv, StringInStr($sRecv,":")); Get User List
 ;				$aUsers &= StringSplit($sUserList," ",2); Split User List ;;; Not even sure if this'll work...
 ;				If Not IsDeclared($sChannel & "_users") Then Assign($sChannel & "_users", ""); Create variable so the Eval in Assign doesn't fail
 
-			Case "366"; Joined Channel (Actually End of Channel User List)
+			Case "366" ; Joined Channel (Actually End of Channel User List)
 ;				Assign($sChannel & "_users", $aUsers)
 ;				$aUsers = ""
 
@@ -75,10 +84,9 @@ Func Main()
 
 			Case "JOIN"
 				$sUser = StringMid($sTemp[1], 2, StringInStr($sTemp[1], "!") - 2); Get User Who Joined
-
 ;				$sChannel = StringReplace($sTemp[3], "#", "p"); Filter out # as you can't use it in Assign()
 
-				If $sUser <> $Nick Then
+				If $sUser <> $Nick Then ; Not Myself
 					;;; Userlist Stuff here
 				Else
 					$sTemp[3] = StringReplace(StringReplace($sTemp[3], @CR, ""), @LF, "")
@@ -88,7 +96,8 @@ Func Main()
 			Case "KICK"
 				$sUser = $sTemp[4]
 				$sChannel = $sTemp[3]
-				If $sUser <> $Nick Then
+
+				If $sUser <> $Nick Then ; Not Myself
 					;;; Userlist Stuff here
 				Else
 					$sTemp[3] = StringReplace(StringReplace($sTemp[3], @CR, ""), @LF, "")
@@ -99,7 +108,8 @@ Func Main()
 			Case "NICK"
 				$sUser = StringMid($sTemp[1], 2, StringInStr($sTemp[1], "!") - 2); Get User Who Changed Nicks
 				$sTemp[3] = StringReplace(StringReplace($sTemp[3], @CR, ""), @LF, "")
-				If $sUser <> $Nick Then
+
+				If $sUser <> $Nick Then ; Not Myself
 					;;; Userlist Stuff here
 				Else
 					$Nick = $sTemp[3]
@@ -107,10 +117,9 @@ Func Main()
 
 			Case "PART"
 				$sUser = StringMid($sTemp[1], 2, StringInStr($sTemp[1], "!") - 2); Get User Who Left
-
 ;				$sChannel = StringReplace($sTemp[3], "#", "p"); Filter out # as you can't use it in Assign()
 
-				If $sUser <> $Nick Then
+				If $sUser <> $Nick Then ; Not Myself
 					;;; Userlist Stuff here
 				Else
 					$sTemp[3] = StringReplace(StringReplace($sTemp[3], @CR, ""), @LF, "")
@@ -148,7 +157,7 @@ Func Main()
 
 					Case Else
 						;;;
-				EndSwitch
+				EndSelect
 
 			Case Else
 				;;;
