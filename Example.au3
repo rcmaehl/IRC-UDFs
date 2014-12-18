@@ -42,13 +42,13 @@ Func Main()
 		Local $sChannels = StringSplit($Channels, ",")
 		Local $sTemp = StringSplit($sRecv, " ") ; Splits Packet into Command Message and Parameters
 
-		Switch $sTemp[1] ; Server Handling
+		Switch $sTemp[1] ; Server/User Handling
 
 			Case "PING"
 				_IRCServerPong($Sock, $sTemp[2]); Checks for Pings from Server and Replies
 
 			Case Else
-				; Server Handling Stuff
+				; Server/User Handling Stuff
 
 		EndSwitch
 
@@ -89,7 +89,9 @@ Func Main()
 				If $sUser <> $Nick Then ; Not Myself
 					;;; Userlist Stuff here
 				Else
-					$sTemp[3] = StringReplace(StringReplace($sTemp[3], @CR, ""), @LF, "")
+					$sTemp[3] = StringReplace($sTemp[3], ":", "")
+					$sTemp[3] = StringReplace($sTemp[3], @CR, "")
+					$sTemp[3] = StringReplace($sTemp[3], @LF, "")
 					_ArrayAdd($aChannels, $sTemp[3])
 				EndIf
 
