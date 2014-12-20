@@ -65,29 +65,36 @@ Func Main()
 				_IRCMultiMode($Sock, $Nick, "+i")
 
 			Case "353" ; Parse Channel User List
-;				$sChannel = StringReplace($sTemp[5], "#", "p"); Filter out # as you can't use it in Assign()
-;				$sUserList = StringTrimLeft($sRecv, StringInStr($sRecv,":")); Get User List
-;				$aUsers &= StringSplit($sUserList," ",2); Split User List ;;; Not even sure if this'll work...
-;				If Not IsDeclared($sChannel & "_users") Then Assign($sChannel & "_users", ""); Create variable so the Eval in Assign doesn't fail
+				$sChannel = StringReplace($sTemp[5], "#", "p") ; Filter out # as you can't use it in Assign()
+				$sUserList = StringTrimLeft($sRecv, StringInStr($sRecv,":", 0, 2)) ; Get User List
+				$sUserList = StringStripCR($sUserList)
+				$sUserList = StringReplace($sUserList, @LF, "")
+				$aUsers &= StringReplace($sUserList, " ", "|")
+				$aUsers &= "|"
+				If Not IsDeclared($sChannel & "_users") Then Assign($sChannel & "_users", "") ; Create variable so the Eval in Assign doesn't fail
 
 			Case "366" ; Joined Channel (Actually End of Channel User List)
-;				Assign($sChannel & "_users", $aUsers)
-;				$aUsers = ""
-
-				If $sTemp[4] = $sChannels[1] Then
-					_IRCMultiSendMsg($Sock, $sChannels[1], "Hello, this is an example IRC script")
-					_IRCChannelPart($Sock, $sChannels[1], "Leaving.")
-				EndIf
+				$aUsers = StringReplace($aUsers, "~", "")
+				$aUsers = StringReplace($aUsers, "&", "")
+				$aUsers = StringReplace($aUsers, "!", "")
+				$aUsers = StringReplace($aUsers, "@", "")
+				$aUsers = StringReplace($aUsers, "%", "")
+				$aUsers = StringReplace($aUsers, "+", "")
+				$aUsers = StringTrimRight($aUsers, 2)
+				Assign($sChannel & "_users", StringSplit($aUsers, "|", 2))
+				$aUsers = ""
 
 			Case "443" ; Nick already in use
 				_IRCSelfSetNick($Sock, $Nick2)
 
 			Case "JOIN"
 				$sUser = StringMid($sTemp[1], 2, StringInStr($sTemp[1], "!") - 2); Get User Who Joined
-;				$sChannel = StringReplace($sTemp[3], "#", "p"); Filter out # as you can't use it in Assign()
 
 				If $sUser <> $Nick Then ; Not Myself
-					;;; Userlist Stuff here
+					$sChannel = StringReplace($sChannel, "#", "p")
+					$aUsers = Eval($sChannel & "_users")
+					_ArrayAdd($aUsers, $sUser)
+					Assign($sChannel & "_users", $aUsers)
 				Else
 					$sTemp[3] = StringReplace($sTemp[3], ":", "")
 					$sTemp[3] = StringReplace($sTemp[3], @CR, "")
@@ -100,7 +107,10 @@ Func Main()
 				$sChannel = $sTemp[3]
 
 				If $sUser <> $Nick Then ; Not Myself
-					;;; Userlist Stuff here
+					$aUsers = Eval($sChannel & "_users")
+					$iIndex = _ArraySearch($aUsers, $sUser)
+					_ArrayDelete($aUsers, $iIndex)
+					Assign($sChannel & "_users", $aUsers)
 				Else
 					$sTemp[3] = StringReplace(StringReplace($sTemp[3], @CR, ""), @LF, "")
 					$iIndex = _ArraySearch($aChannels, $sTemp[3])
@@ -109,20 +119,39 @@ Func Main()
 
 			Case "NICK"
 				$sUser = StringMid($sTemp[1], 2, StringInStr($sTemp[1], "!") - 2); Get User Who Changed Nicks
-				$sTemp[3] = StringReplace(StringReplace($sTemp[3], @CR, ""), @LF, "")
+				$sNick = StringReplace($sTemp[3], @LF, "")
+				$sNick = StringReplace($sNick, @CR, "")
+				$sNick = StringTrimLeft($sNick, 1)
 
 				If $sUser <> $Nick Then ; Not Myself
-					;;; Userlist Stuff here
+					$aUsers = Eval($sChannel & "_users")
+					$iIndex = _ArraySearch($aUsers, $sUser)
+					$aUsers[$iIndex] = $sNick
+					Assign($sChannel & "_users", $aUsers)
 				Else
-					$Nick = $sTemp[3]
+					$Nick = $sNick
+				EndIf
+
+			Case "QUIT"
+				$sUser = StringMid($sTemp[1], 2, StringInStr($sTemp[1], "!") - 2); Get User Who Left
+
+				If $sUser <> $Nick Then ; Not Myself
+					$aUsers = Eval($sChannel & "_users")
+					$iIndex = _ArraySearch($aUsers, $sUser)
+					_ArrayDelete($aUsers, $iIndex)
+					Assign($sChannel & "_users", $aUsers)
+				Else
+					ConsoleWrite("LOLWUT" & @CRLF)
 				EndIf
 
 			Case "PART"
 				$sUser = StringMid($sTemp[1], 2, StringInStr($sTemp[1], "!") - 2); Get User Who Left
-;				$sChannel = StringReplace($sTemp[3], "#", "p"); Filter out # as you can't use it in Assign()
 
 				If $sUser <> $Nick Then ; Not Myself
-					;;; Userlist Stuff here
+					$aUsers = Eval($sChannel & "_users")
+					$iIndex = _ArraySearch($aUsers, $sUser)
+					_ArrayDelete($aUsers, $iIndex)
+					Assign($sChannel & "_users", $aUsers)
 				Else
 					$sTemp[3] = StringReplace(StringReplace($sTemp[3], @CR, ""), @LF, "")
 					$iIndex = _ArraySearch($aChannels, $sTemp[3])
