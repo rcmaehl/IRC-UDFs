@@ -15,7 +15,6 @@ Notes:
 
 Future Goals: 
 
-    User Lists (In The Works)
     Config File (To Be Forked)
     User Ranks
     Single Network IRC Client (To Be Forked)
