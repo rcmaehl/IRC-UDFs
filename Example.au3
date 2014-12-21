@@ -124,10 +124,16 @@ Func Main()
 				$sNick = StringTrimLeft($sNick, 1)
 
 				If $sUser <> $Nick Then ; Not Myself
-					$aUsers = Eval($sChannel & "_users")
-					$iIndex = _ArraySearch($aUsers, $sUser)
-					$aUsers[$iIndex] = $sNick
-					Assign($sChannel & "_users", $aUsers)
+					$iIndex = UBound($aChannels)
+					For $i = 0 To $iIndex - 1 Step 1
+						$sChannel = $aChannels[$i]
+						$sChannel = StringReplace($sChannel, "#", "p")
+						$aUsers = Eval($sChannel & "_users")
+						$iIndex = _ArraySearch($aUsers, $sUser)
+						If $iIndex = -1 Then ContinueLoop
+						$aUsers[$iIndex] = $sNick
+						Assign($sChannel & "_users", $aUsers)
+					Next
 				Else
 					$Nick = $sNick
 				EndIf
@@ -136,10 +142,16 @@ Func Main()
 				$sUser = StringMid($sTemp[1], 2, StringInStr($sTemp[1], "!") - 2); Get User Who Left
 
 				If $sUser <> $Nick Then ; Not Myself
-					$aUsers = Eval($sChannel & "_users")
-					$iIndex = _ArraySearch($aUsers, $sUser)
-					_ArrayDelete($aUsers, $iIndex)
-					Assign($sChannel & "_users", $aUsers)
+					$iIndex = UBound($aChannels)
+					For $i = 0 To $iIndex - 1 Step 1
+						$sChannel = $aChannels[$i]
+						$sChannel = StringReplace($sChannel, "#", "p")
+						$aUsers = Eval($sChannel & "_users")
+						$iIndex = _ArraySearch($aUsers, $sUser)
+						If $iIndex = -1 Then ContinueLoop
+						$aUsers[$iIndex] = $sNick
+						Assign($sChannel & "_users", $aUsers)
+					Next
 				Else
 					ConsoleWrite("LOLWUT" & @CRLF)
 				EndIf
