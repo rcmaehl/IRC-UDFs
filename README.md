@@ -22,4 +22,4 @@ Future Goals:
 
 Last Commit Shared with AutoIt Forums:
 
-    b730ad0830750e2ff04d056db22861bd47e7a9ae
+    856bb30b8f1e583ed867a2cfcb1173721a24d03a
