@@ -13,7 +13,7 @@
 ; Example .......: No
 ; ===============================================================================================================================
 Func _IRCReplyTo($_sPacketPart1, $_sPacketPart3)
-	Local $_sReturn = $_sPacketPart1 ; By default return User
+	Local $_sReturn = $_sPacketPart1 ; By default return Source
 	$_sPacketPart1 = StringMid($_sPacketPart1, 2, StringInStr($_sPacketPart1, "!") - 2)
 	Switch AscW(StringLeft($_sPacketPart3, 1))
 		Case 33, 35, 38, 43 ; If Channel
