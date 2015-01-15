@@ -66,6 +66,7 @@ Func Main()
 
 			Case "353" ; Parse Channel User List
 				$sChannel = StringReplace($sTemp[5], "#", "p") ; Filter out # as you can't use it in Assign()
+				$sChannel = StringReplace($sTemp[5], "&", "a") ; Filter out &
 				$sUserList = StringTrimLeft($sRecv, StringInStr($sRecv,":", 0, 2)) ; Get User List
 				$sUserList = StringStripCR($sUserList)
 				$sUserList = StringReplace($sUserList, @LF, "")
@@ -92,6 +93,7 @@ Func Main()
 
 				If $sUser <> $Nick Then ; Not Myself
 					$sChannel = StringReplace($sChannel, "#", "p")
+					$sChannel = StringReplace($sChannel, "&", "a")
 					$aUsers = Eval($sChannel & "_users")
 					_ArrayAdd($aUsers, $sUser)
 					Assign($sChannel & "_users", $aUsers)
@@ -107,6 +109,8 @@ Func Main()
 				$sChannel = $sTemp[3]
 
 				If $sUser <> $Nick Then ; Not Myself
+					$sChannel = StringReplace($sChannel, "#", "p")
+					$sChannel = StringReplace($sChannel, "&", "a")
 					$aUsers = Eval($sChannel & "_users")
 					$iIndex = _ArraySearch($aUsers, $sUser)
 					_ArrayDelete($aUsers, $iIndex)
@@ -128,6 +132,7 @@ Func Main()
 					For $i = 0 To $iIndex - 1 Step 1
 						$sChannel = $aChannels[$i]
 						$sChannel = StringReplace($sChannel, "#", "p")
+						$sChannel = StringReplace($sChannel, "&", "a")
 						$aUsers = Eval($sChannel & "_users")
 						$iIndex = _ArraySearch($aUsers, $sUser)
 						If $iIndex = -1 Then ContinueLoop
