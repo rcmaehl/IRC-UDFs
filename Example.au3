@@ -1,20 +1,34 @@
+#include <Array.au3>
 #include "IRC.au3"
 
 Main()
 
 Func Main()
 
-    Local $Server = "irc.freenode.net"; IRC Server
-    Local $Port = 6667; IRC Server Port
-    Local $Nick = "Au3Bot"; Nick to Use
-    Local $Mode = 0; User Mode to Use
-    Local $RealName = "Au3Bot"; Real Name to Use
-    Local $Pass = ""; IRC Server Password
-    Local $Channels = "#channel1,#channel2"; Channels to Join
-    Local $Keys = "key1,key2"; Channel Passwords
-    Local $UserLists = ""
+	;Connection Variables
 
+	;Server Specific Connection Variables
+    Local $Server = "irc.freenode.net"      ; IRC Server
+    Local $Port = 6667                      ; IRC Server Port
+	Local $Pass = ""                        ; IRC Server Password
+
+	;User Specific Connection Variables
+    Local $Nick = "Au3Bot"                  ; Nick Name to Use
+	Local $Nick2 = "Au3Bot2"                ; Nick Name to Use if First Choice isn't available
+    Local $Mode = 0                         ; User Mode to Use
+    Local $RealName = "Au3Bot"              ; Real Name to Use
+
+	;Channel Variables
+    Local $Channels = "#channel1,#channel2" ; Channels to Join
+    Local $Keys = "key1,key2"               ; Channel Passwords
+
+	;Channel User List Variables
+    Local $aUsers = ""
+	Local $aChannels[0] = []
+
+	;Start Up Networking
     TCPStartup()
+
     Local $Sock = _IRCConnect($Server, $Port, $Nick, $Mode, $RealName, $Pass); Connects to IRC. Sends Password, if any. Declares User Identity.
     If @error Then
         MsgBox(1, "IRC Example", "Server Connection Error: " & @error & " Extended: " & @extended); Display message on Error
@@ -22,78 +36,180 @@ Func Main()
     EndIf
 
     While 1
-        $Recv = _IRCGetMsg($Sock); Receive Packets from the Server
-        If Not $Recv Then ContinueLoop ;If Nothing Received then Continue Checking
-        Local $sData = StringSplit($Recv, @CRLF); Split Packets if multiple Received
-        Local $sChannels = StringSplit($Channels, ",")
-        For $i = 1 To $sData[0] Step 1; Handles each Packet seperately
-            Local $sTemp = StringSplit($sData[$i], " "); Splits Packet into Command Message and Parameters
-            If $sTemp[1] = "PING" Then
-                _IRCServerPong($Sock, $sTemp[2]); Checks for Pings from Server and Replies
-                ConsoleWrite($sData[$i] & @CRLF)
-            ElseIf $sTemp[0] <= 2 Then; Error Handling
-                ConsoleWrite($sData[$i])
-                ContinueLoop
-            EndIf
-            Switch $sTemp[2]; What to do on each Command
-                Case "001"; Connected to Server (Actually Server Welcome)
-                    ConsoleWrite($sData[$i]); Output to Console for Visual Example of Data Received
-                    _IRCChannelJoin($Sock, $Channels, $Keys); Join the Channels Specified
-                    _IRCMultiMode($Sock, $Nick, "+i")
-                Case "353"; Parse Channel User List
-                    $Filtered = StringReplace($sTemp[5], "#", "p"); Filter out # as you can't use it in Assign()
-                    $UserLists &= $Filtered & " "
-                    $UserList = StringMid($sData[$i], StringInStr($sData[$i], ":", 0, 2) + 1); Get User List
-                    If Not IsDeclared($Filtered & "_users") Then Assign($Filtered & "_users", ""); Create variable so the Eval in Assign doesn't fail
-                    Assign($Filtered & "_users", Eval($Filtered & "_users") & $UserList); Add users to userlist
-                    ConsoleWrite($sData[$i] & @CRLF); Output to Console for Visual Example of Data Received
-                Case "366"; Joined Channel (Actually End of Channel User List)
-                    ConsoleWrite($sData[$i]); Output to Console for Visual Example of Data Received
-                    _IRCMultiSendMsg($Sock, $sChannels[1], "Hello, this is an example IRC script")
-                    _IRCSelfSetNick($Sock, "Au2Bot")
-                    _IRCChannelPart($Sock, $sChannels[1], "Leaving.")
-                Case ":Closing" ; Connection Closed
-                    ConsoleWrite($sData[$i] & @CRLF); Output to Console for Visual Example of Data Received
-                    TCPShutdown()
-                    Exit(0)
-                Case "NICK"
-                    ConsoleWrite($sData[$i] & @CRLF); Output to Console for Visual Example of Data Received
-                    $User = StringMid($sTemp[1], 2, StringInStr($sTemp[1], "!") - 2); Get User Who Changed Nicks
-                    $NewNick = StringMid($sData[$i], StringInStr($sData[$i], ":", 0, 2) + 1); Get User's New Nick
-                    $sCurrent = StringSplit($UserLists, " "); Get channel lists and update nicks
-                    For $i = 1 To $sCurrent[0] Step 1
-                        $After = ""
-                        $Split = StringSplit(Eval($sCurrent[$i] & "_users"), " ")
-                        For $ii = 1 to $Split[0] Step 1
-                            $Status = ""
-                            If StringRegExp(StringLeft($Split[$ii],1), "[@~+%&]") Then
-                                If StringRegExp($Split[$ii], "^[@~+%&]*" & $User & "$") Then
-                                    $Status = StringLeft($Split[$ii], 1)
-                                EndIf
-                            EndIf
-                            $After &= $Status & StringRegExpReplace($Split[$i2], "^[@~+%&]*" & $User & "$", $NewNick) & " "
-                        Next
-                        Assign($sCurrent[$i] & "_users", StringTrimRight($After,1))
-                    Next
-                Case "PRIVMSG" ; Message Received in a Channel or PM
-                    ConsoleWrite($sData[$i] & @CRLF); Output to Console for Visual Example of Data Received
-                    $User = StringMid($sTemp[1], 2, StringInStr($sTemp[1], "!") - 2); Get User Who Sent the Message
-                    $Message = StringMid($sData[$i], StringInStr($sData[$i], ":", 0, 2) + 1); Get Full Message
-                    $Recipient = $sTemp[3]
-                    Switch $Message
-                        Case "!quit"
-                            _IRCDisconnect($Sock, $User & " told me to.")
-                            TCPShutdown()
-                            Exit(0)
-                        Case "!users"
-                            _IRCMultiSendMsg($Sock, $Recipient, Eval(StringReplace($Recipient, "#", "p") & "_users"))
-                        Case Else
-                            ;;;
-                    EndSwitch
-                Case Else
-                    ConsoleWrite($sData[$i] & @CRLF); Output to Console for Visual Example of Data Received
-            EndSwitch
-        Next
+        $sRecv = _IRCGetMsg($Sock) ; Receive Packets from the Server
+        If Not $sRecv Then ContinueLoop ; If Nothing Received then Continue Checking
+		ConsoleWrite($sRecv) ; Write Received Data to Visual Console
+		Local $sChannels = StringSplit($Channels, ",")
+		Local $sTemp = StringSplit($sRecv, " ") ; Splits Packet into Command Message and Parameters
+
+		Switch $sTemp[1] ; Server/User Handling
+
+			Case "PING"
+				_IRCServerPong($Sock, $sTemp[2]); Checks for Pings from Server and Replies
+
+			Case Else
+				; Server/User Handling Stuff
+
+		EndSwitch
+
+		If $sTemp[0] <= 2 Then ContinueLoop ; Error Handling
+
+		Switch $sTemp[2] ; Message Handling
+
+			Case ":Closing" ; Connection Closed
+				TCPShutdown()
+				Exit(0)
+
+			Case "001" ; Connected to Server (Actually Server Welcome)
+				_IRCChannelJoin($Sock, $Channels, $Keys); Join the Channels Specified
+				_IRCMultiMode($Sock, $Nick, "+i")
+
+			Case "353" ; Parse Channel User List
+				$sChannel = StringReplace($sTemp[5], "#", "p") ; Filter out # as you can't use it in Assign()
+				$sChannel = StringReplace($sTemp[5], "&", "a") ; Filter out &
+				$sUserList = StringTrimLeft($sRecv, StringInStr($sRecv,":", 0, 2)) ; Get User List
+				$sUserList = StringStripCR($sUserList)
+				$sUserList = StringReplace($sUserList, @LF, "")
+				$aUsers &= StringReplace($sUserList, " ", "|")
+				$aUsers &= "|"
+				If Not IsDeclared($sChannel & "_users") Then Assign($sChannel & "_users", "") ; Create variable so the Eval in Assign doesn't fail
+
+			Case "366" ; Joined Channel (Actually End of Channel User List)
+				$aUsers = StringReplace($aUsers, "~", "")
+				$aUsers = StringReplace($aUsers, "&", "")
+				$aUsers = StringReplace($aUsers, "!", "")
+				$aUsers = StringReplace($aUsers, "@", "")
+				$aUsers = StringReplace($aUsers, "%", "")
+				$aUsers = StringReplace($aUsers, "+", "")
+				$aUsers = StringTrimRight($aUsers, 2)
+				Assign($sChannel & "_users", StringSplit($aUsers, "|", 2))
+				$aUsers = ""
+
+			Case "443" ; Nick already in use
+				_IRCSelfSetNick($Sock, $Nick2)
+
+			Case "JOIN"
+				$sUser = StringMid($sTemp[1], 2, StringInStr($sTemp[1], "!") - 2); Get User Who Joined
+
+				If $sUser <> $Nick Then ; Not Myself
+					$sChannel = StringReplace($sChannel, "#", "p")
+					$sChannel = StringReplace($sChannel, "&", "a")
+					$aUsers = Eval($sChannel & "_users")
+					_ArrayAdd($aUsers, $sUser)
+					Assign($sChannel & "_users", $aUsers)
+				Else
+					$sTemp[3] = StringReplace($sTemp[3], ":", "")
+					$sTemp[3] = StringReplace($sTemp[3], @CR, "")
+					$sTemp[3] = StringReplace($sTemp[3], @LF, "")
+					_ArrayAdd($aChannels, $sTemp[3])
+				EndIf
+
+			Case "KICK"
+				$sUser = $sTemp[4]
+				$sChannel = $sTemp[3]
+
+				If $sUser <> $Nick Then ; Not Myself
+					$sChannel = StringReplace($sChannel, "#", "p")
+					$sChannel = StringReplace($sChannel, "&", "a")
+					$aUsers = Eval($sChannel & "_users")
+					$iIndex = _ArraySearch($aUsers, $sUser)
+					_ArrayDelete($aUsers, $iIndex)
+					Assign($sChannel & "_users", $aUsers)
+				Else
+					$sTemp[3] = StringReplace(StringReplace($sTemp[3], @CR, ""), @LF, "")
+					$iIndex = _ArraySearch($aChannels, $sTemp[3])
+					_ArrayDelete($aChannels, $iIndex)
+				EndIf
+
+			Case "NICK"
+				$sUser = StringMid($sTemp[1], 2, StringInStr($sTemp[1], "!") - 2); Get User Who Changed Nicks
+				$sNick = StringReplace($sTemp[3], @LF, "")
+				$sNick = StringReplace($sNick, @CR, "")
+				$sNick = StringTrimLeft($sNick, 1)
+
+				If $sUser <> $Nick Then ; Not Myself
+					$iIndex = UBound($aChannels)
+					For $i = 0 To $iIndex - 1 Step 1
+						$sChannel = $aChannels[$i]
+						$sChannel = StringReplace($sChannel, "#", "p")
+						$sChannel = StringReplace($sChannel, "&", "a")
+						$aUsers = Eval($sChannel & "_users")
+						$iIndex = _ArraySearch($aUsers, $sUser)
+						If $iIndex = -1 Then ContinueLoop
+						$aUsers[$iIndex] = $sNick
+						Assign($sChannel & "_users", $aUsers)
+					Next
+				Else
+					$Nick = $sNick
+				EndIf
+
+			Case "QUIT"
+				$sUser = StringMid($sTemp[1], 2, StringInStr($sTemp[1], "!") - 2); Get User Who Left
+
+				If $sUser <> $Nick Then ; Not Myself
+					$iIndex = UBound($aChannels)
+					For $i = 0 To $iIndex - 1 Step 1
+						$sChannel = $aChannels[$i]
+						$sChannel = StringReplace($sChannel, "#", "p")
+						$aUsers = Eval($sChannel & "_users")
+						$iIndex = _ArraySearch($aUsers, $sUser)
+						If $iIndex = -1 Then ContinueLoop
+						$aUsers[$iIndex] = $sNick
+						Assign($sChannel & "_users", $aUsers)
+					Next
+				Else
+					ConsoleWrite("LOLWUT" & @CRLF)
+				EndIf
+
+			Case "PART"
+				$sUser = StringMid($sTemp[1], 2, StringInStr($sTemp[1], "!") - 2); Get User Who Left
+
+				If $sUser <> $Nick Then ; Not Myself
+					$aUsers = Eval($sChannel & "_users")
+					$iIndex = _ArraySearch($aUsers, $sUser)
+					_ArrayDelete($aUsers, $iIndex)
+					Assign($sChannel & "_users", $aUsers)
+				Else
+					$sTemp[3] = StringReplace(StringReplace($sTemp[3], @CR, ""), @LF, "")
+					$iIndex = _ArraySearch($aChannels, $sTemp[3])
+					_ArrayDelete($aChannels, $iIndex)
+				EndIf
+
+			Case "PRIVMSG" ; Message Received in a Channel or PM
+				$sUser = StringMid($sTemp[1], 2, StringInStr($sTemp[1], "!") - 2); Get User Who Sent the Message
+				$sMessage = StringMid($sRecv, StringInStr($sRecv, ":", 0, 2) + 1); Get Full Message
+				$sMessage = StringReplace(StringReplace($sMessage, @CR, ""), @LF, ""); Strip Carrage Returns and Line Feeds
+				$aMessage = StringSplit($sMessage, " ")
+				$sRecipient = $sTemp[3]
+
+				Select
+
+					Case $sMessage = "!channels"
+						_IRCMultiSendMsg($Sock, $sRecipient, _ArrayToString($aChannels, ","))
+
+					Case $sMessage = "!nick"
+						_IRCSelfSetNick($Sock, "Au2Bot")
+
+					Case $aMessage[1] = "!quit"
+						If $aMessage[0] > 1 Then
+							$sQuitMsg = StringReplace($sMessage, "!quit ", "", 1)
+							_IRCDisconnect($Sock, $sQuitMsg)
+						Else
+							_IRCDisconnect($Sock, $sUser & " told me to.")
+						EndIf
+						TCPShutdown()
+						Exit(0)
+
+					Case $sMessage = "!users"
+						_IRCMultiSendMsg($Sock, $sRecipient, Eval(StringReplace($sRecipient, "#", "p") & "_users"))
+
+					Case Else
+						;;;
+				EndSelect
+
+			Case Else
+				;;;
+		EndSwitch
     WEnd
 EndFunc
 
@@ -105,11 +221,6 @@ Server = Server who sent the message
 Nick = A User who the message is from
 Name = Settable by user, set in the USER command
 Host = Host Mask (Can be your IP or something that represents it)
-
-Notes:
-    This list is not complete as there's dozens of IRC Daemons
-    This list is based on the second part of the received info
-
 
 Any 3 digit Code:
     Contains information based on various events
@@ -125,9 +236,8 @@ Any 3 digit Code:
         :hobana.freenode.net 002 Au3Bot :Your host is hobana.freenode.net[62.231.75.133/6667], running version ircd-seven-1.1.3
         :hobana.freenode.net 461 Au3Bot PING :Not enough parameters
 
-
 JOIN:
-    You receive this when someone (Including yourself) joins a channel.
+    You receive this when someone, including yourself, joins a channel.
     Check http://tools.ietf.org/html/rfc1459#section-4.2.1 and http://tools.ietf.org/html/rfc2812#section-3.2.1 for specifics
 
     SYNTAXES:
@@ -146,8 +256,6 @@ KICK:
 
     EXAMPLE:
         :rcmaehl!~why@unaffiliated/why KICK #fcofix Au3Bot :No Bots Allowed
-
-
 
 MODE:
     You receive this when a user or channel mode is changed.
@@ -170,7 +278,7 @@ MODE:
 
 
 NICK:
-    You receive this when someone (Including yourself) changes their nick.
+    You receive this when someone, including yourself, changes their nick.
     Check http://tools.ietf.org/html/rfc1459#section-4.1.2 and http://tools.ietf.org/html/rfc2812#section-3.1.2 for specifics
 
     SYNTAXES:
@@ -179,9 +287,8 @@ NICK:
     EXAMPLES:
         :rcmaehl!~why@unaffiliated/why NICK :rcmaehl2
 
-
 PART:
-    You receive this when someone (Including yourself) parts a channel.
+    You receive this when someone, including yourself, parts a channel.
     Check http://tools.ietf.org/html/rfc1459#section-4.2.2 and http://tools.ietf.org/html/rfc2812#section-3.2.2 for specifics
 
     SYNTAXES:
@@ -192,6 +299,17 @@ PART:
         :rcmaehl!~why@unaffiliated/why PART #fcofix
         :rcmaehl!~why@unaffiliated/why PART #fcofix :"test message"
 
+PING:
+    You receive this when there's been no activity on your connection to the server for a certain period of time to confirm you're still connected.
+    Check https://tools.ietf.org/html/rfc1459#section-4.6.2 and http://tools.ietf.org/html/rfc2812#section-3.7.2 for specifics
+
+    SYNTAXES:
+        PING :Server
+        PING :RandomString
+
+    EXAMPLES:
+        PING :cameron.freenode.net
+        PING :3dS4UmiS
 
 PRIVMSG:
     You receive this when someone has sent a message in a channel or to you personally.
@@ -204,6 +322,5 @@ PRIVMSG:
     EXAMPLES:
         :rcmaehl!~why@unaffiliated/why PRIVMSG #Channel :test message
         :rcmaehl!~why@unaffiliated/why PRIVMSG Au3Bot :Hi Au3bot
-
 
 #ce

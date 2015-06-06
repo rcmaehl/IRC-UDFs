@@ -245,7 +245,6 @@ Func _IRCConnect($_sServer, $_iPort, $_sNick, $_sMode = 0, $_sRealName = $_sNick
 	Select ;Parameter Checking, Trust No One
 		Case $_sServer = ""
 			Return SetError(1, 1, 0)
-
 		Case $_iCheck1 <> 1 And $_iCheck2 <> 1
 			Return SetError(1, 2, 0)
 		Case $_iPort = ""
