@@ -6,20 +6,20 @@
 ;                  $_sPacketPart3       - Parameter 3 of the PRIVMSG Packet Recieved (Recipent)
 ; Return values .: Returns who to reply to for a PRIVMsg
 ; Author ........: Robert Maehl (rcmaehl)
-; Modified ......: 12/25/2014
+; Modified ......: 06/07/2015
 ; Remarks .......: Also cleans up the Username for replying
 ; Related .......:
 ; Link ..........:
 ; Example .......: No
 ; ===============================================================================================================================
 Func _IRCReplyTo($_sPacketPart1, $_sPacketPart3)
-	Local $_sReturn = $_sPacketPart1 ; By default return Source
+	Local $_sReturn = $_sPacketPart1 ; By Default, Return Source
 	$_sPacketPart1 = StringMid($_sPacketPart1, 2, StringInStr($_sPacketPart1, "!") - 2)
 	Switch AscW(StringLeft($_sPacketPart3, 1))
-		Case 33, 35, 38, 43 ; If Channel
+		Case 33, 35, 38, 43 ; If Recipent was a Channel, Return Channel
 			$_sReturn = $_sPacketPart3
 	EndSwitch
-	Return($_sReturn)
+	Return $_sReturn
 EndFunc
 
 
@@ -37,11 +37,14 @@ EndFunc
 ; Example .......: No
 ; ===============================================================================================================================
 Func _IRCStripSpecial($_sData, $_bNoCTCP = False)
-	$_sData = StringReplace($_sData, "", "") ;Reset
-	$_sData = StringReplace($_sData, "", "") ;Underline
-	$_sData = StringReplace($_sData, "", "") ;Bold
-	$_sData = StringReplace($_sData, "", "")
-	$_sData = StringRegExpReplace($_sData, "\d\d(?:,\d\d)?", "") ;Colors
-	If $_bNoCTCP Then $_sData = StringReplace($_sData, "", "")
-	Return $_sData
+	Local $_sReturn = $_sData ; By Default Return Original Data
+	$_sReturn = StringReplace($_sReturn, "", "") ; Remove Character Reset Encodings
+	$_sReturn = StringReplace($_sReturn, "", "") ; Remove Underline Character Encodings
+	$_sReturn = StringReplace($_sReturn, "", "") ; Remove Bold Character Encodings
+	$_sReturn = StringReplace($_sReturn, "", "") ; Remove End Of Character Coloring Encodings
+	$_sReturn = StringRegExpReplace($_sReturn, "\d\d(?:,\d\d)?", "") ; Remove Character Coloring Encodings
+	If $_bNoCTCP Then
+		$_sReturn = StringReplace($_sReturn, "", "") ; Remove CTCP Character Encodings
+	EndIf
+	Return $_sReturn
 EndFunc
