@@ -12,35 +12,36 @@
 ;                  |3 = Invalid Channel, sets @extended: (1, if empty; 2, if not IRC compliant)
 ;                  |4 = Failure Sending, sets @extended to TCPSend error returned
 ; Author ........: Robert Maehl (rcmaehl)
-; Modified ......: 09/28/2014
+; Modified ......: 06/07/2015
 ; Remarks .......:
 ; Related .......:
 ; Link ..........:
 ; Example .......: No
 ; ===============================================================================================================================
 Func _IRCChannelInvite($_vIRC, $_sUser, $_sChannel)
+	Local $_sReturn = 1
 	Select ;Parameter Checking, Trust No One
 		Case $_vIRC = ""
-			Return SetError(1, 1, 0)
+			$_sReturn = SetError(1, 1, 0)
 		Case $_vIRC = -1
-			Return SetError(1, 2, 0)
+			$_sReturn = SetError(1, 2, 0)
 		Case $_sUser = ""
-			Return SetError(2, 1, 0)
+			$_sReturn = SetError(2, 1, 0)
 		Case StringInStr($_sUser, " ")
-			Return SetError(2, 2, 0)
+			$_sReturn = SetError(2, 2, 0)
 		Case $_sChannel = ""
-			Return SetError(3, 1, 0)
+			$_sReturn = SetError(3, 1, 0)
 		Case Not $_sChannel = ""
 			Switch AscW(StringLeft($_sChannel, 1))
 				Case 0 To 32, 34, 36, 37, 39 To 42, 44 To 1114111 ; AKA Not 33,35,38,43
-					Return SetError(3, 2, 0)
+					$_sReturn = SetError(3, 2, 0)
 			EndSwitch
 		Case StringInStr($_sChannel, " ")
-			Return SetError(3, 2, 0)
+			$_sReturn = SetError(3, 2, 0)
 	EndSelect
 	TCPSend($_vIRC, "INVITE " & $_sUser & " " & $_sChannel & @CRLF)
-	If @error Then Return SetError(4, @error & @extended, 0)
-	Return 1
+	If @error Then $_sReturn = SetError(4, @error & @extended, 0)
+	Return $_sReturn
 EndFunc   ;==>_IRCChannelInvite
 
 
