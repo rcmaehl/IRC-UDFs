@@ -720,24 +720,27 @@ EndFunc   ;==>_IRCServerPing
 ;                  |2 = Invalid Server
 ;                  |3 = Error Sending, sets @extended to TCPSend error returned
 ; Author ........: Robert Maehl (rcmaehl)
-; Modified ......: 09/28/2014
+; Modified ......: 07/07/2015
 ; Remarks .......: Modified from Chips' coding
 ; Related .......: _IRCServerPing
 ; Link ..........:
 ; Example .......: No
 ; ===============================================================================================================================
 Func _IRCServerPong($_vIRC, $_sServer)
+	Local $_sReturn = 1
 	Select ;Parameter Checking, Trust No One
 		Case $_vIRC = ""
-			Return SetError(1, 1, 0)
+			$_sReturn = SetError(1, 1, 0)
 		Case $_vIRC = -1
-			Return SetError(1, 2, 0)
+			$_sReturn = SetError(1, 2, 0)
 		Case $_sServer = ""
-			Return SetError(2, 0, 0)
+			$_sReturn = SetError(2, 0, 0)
 	EndSelect
-	TCPSend($_vIRC, "PONG " & $_sServer & @CRLF)
-	If @error Then Return SetError(3, @error & @extended, 0)
-	Return 1
+	If $_sReturn = 1 Then
+		TCPSend($_vIRC, "PONG " & $_sServer & @CRLF)
+		If @error Then $_sReturn = SetError(3, @error & @extended, 0)
+	EndIf
+	Return $_sReturn
 EndFunc   ;==>_IRCServerPong
 
 
