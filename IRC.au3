@@ -704,7 +704,7 @@ Func _IRCServerPing($_vIRC, $_sServer)
 		TCPSend($_vIRC, "PING " & $_sServer & @CRLF)
 		If @error Then $_sReturn = SetError(3, @error & @extended, 0)
 	EndIf
-	Return 1
+	Return $_sReturn
 EndFunc   ;==>_IRCServerPing
 
 
