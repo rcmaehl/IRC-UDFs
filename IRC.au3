@@ -248,49 +248,61 @@ EndFunc   ;==>_IRCChannelTopic
 ;                  |7 = Connection Error, sets @extended to TCPConnect error returned
 ;                  |8 = Error Sending, sets @extended to TCPSend error returned
 ; Author ........: Robert Maehl (rcmaehl)
-; Modified ......: 10/25/2014
-; Remarks .......: Modified from Chips' coding
+; Modified ......: 07/07/2015
+; Remarks .......: Modified from Chips' coding, To Do: Fix Redundant $_sReturn Checking
 ; Related .......: _IRCDisconnect
 ; Link ..........:
 ; Example .......: No
 ; ===============================================================================================================================s
 Func _IRCConnect($_sServer, $_iPort, $_sNick, $_sMode = 0, $_sRealName = $_sNick, $_sPass = "")
+	Local $_sReturn = 1
 	Local $_iCheck1 = StringRegExp($_sServer,"^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$")
 	Local $_iCheck2 = StringRegExp($_sServer,"^([a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,6}$")
 	Select ;Parameter Checking, Trust No One
 		Case $_sServer = ""
-			Return SetError(1, 1, 0)
+			$_sReturn = SetError(1, 1, 0)
 		Case $_iCheck1 <> 1 And $_iCheck2 <> 1
-			Return SetError(1, 2, 0)
+			$_sReturn = SetError(1, 2, 0)
 		Case $_iPort = ""
-			Return SetError(2, 1, 0)
+			$_sReturn = SetError(2, 1, 0)
 		Case StringRegExp($_iPort,"^\d{1,5}$") <> 1
-			Return SetError(2, 2, 0)
+			$_sReturn = SetError(2, 2, 0)
 		Case $_iPort < 1 Or $_iPort > 65535
-			Return SetError(3, 2, 0)
+			$_sReturn = SetError(3, 2, 0)
 		Case $_sNick = ""
-			Return SetError(3, 1, 0)
+			$_sReturn = SetError(3, 1, 0)
 		Case StringInStr($_sNick, " ")
-			Return SetError(2, 2, 0)
+			$_sReturn = SetError(2, 2, 0)
 		Case StringLen($_sMode) = 0
-			Return SetError(4, 1, 0)
+			$_sReturn = SetError(4, 1, 0)
 		Case Not IsInt($_sMode)
-			Return SetError(4, 2, 0)
+			$_sReturn = SetError(4, 2, 0)
 		Case $_sRealName = ""
-			Return SetError(5, 0, 0)
+			$_sReturn = SetError(5, 0, 0)
 	EndSelect
-	Local $_sIP = TCPNameToIP($_sServer)
-	If @error Then Return SetError(6, @error & @extended, 0)
-	Local $_vSock = TCPConnect($_sIP, $_iPort)
-	If $_vSock = -1 Or $_vSock = 0 Then Return SetError(7, @error & @extended, 0)
-	If Not $_sPass = "" Then
-		TCPSend($_vSock, "PASS " & $_sPass & @CRLF)
-		If @error Then Return SetError(8, @error & @extended, 0)
+	If $_sReturn = 1 Then
+		Local $_sIP = TCPNameToIP($_sServer)
+		If @error Then $_sReturn = SetError(6, @error & @extended, 0)
+		If $_sReturn = 1 Then
+			Local $_vSock = TCPConnect($_sIP, $_iPort)
+			If $_vSock = -1 Or $_vSock = 0 Then $_sReturn = SetError(7, @error & @extended, 0)
+			If $_sReturn = 1 Then
+				If Not $_sPass = "" Then
+					TCPSend($_vSock, "PASS " & $_sPass & @CRLF)
+					If @error Then $_sReturn = SetError(8, @error & @extended, 0)
+				EndIf
+				If $_sReturn = 1 Then
+					TCPSend($_vSock, "NICK " & $_sNick & @CRLF)
+					If @error Then $_sReturn = SetError(8, @error & @extended, 0)
+					If $_sReturn = 1 Then
+						TCPSend($_vSock, "USER " & $_sNick & " " & $_sMode & " 0 :" & $_sRealName & @CRLF)
+						If @error Then $_sReturn = SetError(8, @error & @extended, 0)
+					EndIf
+				EndIf
+			EndIf
+		EndIf
 	EndIf
-	TCPSend($_vSock, "NICK " & $_sNick & @CRLF)
-	If @error Then Return SetError(8, @error & @extended, 0)
-	TCPSend($_vSock, "USER " & $_sNick & " " & $_sMode & " 0 :" & $_sRealName & @CRLF)
-	If @error Then Return SetError(8, @error & @extended, 0)
+	If $_sReturn = 1 Then $_sReturn = $_vSock
 	Return $_vSock
 EndFunc   ;==>_IRCConnect
 
