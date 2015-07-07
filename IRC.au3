@@ -359,38 +359,45 @@ EndFunc   ;==>_IRCDisconnect
 ;                  |2 = Invalid Character Count, sets @extended: (1, if empty; 2, if not an interger; 3, if invalid interger)
 ;                  |3 = Failure Recieving, sets @extended to TCPRecv error returned
 ; Author ........: Robert Maehl (rcmaehl)
-; Modified ......: 09/28/2014
-; Remarks .......: Due to variable packet length, _IRCGetMsg may recieve more than 1 packet. Default _iChars setting receives
-;                  characters at 1 characters per loop until it gets a Line Feed as the last character.
-;                  To Do: Have _IRCGetMsg operate similar to GUIGetMsg(1)
+; Modified ......: 07/07/2015
+; Remarks .......: Due to variable packet length, _IRCGetMsg may recieve more than 1 packet if using a non-Default $_iChars
+;                  value. Default _iChars setting receives characters at 1 characters per loop until it gets a Line Feed as the
+;                  last character. To Do: Have _IRCGetMsg operate similar to GUIGetMsg(1)
 ; Related .......:
 ; Link ..........:
 ; Example .......: No
 ; ===============================================================================================================================
 Func _IRCGetMsg($_vIRC, $_iChars = -1)
+	Local $_sReturn = 1
 	Select ;Parameter Checking, Trust No One
 		Case $_vIRC = ""
-			Return SetError(1, 1, 0)
+			$_sReturn = SetError(1, 1, 0)
 		Case $_vIRC = -1
-			Return SetError(1, 2, 0)
+			$_sReturn = SetError(1, 2, 0)
 		Case $_iChars = ""
-			Return SetError(2, 1, 0)
+			$_sReturn = SetError(2, 1, 0)
 		Case Not IsInt($_iChars)
-			Return SetError(2, 2, 0)
+			$_sReturn = SetError(2, 2, 0)
 		Case $_iChars = 0 Or $_iChars < -1
-			Return SetError(2, 3, 0)
+			$_sReturn = SetError(2, 3, 0)
 	EndSelect
-	If $_iChars = -1 Then
-		Local $_vRecv = ""; Required due to '&=' below
-		Do
-			$_vRecv &= TCPRecv($_vIRC, 1)
-			If @error and Not @error = -1 Then SetError(3, @error & @extended, 0)
-		Until AscW(StringRight($_vRecv, 1)) = 10
-	Else
-		$_vRecv = TCPRecv($_vIRC, $_iChars)
-		If @error and Not @error = -1 Then Return SetError(3, @error & @extended, 0)
+	If $_sReturn = 1 Then
+		If $_iChars = -1 Then
+			Local $_vRecv = ""; Required due to '&=' below
+			Do
+				$_vRecv &= TCPRecv($_vIRC, 1)
+				If @error and Not @error = -1 Then
+					$_sReturn = SetError(3, @error & @extended, 0)
+					ExitLoop
+				EndIf
+			Until AscW(StringRight($_vRecv, 1)) = 10
+		Else
+			$_vRecv = TCPRecv($_vIRC, $_iChars)
+			If @error and Not @error = -1 Then $_sReturn = SetError(3, @error & @extended, 0)
+		EndIf
 	EndIf
-	Return $_vRecv
+	If $_sReturn = 1 Then $_sReturn = $_vRecv
+	Return $_sReturn
 EndFunc   ;==>_IRCGetMsg
 
 
