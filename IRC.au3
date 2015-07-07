@@ -78,10 +78,10 @@ Func _IRCChannelJoin($_vIRC, $_sChannels, $_sKeys = "")
 		Case StringInStr($_sChannels, " ")
 			$_sReturn = SetError(2, 2, 0)
 	EndSelect
-	If Not $_sKeys = "" Then $_sKeys = " " & $_sKeys
-	TCPSend($_vIRC, "JOIN " & $_sChannels & $_sKeys & @CRLF)
-	If @error Then
-		$_sReturn = SetError(3, @error & @extended, 0)
+	If $_sReturn = 1 Then
+		If Not $_sKeys = "" Then $_sKeys = " " & $_sKeys
+		TCPSend($_vIRC, "JOIN " & $_sChannels & $_sKeys & @CRLF)
+		If @error Then $_sReturn = SetError(3, @error & @extended, 0)
 	EndIf
 	Return $_sReturn
 EndFunc   ;==>_IRCChannelJoin
