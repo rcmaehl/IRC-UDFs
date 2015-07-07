@@ -197,7 +197,7 @@ EndFunc   ;==>_IRCChannelPart
 ; Link ..........:
 ; Example .......: No
 ; ===============================================================================================================================
-Func _IRCChannelTopic($_vIRC, $_sChannel, $_sTopic = Null)'
+Func _IRCChannelTopic($_vIRC, $_sChannel, $_sTopic = Null)
 	Local $_sReturn = 1
 	Select ;Parameter Checking, Trust No One
 		Case $_vIRC = ""
@@ -326,7 +326,7 @@ EndFunc   ;==>_IRCConnect
 ; Link ..........:
 ; Example .......: No
 ; ===============================================================================================================================
-Func _IRCDisconnect($_vIRC, $_sMsg = "IRC.au3")
+Func _IRCDisconnect($_vIRC, $_sMsg = "IRC.au3", $_bForce = True)
 	Local $_sReturn = 1
 	Select ;Parameter Checking, Trust No One
 		Case $_vIRC = ""
@@ -477,40 +477,46 @@ EndFunc   ;==>_IRCMultiMode
 ; Example .......: No
 ; ===============================================================================================================================
 Func _IRCMultiSendMsg($_vIRC, $_sTarget, $_sMsg, $_bTrim = True)
+	Local $_sReturn = 1
 	Select ;Parameter Checking, Trust No One
 		Case $_vIRC = ""
-			Return SetError(1, 1, 0)
+			$_sReturn = SetError(1, 1, 0)
 		Case $_vIRC = -1
-			Return SetError(1, 2, 0)
+			$_sReturn = SetError(1, 2, 0)
 		Case $_sTarget = ""
-			Return SetError(2, 1, 0)
+			$_sReturn = SetError(2, 1, 0)
 		Case Not $_sTarget = ""
 			Switch AscW(StringLeft($_sTarget, 1))
 				Case 0 To 32, 34, 36, 37, 39 To 42, 44 To 47, 58 To 64, 91 To 96, 123 To 1114111 ; AKA Not 33,35,38,43,48 To 57,65 To 90,97 To 122
-					Return SetError(2, 2, 0)
+					$_sReturn = SetError(2, 2, 0)
 			EndSwitch
 		Case StringInStr($_sTarget, " ")
-			Return SetError(2, 2, 0)
+			$_sReturn = SetError(2, 2, 0)
 		Case $_sMsg = ""
-			Return SetError(3, 0, 0)
+			$_sReturn = SetError(3, 0, 0)
 		Case $_bTrim = ""
-			Return SetError(4, 1, 0)
+			$_sReturn = SetError(4, 1, 0)
 		Case Not IsBool($_bTrim)
-			Return SetError(4, 2, 0)
+			$_sReturn = SetError(4, 2, 0)
 	EndSelect
-	If $_bTrim Then $_sMsg = StringLeft($_sMsg, 368)
-	If (StringLen($_sTarget) + StringLen($_sMsg) + 16 + 16 + 64 + 32) > 512 Then
-		Do
-			$_sSend = StringLeft($_sMsg, 368)
-			$_sMsg = StringTrimLeft($_sMsg, 368)
-			TCPSend($_vIRC, "PRIVMSG " & $_sTarget & " :" & $_sSend & @CRLF)
-			If @error Then Return SetError(5, @error & @extended, 0)
-		Until StringLen($_sMsg) = 0
-	Else
-		TCPSend($_vIRC, "PRIVMSG " & $_sTarget & " :" & $_sMsg & @CRLF)
-		If @error Then Return SetError(5, @error & @extended, 0)
+	If $_sReturn = 1 Then
+		If $_bTrim Then $_sMsg = StringLeft($_sMsg, 368)
+		If (StringLen($_sTarget) + StringLen($_sMsg) + 16 + 16 + 64 + 32) > 512 Then
+			Do
+				$_sSend = StringLeft($_sMsg, 368)
+				$_sMsg = StringTrimLeft($_sMsg, 368)
+				TCPSend($_vIRC, "PRIVMSG " & $_sTarget & " :" & $_sSend & @CRLF)
+				If @error Then
+					$_sReturn = SetError(5, @error & @extended, 0)
+					ExitLoop
+				EndIf
+			Until StringLen($_sMsg) = 0
+		Else
+			TCPSend($_vIRC, "PRIVMSG " & $_sTarget & " :" & $_sMsg & @CRLF)
+			If @error Then $_sReturn = SetError(5, @error & @extended, 0)
+		EndIf
 	EndIf
-	Return 1
+	Return $_sReturn
 EndFunc   ;==>_IRCMultiSendMsg
 
 
