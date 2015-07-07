@@ -58,27 +58,30 @@ EndFunc   ;==>_IRCChannelInvite
 ;                  |2 = Invalid Channel(s), sets @extended: (1, if empty; 2, if not IRC compliant)
 ;                  |3 = Error Sending, sets @extended to TCPSend error returned
 ; Author ........: Robert Maehl (rcmaehl)
-; Modified ......: 09/28/2014
+; Modified ......: 07/07/2015
 ; Remarks .......: Modified from Chips' coding, _IRCJoinChannel($_vIRC, "0") Quits all channels, To Do: Check Channel Input
 ; Related .......: _IRCChannelPart
 ; Link ..........:
 ; Example .......: No
 ; ===============================================================================================================================
 Func _IRCChannelJoin($_vIRC, $_sChannels, $_sKeys = "")
+	Local $_sReturn = 1
 	Select ;Parameter Checking, Trust No One
 		Case $_vIRC = ""
-			Return SetError(1, 1, 0)
+			$_sReturn = SetError(1, 1, 0)
 		Case $_vIRC = -1
-			Return SetError(1, 2, 0)
+			$_sReturn = SetError(1, 2, 0)
 		Case $_sChannels = ""
-			Return SetError(2, 1, 0)
+			$_sReturn = SetError(2, 1, 0)
 		Case StringInStr($_sChannels, " ")
-			Return SetError(2, 2, 0)
+			$_sReturn = SetError(2, 2, 0)
 	EndSelect
 	If Not $_sKeys = "" Then $_sKeys = " " & $_sKeys
 	TCPSend($_vIRC, "JOIN " & $_sChannels & $_sKeys & @CRLF)
-	If @error Then Return SetError(3, @error & @extended, 0)
-	Return 1
+	If @error Then
+		$_sReturn = SetError(3, @error & @extended, 0)
+	EndIf
+	Return $_sReturn
 EndFunc   ;==>_IRCChannelJoin
 
 
