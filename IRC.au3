@@ -39,8 +39,10 @@ Func _IRCChannelInvite($_vIRC, $_sUser, $_sChannel)
 		Case StringInStr($_sChannel, " ")
 			$_sReturn = SetError(3, 2, 0)
 	EndSelect
-	TCPSend($_vIRC, "INVITE " & $_sUser & " " & $_sChannel & @CRLF)
-	If @error Then $_sReturn = SetError(4, @error & @extended, 0)
+	If $_sReturn = 1 Then
+		TCPSend($_vIRC, "INVITE " & $_sUser & " " & $_sChannel & @CRLF)
+		If @error Then $_sReturn = SetError(4, @error & @extended, 0)
+	EndIf
 	Return $_sReturn
 EndFunc   ;==>_IRCChannelInvite
 
@@ -100,31 +102,32 @@ EndFunc   ;==>_IRCChannelJoin
 ;                  |3 = Invalid User, sets @extended: (1, if empty; 2, if not IRC compliant)
 ;                  |4 = Failure Sending, sets @extended to TCPSend error returned
 ; Author ........: Robert Maehl (rcmaehl)
-; Modified ......: 09/28/2014
+; Modified ......: 07/07/2015
 ; Remarks .......:
 ; Related .......:
 ; Link ..........:
 ; Example .......: No
 ; ===============================================================================================================================
 Func _IRCChannelKick($_vIRC, $_sChannel, $_sUser, $_sMsg = "")
+	Local $_sReturn = 1
 	Select ;Parameter Checking, Trust No One
 		Case $_vIRC = ""
-			Return SetError(1, 1, 0)
+			$_sReturn = SetError(1, 1, 0)
 		Case $_vIRC = -1
-			Return SetError(1, 2, 0)
+			$_sReturn = SetError(1, 2, 0)
 		Case $_sChannel = ""
-			Return SetError(2, 1, 0)
+			$_sReturn = SetError(2, 1, 0)
 		Case Not $_sChannel = ""
 			Switch AscW(StringLeft($_sChannel, 1))
 				Case 0 To 32, 34, 36, 37, 39 To 42, 44 To 1114111 ; AKA Not 33,35,38,43
-					Return SetError(2, 2, 0)
+					$_sReturn = SetError(2, 2, 0)
 			EndSwitch
 		Case StringInStr($_sChannel, " ")
-			Return SetError(2, 2, 0)
+			$_sReturn = SetError(2, 2, 0)
 		Case $_sUser = ""
-			Return SetError(3, 1, 0)
+			$_sReturn = SetError(3, 1, 0)
 		Case StringInStr($_sUser, " ")
-			Return SetError(3, 2, 0)
+			$_sReturn = SetError(3, 2, 0)
 	EndSelect
 	If Not $_sMsg = "" Then $_sMsg = " :" & $_sMsg
 	TCPSend($_vIRC, "KICK " & $_sChannel & " " & $_sUser & $_sMsg & @CRLF)
