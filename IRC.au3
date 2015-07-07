@@ -197,30 +197,33 @@ EndFunc   ;==>_IRCChannelPart
 ; Link ..........:
 ; Example .......: No
 ; ===============================================================================================================================
-Func _IRCChannelTopic($_vIRC, $_sChannel, $_sTopic = Null)
+Func _IRCChannelTopic($_vIRC, $_sChannel, $_sTopic = Null)'
+	Local $_sReturn = 1
 	Select ;Parameter Checking, Trust No One
 		Case $_vIRC = ""
-			Return SetError(1, 1, 0)
+			$_sReturn = SetError(1, 1, 0)
 		Case $_vIRC = -1
-			Return SetError(1, 2, 0)
+			$_sReturn = SetError(1, 2, 0)
 		Case $_sChannel = ""
-			Return SetError(2, 1, 0)
+			$_sReturn = SetError(2, 1, 0)
 		Case Not $_sChannel = ""
 			Switch AscW(StringLeft($_sChannel, 1))
 				Case 0 To 32, 34, 36, 37, 39 To 42, 44 To 1114111 ; AKA Not 33,35,38,43
-					Return SetError(2, 2, 0)
+					$_sReturn = SetError(2, 2, 0)
 			EndSwitch
 		Case StringInStr($_sChannel, " ")
-			Return SetError(2, 2, 0)
+			$_sReturn = SetError(2, 2, 0)
 	EndSelect
-	If $_sTopic = Null Then
-		TCPSend($_vIRC, "TOPIC " & $_sChannel & @CRLF)
-		If @error Then Return SetError(3, @error & @extended, 0)
-	Else
-		TCPSend($_vIRC, "TOPIC " & $_sChannel & " :" & $_sTopic & @CRLF)
-		If @error Then Return SetError(3, @error & @extended, 0)
+	If $_sReturn = 1 Then
+		If $_sTopic = Null Then
+			TCPSend($_vIRC, "TOPIC " & $_sChannel & @CRLF)
+			If @error Then $_sReturn = SetError(3, @error & @extended, 0)
+		Else
+			TCPSend($_vIRC, "TOPIC " & $_sChannel & " :" & $_sTopic & @CRLF)
+			If @error Then $_sReturn = SetError(3, @error & @extended, 0)
+		EndIf
 	EndIf
-	Return 1
+	Return $_sReturn
 EndFunc   ;==>_IRCChannelTopic
 
 
