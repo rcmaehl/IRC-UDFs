@@ -158,20 +158,23 @@ EndFunc   ;==>_IRCChannelKick
 ; Example .......: No
 ; ===============================================================================================================================
 Func _IRCChannelPart($_vIRC, $_sChannels, $_sMsg = "")
+	Local $_sReturn = 1
 	Select ;Parameter Checking, Trust No One
 		Case $_vIRC = ""
-			Return SetError(1, 1, 0)
+			$_sReturn = SetError(1, 1, 0)
 		Case $_vIRC = -1
-			Return SetError(1, 2, 0)
+			$_sReturn = SetError(1, 2, 0)
 		Case $_sChannels = ""
-			Return SetError(2, 1, 0)
+			$_sReturn = SetError(2, 1, 0)
 		Case StringInStr($_sChannels, " ")
-			Return SetError(2, 2, 0)
+			$_sReturn = SetError(2, 2, 0)
 	EndSelect
-	If Not $_sMsg = "" Then $_sMsg = " :" & $_sMsg
-	TCPSend($_vIRC, "PART " & $_sChannels & $_sMsg & @CRLF)
-	If @error Then Return SetError(3, @error & @extended, 0)
-	Return 1
+	If $_sReturn = 1 Then
+		If Not $_sMsg = "" Then $_sMsg = " :" & $_sMsg
+		TCPSend($_vIRC, "PART " & $_sChannels & $_sMsg & @CRLF)
+		If @error Then $_sReturn = SetError(3, @error & @extended, 0)
+	EndIf
+	Return $_sReturn
 EndFunc   ;==>_IRCChannelPart
 
 
