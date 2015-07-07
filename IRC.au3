@@ -570,30 +570,33 @@ EndFunc   ;==>_IRCRaw
 ;                  |3 = Invalid Password, sets @extended: (1, if empty; 2, if not IRC compliant)
 ;                  |4 = Error Sending, sets @extended to TCPSend error returned
 ; Author ........: Robert Maehl (rcmaehl)
-; Modified ......: 09/28/2014
+; Modified ......: 07/07/2015
 ; Remarks .......:
 ; Related .......:
 ; Link ..........:
 ; Example .......: No
 ; ===============================================================================================================================
 Func _IRCSelfOper($_vIRC, $_sUser, $_sPass)
+	Local $_sReturn = 1
 	Select ;Parameter Checking, Trust No One
 		Case $_vIRC = ""
-			Return SetError(1, 1, 0)
+			$_sReturn = SetError(1, 1, 0)
 		Case $_vIRC = -1
-			Return SetError(1, 2, 0)
+			$_sReturn = SetError(1, 2, 0)
 		Case $_sUser = ""
-			Return SetError(2, 1, 0)
+			$_sReturn = SetError(2, 1, 0)
 		Case StringInStr($_sUser, " ")
-			Return SetError(2, 2, 0)
+			$_sReturn = SetError(2, 2, 0)
 		Case $_sPass = ""
-			Return SetError(3, 1, 0)
+			$_sReturn = SetError(3, 1, 0)
 		Case StringInStr($_sPass, " ")
-			Return SetError(3, 2, 0)
+			$_sReturn = SetError(3, 2, 0)
 	EndSelect
-	TCPSend($_vIRC, "OPER " & $_sUser & " " & $_sPass & @CRLF)
-	If @error Then Return SetError(4, @error & @extended, 0)
-	Return 1
+	If $_sReturn = 1 Then
+		TCPSend($_vIRC, "OPER " & $_sUser & " " & $_sPass & @CRLF)
+		If @error Then $_sReturn = SetError(4, @error & @extended, 0)
+	EndIf
+	Return $_sReturn
 EndFunc   ;==>_IRCSelfOper
 
 
