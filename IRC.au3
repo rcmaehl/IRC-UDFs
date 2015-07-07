@@ -793,23 +793,26 @@ EndFunc   ;==>_IRCServerTime
 ;                  |2 = Invalid Server
 ;                  |3 = Failure Sending, sets @extended to TCPSend error returned
 ; Author ........: Robert Maehl (rcmaehl)
-; Modified ......: 09/28/2014
+; Modified ......: 07/07/2015
 ; Remarks .......:
 ; Related .......:
 ; Link ..........:
 ; Example .......: No
 ; ===============================================================================================================================
 Func _IRCServerVersion($_vIRC, $_sServer = "")
+	Local $_sReturn = 1
 	Select ;Parameter Checking, Trust No One
 		Case $_vIRC = ""
-			Return SetError(1, 1, 0)
+			$_sReturn = SetError(1, 1, 0)
 		Case $_vIRC = -1
-			Return SetError(1, 2, 0)
+			$_sReturn = SetError(1, 2, 0)
 		Case StringInStr($_sServer, " ")
-			Return SetError(2, 0, 0)
+			$_sReturn = SetError(2, 0, 0)
 	EndSelect
-	If Not $_sServer = "" Then $_sServer = " " & $_sServer
-	TCPSend($_vIRC, "VERSION" & $_sServer & @CRLF)
-	If @error Then Return SetError(3, @error & @extended, 0)
-	Return 1
+	If $_sReturn = 1 Then
+		If Not $_sServer = "" Then $_sServer = " " & $_sServer
+		TCPSend($_vIRC, "VERSION" & $_sServer & @CRLF)
+		If @error Then $_sReturn = SetError(3, @error & @extended, 0)
+	EndIf
+	Return $_sReturn
 EndFunc   ;==>_IRCServerVersion
