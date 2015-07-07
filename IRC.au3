@@ -649,23 +649,26 @@ EndFunc   ;==>_IRCSelfSetNick
 ;                  |1 = Invalid Socket Identifier, sets @extended: (1, if empty; 2, if -1)
 ;                  |2 = Failure Sending, sets @extended to TCPSend error returned
 ; Author ........: Robert Maehl (rcmaehl)
-; Modified ......: 09/28/2014
+; Modified ......: 07/07/2015
 ; Remarks .......: Defaults to setting the User Not AFK
 ; Related .......:
 ; Link ..........:
 ; Example .......: No
 ; ===============================================================================================================================
 Func _IRCSelfSetStatus($_vIRC, $_sMsg = "")
+	Local $_sReturn = 1
 	Select ;Parameter Checking, Trust No One
 		Case $_vIRC = ""
-			Return SetError(1, 1, 0)
+			$_sReturn = SetError(1, 1, 0)
 		Case $_vIRC = -1
-			Return SetError(1, 2, 0)
+			$_sReturn = SetError(1, 2, 0)
 	EndSelect
-	If Not $_sMsg = "" Then $_sMsg = " :" & $_sMsg
-	TCPSend($_vIRC, "AWAY" & $_sMsg & @CRLF)
-	If @error Then Return SetError(2, @error & @extended, 0)
-	Return 1
+	If $_sReturn = 1 Then
+		If Not $_sMsg = "" Then $_sMsg = " :" & $_sMsg
+		TCPSend($_vIRC, "AWAY" & $_sMsg & @CRLF)
+		If @error Then $_sReturn = SetError(2, @error & @extended, 0)
+	EndIf
+	Return $_sReturn
 EndFunc   ;==>_IRCSelfSetStatus
 
 
