@@ -612,26 +612,29 @@ EndFunc   ;==>_IRCSelfOper
 ;                  |2 = Invalid Nick, sets @extended: (1, if empty; 2, if not IRC compliant)
 ;                  |3 = Failure Sending, sets @extended to TCPSend error returned
 ; Author ........: Robert Maehl (rcmaehl)
-; Modified ......: 09/28/2014
+; Modified ......: 07/07/2015
 ; Remarks .......:
 ; Related .......:
 ; Link ..........:
 ; Example .......: No
 ; ===============================================================================================================================
 Func _IRCSelfSetNick($_vIRC, $_sNick)
+	Local $_sReturn = 1
 	Select ;Parameter Checking, Trust No One
 		Case $_vIRC = ""
-			Return SetError(1, 1, 0)
+			$_sReturn = SetError(1, 1, 0)
 		Case $_vIRC = -1
-			Return SetError(1, 2, 0)
+			$_sReturn = SetError(1, 2, 0)
 		Case $_sNick = ""
-			Return SetError(2, 1, 0)
+			$_sReturn = SetError(2, 1, 0)
 		Case StringInStr($_sNick, " ")
-			Return SetError(2, 2, 0)
+			$_sReturn = SetError(2, 2, 0)
 	EndSelect
-	TCPSend($_vIRC, "NICK " & $_sNick & @CRLF)
-	If @error Then Return SetError(3, @error & @extended, 0)
-	Return 1
+	If $_sReturn = 1 Then
+		TCPSend($_vIRC, "NICK " & $_sNick & @CRLF)
+		If @error Then $_sReturn = SetError(3, @error & @extended, 0)
+	EndIf
+	Return $_sReturn
 EndFunc   ;==>_IRCSelfSetNick
 
 
