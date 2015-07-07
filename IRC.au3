@@ -129,10 +129,12 @@ Func _IRCChannelKick($_vIRC, $_sChannel, $_sUser, $_sMsg = "")
 		Case StringInStr($_sUser, " ")
 			$_sReturn = SetError(3, 2, 0)
 	EndSelect
-	If Not $_sMsg = "" Then $_sMsg = " :" & $_sMsg
-	TCPSend($_vIRC, "KICK " & $_sChannel & " " & $_sUser & $_sMsg & @CRLF)
-	If @error Then Return SetError(4, @error & @extended, 0)
-	Return 1
+	If $_sReturn = 1 Then
+		If Not $_sMsg = "" Then $_sMsg = " :" & $_sMsg
+		TCPSend($_vIRC, "KICK " & $_sChannel & " " & $_sUser & $_sMsg & @CRLF)
+		If @error Then Return SetError(4, @error & @extended, 0)
+	EndIf
+	Return $_sReturn
 EndFunc   ;==>_IRCChannelKick
 
 
