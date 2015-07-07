@@ -416,7 +416,7 @@ EndFunc   ;==>_IRCGetMsg
 ;                  |3 = Invalid Mode
 ;                  |4 = Error Sending, sets @extended to TCPSend error returned
 ; Author ........: Robert Maehl (rcmaehl)
-; Modified ......: 09/28/2014
+; Modified ......: 07/07/2015
 ; Remarks .......: Modified from Chips' coding, Queries Channel or User Mode by Default
 ;                  To Do: Check if User or Channel and Accept or Deny $_sParams accordingly
 ;                  WARNING: This may or may not be split into two functions in the future
@@ -425,28 +425,31 @@ EndFunc   ;==>_IRCGetMsg
 ; Example .......: No
 ; ===============================================================================================================================
 Func _IRCMultiMode($_vIRC, $_sTarget, $_sMode = "", $_sParams = "")
+	Local $_sReturn = 1
 	Select ;Parameter Checking, Trust No One
 		Case $_vIRC = ""
-			Return SetError(1, 1, 0)
+			$_sReturn = SetError(1, 1, 0)
 		Case $_vIRC = -1
-			Return SetError(1, 2, 0)
+			$_sReturn = SetError(1, 2, 0)
 		Case $_sTarget = ""
-			Return SetError(2, 1, 0)
+			$_sReturn = SetError(2, 1, 0)
 		Case Not $_sTarget = ""
 			Switch AscW(StringLeft($_sTarget, 1))
 				Case 0 To 32, 34, 36, 37, 39 To 42, 44 To 47, 58 To 64, 91 To 96, 123 To 1114111 ; AKA Not 33,35,38,43,48 To 57,65 To 90,97 To 122
-					Return SetError(2, 2, 0)
+					$_sReturn = SetError(2, 2, 0)
 			EndSwitch
 		Case StringInStr($_sTarget, " ")
-			Return SetError(2, 2, 0)
+			$_sReturn = SetError(2, 2, 0)
 		Case $_sMode = "" And Not $_sParams = ""
-			Return SetError(3, 0, 0)
+			$_sReturn = SetError(3, 0, 0)
 	EndSelect
-	If Not $_sMode = "" Then $_sMode = " " & $_sMode
-	If Not $_sParams = "" Then $_sParams = " " & $_sParams
-	TCPSend($_vIRC, "MODE " & $_sTarget & $_sMode & $_sParams & @CRLF)
-	If @error Then Return SetError(3, @error & @extended, 0)
-	Return 1
+	If $_sReturn = 1 Then
+		If Not $_sMode = "" Then $_sMode = " " & $_sMode
+		If Not $_sParams = "" Then $_sParams = " " & $_sParams
+		TCPSend($_vIRC, "MODE " & $_sTarget & $_sMode & $_sParams & @CRLF)
+		If @error Then $_sReturn = SetError(3, @error & @extended, 0)
+	EndIf
+	Return $_sReturn
 EndFunc   ;==>_IRCMultiMode
 
 
