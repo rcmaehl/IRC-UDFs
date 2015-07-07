@@ -310,34 +310,40 @@ EndFunc   ;==>_IRCConnect
 ; #FUNCTION# ====================================================================================================================
 ; Name ..........: _IRCDisconnect
 ; Description ...: Disconnects from an IRC server
-; Syntax ........: _IRCDisconnect($_vIRC[, $_sMsg = "IRC.au3 04/20/2014"])
+; Syntax ........: _IRCDisconnect($_vIRC[, $_sMsg = "IRC.au3" [, $_bForce = True]])
 ; Parameters ....: $_vIRC               - Socket Identifier from _IRCConnect().
-;                  $_sMsg               - [optional] Disconnect Message. Default is "IRC.au3 04/20/2014".
+;                  $_sMsg               - [optional] Disconnect Message. Default is "IRC.au3".
+;                  $_bForce             - [optional] Force Disconnect even on error. Default is True
 ; Return values .: Success - Returns 1
 ;                  Failure - Returns 0 and sets @error:
 ;                  |1 = Invalid Socket Identifier, sets @extended: (1, if empty; 2, if -1)
 ;                  |2 = Error Sending, sets @extended to TCPSend error returned
 ;                  |3 = Error Closing Socket, sets @extended to TCPCloseSocket error returned
 ; Author ........: Robert Maehl (rcmaehl)
-; Modified ......: 09/28/2014
+; Modified ......: 07/07/2015
 ; Remarks .......: Modified from Chips' coding
 ; Related .......: _IRCConnect
 ; Link ..........:
 ; Example .......: No
 ; ===============================================================================================================================
-Func _IRCDisconnect($_vIRC, $_sMsg = "IRC.au3 04/20/2014")
+Func _IRCDisconnect($_vIRC, $_sMsg = "IRC.au3")
+	Local $_sReturn = 1
 	Select ;Parameter Checking, Trust No One
 		Case $_vIRC = ""
-			Return SetError(1, 1, 0)
+			$_sReturn = SetError(1, 1, 0)
 		Case $_vIRC = -1
-			Return SetError(1, 2, 0)
+			$_sReturn = SetError(1, 2, 0)
 	EndSelect
-	If Not $_sMsg = "" Then $_sMsg = " :" & $_sMsg
-	TCPSend($_vIRC, "QUIT" & $_sMsg & @CRLF)
-	If @error Then Return SetError(2, @error & @extended, 0)
-	TCPCloseSocket($_vIRC)
-	If @error Then Return SetError(3, @error & @extended, 0)
-	Return 1
+	If $_sReturn = 1 Then
+		If Not $_sMsg = "" Then $_sMsg = " :" & $_sMsg
+		TCPSend($_vIRC, "QUIT" & $_sMsg & @CRLF)
+		If @error Then $_sReturn = SetError(2, @error & @extended, 0)
+		If $_bForce = True Or $_sReturn = 1 Then
+			TCPCloseSocket($_vIRC)
+			If @error Then $_sReturn = SetError(3, @error & @extended, 0)
+		EndIf
+	EndIf
+	Return $_sReturn
 EndFunc   ;==>_IRCDisconnect
 
 
