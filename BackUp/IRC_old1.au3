@@ -256,8 +256,8 @@ EndFunc   ;==>_IRCChannelTopic
 ; ===============================================================================================================================s
 Func _IRCConnect($_sServer, $_iPort, $_sNick, $_sMode = 0, $_sRealName = $_sNick, $_sPass = "")
 	Local $_sReturn = 1
-	Local $_iCheck1 = StringRegExp($_sServer, "^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$")
-	Local $_iCheck2 = StringRegExp($_sServer, "^([a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,6}$")
+	Local $_iCheck1 = StringRegExp($_sServer,"^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$")
+	Local $_iCheck2 = StringRegExp($_sServer,"^([a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,6}$")
 	Select ;Parameter Checking, Trust No One
 		Case $_sServer = ""
 			$_sReturn = SetError(1, 1, 0)
@@ -265,7 +265,7 @@ Func _IRCConnect($_sServer, $_iPort, $_sNick, $_sMode = 0, $_sRealName = $_sNick
 			$_sReturn = SetError(1, 2, 0)
 		Case $_iPort = ""
 			$_sReturn = SetError(2, 1, 0)
-		Case StringRegExp($_iPort, "^\d{1,5}$") <> 1
+		Case StringRegExp($_iPort,"^\d{1,5}$") <> 1
 			$_sReturn = SetError(2, 2, 0)
 		Case $_iPort < 1 Or $_iPort > 65535
 			$_sReturn = SetError(3, 2, 0)
@@ -386,14 +386,14 @@ Func _IRCGetMsg($_vIRC, $_iChars = -1)
 			Local $_vRecv = ""; Required due to '&=' below
 			Do
 				$_vRecv &= TCPRecv($_vIRC, 1)
-				If @error And Not @error = -1 Then
+				If @error and Not @error = -1 Then
 					$_sReturn = SetError(3, @error & @extended, 0)
 					ExitLoop
 				EndIf
 			Until AscW(StringRight($_vRecv, 1)) = 10
 		Else
 			$_vRecv = TCPRecv($_vIRC, $_iChars)
-			If @error And Not @error = -1 Then $_sReturn = SetError(3, @error & @extended, 0)
+			If @error and Not @error = -1 Then $_sReturn = SetError(3, @error & @extended, 0)
 		EndIf
 	EndIf
 	If $_sReturn = 1 Then $_sReturn = $_vRecv
