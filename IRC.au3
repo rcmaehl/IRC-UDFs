@@ -119,7 +119,7 @@ Func _IRCChannelKick($_vIRC, $_sChannel, $_sUser, $_sMsg = "")
 			$_sReturn = SetError(2, 1, 0)
 		Case Not $_sChannel = ""
 			Switch AscW(StringLeft($_sChannel, 1))
-				Case Case Not 33 And Not 35 And Not 38 And Not 43
+				Case Not 33 And Not 35 And Not 38 And Not 43
 					$_sReturn = SetError(2, 2, 0)
 			EndSwitch
 		Case StringInStr($_sChannel, " ")
