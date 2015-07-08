@@ -33,7 +33,7 @@ Func _IRCChannelInvite($_vIRC, $_sUser, $_sChannel)
 			$_sReturn = SetError(3, 1, 0)
 		Case Not $_sChannel = ""
 			Switch AscW(StringLeft($_sChannel, 1))
-				Case 0 To 32, 34, 36, 37, 39 To 42, 44 To 1114111 ; AKA Not 33,35,38,43
+				Case Not 33 And Not 35 And Not 38 And Not 43
 					$_sReturn = SetError(3, 2, 0)
 			EndSwitch
 		Case StringInStr($_sChannel, " ")
@@ -119,7 +119,7 @@ Func _IRCChannelKick($_vIRC, $_sChannel, $_sUser, $_sMsg = "")
 			$_sReturn = SetError(2, 1, 0)
 		Case Not $_sChannel = ""
 			Switch AscW(StringLeft($_sChannel, 1))
-				Case 0 To 32, 34, 36, 37, 39 To 42, 44 To 1114111 ; AKA Not 33,35,38,43
+				Case Case Not 33 And Not 35 And Not 38 And Not 43
 					$_sReturn = SetError(2, 2, 0)
 			EndSwitch
 		Case StringInStr($_sChannel, " ")
@@ -208,7 +208,7 @@ Func _IRCChannelTopic($_vIRC, $_sChannel, $_sTopic = Null)
 			$_sReturn = SetError(2, 1, 0)
 		Case Not $_sChannel = ""
 			Switch AscW(StringLeft($_sChannel, 1))
-				Case 0 To 32, 34, 36, 37, 39 To 42, 44 To 1114111 ; AKA Not 33,35,38,43
+				Case Not 33 And Not 35 And Not 38 And Not 43
 					$_sReturn = SetError(2, 2, 0)
 			EndSwitch
 		Case StringInStr($_sChannel, " ")
