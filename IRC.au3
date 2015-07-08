@@ -1,3 +1,13 @@
+#include-once
+
+; #INDEX# =======================================================================================================================
+; Title .........: IRC UDF
+; AutoIt Version : 3.3
+; Description ...: UDF to connect to IRC using TCP Functions, as well as perform actions once connected.
+; Author(s) .....: Robert Maehl (rcmaehl) based on work by chip
+; Dll ...........: TBA
+; ===============================================================================================================================
+
 ; #FUNCTION# ====================================================================================================================
 ; Name ..........: _IRCChannelInvite
 ; Description ...: Invite a User to a Channel
