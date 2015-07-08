@@ -502,6 +502,7 @@ Func _IRCMultiSendMsg($_vIRC, $_sTarget, $_sMsg, $_bTrim = True)
 	If $_sReturn = 1 Then
 		If $_bTrim Then $_sMsg = StringLeft($_sMsg, 368)
 		If (StringLen($_sTarget) + StringLen($_sMsg) + 16 + 16 + 64 + 32) > 512 Then
+			Local $_sSend = ""
 			Do
 				$_sSend = StringLeft($_sMsg, 368)
 				$_sMsg = StringTrimLeft($_sMsg, 368)
