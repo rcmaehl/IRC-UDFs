@@ -85,7 +85,7 @@ Func Main()
 				Assign($sChannel & "_users", StringSplit($aUsers, "|", 2))
 				$aUsers = ""
 
-			Case "443" ; Nick already in use
+			Case "433" ; Nick already in use
 				_IRCSelfSetNick($Sock, $Nick2)
 
 			Case "JOIN"
