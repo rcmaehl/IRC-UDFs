@@ -87,6 +87,7 @@ Func Main()
 
 			Case "433" ; Nick already in use
 				_IRCSelfSetNick($Sock, $Nick2)
+				$Nick = $Nick2
 
 			Case "JOIN"
 				$sUser = StringMid($sTemp[1], 2, StringInStr($sTemp[1], "!") - 2); Get User Who Joined
