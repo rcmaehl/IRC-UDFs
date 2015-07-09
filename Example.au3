@@ -57,16 +57,16 @@ Func Main()
 		Switch $sTemp[2] ; Message Handling
 
 			Case ":Closing" ; Connection Closed
-				TCPShutdown()
-				Exit(0)
+                ExitLoop
 
 			Case "001" ; Connected to Server (Actually Server Welcome)
 				_IRCChannelJoin($Sock, $Channels, $Keys); Join the Channels Specified
 				_IRCMultiMode($Sock, $Nick, "+i")
 
 			Case "353" ; Parse Channel User List
-				$sChannel = StringReplace($sTemp[5], "#", "p") ; Filter out # as you can't use it in Assign()
-				$sChannel = StringReplace($sTemp[5], "&", "a") ; Filter out &
+				$sChannel = $sTemp[5]
+				$sChannel = StringReplace($sChannel, "#", "p") ; Filter out # as you can't use it in Assign()
+				$sChannel = StringReplace($sChannel, "&", "a") ; Filter out & as you can't use it in Assign()
 				$sUserList = StringTrimLeft($sRecv, StringInStr($sRecv,":", 0, 2)) ; Get User List
 				$sUserList = StringStripCR($sUserList)
 				$sUserList = StringReplace($sUserList, @LF, "")
@@ -82,7 +82,8 @@ Func Main()
 				$aUsers = StringReplace($aUsers, "%", "")
 				$aUsers = StringReplace($aUsers, "+", "")
 				$aUsers = StringTrimRight($aUsers, 2)
-				Assign($sChannel & "_users", StringSplit($aUsers, "|", 2))
+				$aUsers = StringSplit($aUsers, "|", 2)
+				Assign($sChannel & "_users", $aUsers)
 				$aUsers = ""
 
 			Case "433" ; Nick already in use
@@ -186,7 +187,7 @@ Func Main()
 				Select
 
 					Case $sMessage = "!channels"
-						_IRCMultiSendMsg($Sock, $sRecipient, _ArrayToString($aChannels, ","))
+						_IRCMultiSendMsg($Sock, $sRecipient, _ArrayToString($aChannels, ", "))
 
 					Case $sMessage = "!nick"
 						_IRCSelfSetNick($Sock, "Au2Bot")
@@ -198,11 +199,10 @@ Func Main()
 						Else
 							_IRCDisconnect($Sock, $sUser & " told me to.")
 						EndIf
-						TCPShutdown()
-						Exit(0)
+                        ExitLoop
 
 					Case $sMessage = "!users"
-						_IRCMultiSendMsg($Sock, $sRecipient, Eval(StringReplace($sRecipient, "#", "p") & "_users"))
+						_IRCMultiSendMsg($Sock, $sRecipient, _ArrayToString(Eval(StringReplace($sRecipient, "#", "p") & "_users"), ", "))
 
 					Case Else
 						;;;
@@ -212,6 +212,8 @@ Func Main()
 				;;;
 		EndSwitch
     WEnd
+	TCPShutdown()
+	Exit(0)
 EndFunc
 
 #cs
