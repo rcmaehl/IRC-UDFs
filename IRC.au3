@@ -369,10 +369,10 @@ EndFunc   ;==>_IRCDisconnect
 ;                  |2 = Invalid Character Count, sets @extended: (1, if empty; 2, if not an interger; 3, if invalid interger)
 ;                  |3 = Failure Recieving, sets @extended to TCPRecv error returned
 ; Author ........: Robert Maehl (rcmaehl)
-; Modified ......: 07/07/2015
+; Modified ......: 07/13/2015
 ; Remarks .......: Due to variable packet length, _IRCGetMsg may recieve more than 1 packet if using a non-Default $_iChars
-;                  value. Default _iChars setting receives characters at 1 characters per loop until it gets a Line Feed as the
-;                  last character. To Do: Have _IRCGetMsg operate similar to GUIGetMsg(1)
+;                  value. Default _iChars setting receives characters at 1 characters per loop until it gets a Line Feed or NULL
+;                  as the last character. To Do: Have _IRCGetMsg operate similar to GUIGetMsg(1)
 ; Related .......:
 ; Link ..........:
 ; Example .......: No
@@ -400,7 +400,7 @@ Func _IRCGetMsg($_vIRC, $_iChars = -1)
 					$_sReturn = SetError(3, @error & @extended, 0)
 					ExitLoop
 				EndIf
-			Until AscW(StringRight($_vRecv, 1)) = 10
+			Until AscW(StringRight($_vRecv, 1)) = 10 Or AscW(StringRight($_vRecv, 1)) = 0 ; Exit on @LF or Null
 		Else
 			$_vRecv = TCPRecv($_vIRC, $_iChars)
 			If @error And Not @error = -1 Then $_sReturn = SetError(3, @error & @extended, 0)
