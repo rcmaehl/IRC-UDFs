@@ -1,5 +1,8 @@
-#include <Array.au3>
 #include "IRC.au3"
+#include <Array.au3>
+#include <EditConstants.au3>
+#include <GUIConstantsEx.au3>
+#include <WindowsConstants.au3>
 
 Main()
 
@@ -26,6 +29,16 @@ Func Main()
     Local $aUsers = ""
 	Local $aChannels[0] = []
 
+	;GUI Variables
+	Local $hGUI = ""
+	Local $hOutput = ""
+
+
+	;Create GUI
+	$hGUI = GUICreate($Server, 600, 250, -1, -1, BitXOR($GUI_SS_DEFAULT_GUI, $WS_MINIMIZEBOX))
+	$hOutput = GUICtrlCreateEdit("", 0, 0, 600, 250, $ES_READONLY+$ES_AUTOVSCROLL+$ES_MULTILINE+$WS_VSCROLL)
+	GUISetState(@SW_SHOW, $hGUI)
+
 	;Start Up Networking
     TCPStartup()
 
@@ -36,9 +49,18 @@ Func Main()
     EndIf
 
     While 1
-        $sRecv = _IRCGetMsg($Sock) ; Receive Packets from the Server
+
+		Switch GUIGetMsg()
+
+				Case $GUI_EVENT_CLOSE
+					ExitLoop
+
+		EndSwitch
+
+		$sRecv = _IRCGetMsg($Sock) ; Receive Packets from the Server
         If Not $sRecv Then ContinueLoop ; If Nothing Received then Continue Checking
-		ConsoleWrite($sRecv) ; Write Received Data to Visual Console
+		GUICtrlSetData($hOutput, GUICtrlRead($hOutput) & $sRecv) ; Write Received Data to GUI Console
+		ConsoleWrite($sRecv) ; Write Debug Data to Console
 		Local $sChannels = StringSplit($Channels, ",")
 		Local $sTemp = StringSplit($sRecv, " ") ; Splits Packet into Command Message and Parameters
 
@@ -160,7 +182,7 @@ Func Main()
 						Assign($sChannel & "_users", $aUsers)
 					Next
 				Else
-					ConsoleWrite("LOLWUT" & @CRLF)
+					GUICtrlSetData($hOutput, GUICtrlRead($hOutput) & "LOLWUT" & @CRLF)
 				EndIf
 
 			Case "PART"
@@ -211,7 +233,8 @@ Func Main()
 			Case Else
 				;;;
 		EndSwitch
-    WEnd
+	WEnd
+	GUIDelete($hGUI)
 	TCPShutdown()
 	Exit(0)
 EndFunc
