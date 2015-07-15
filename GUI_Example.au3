@@ -123,11 +123,7 @@ Func Main()
 				Assign($sChannel & "_topic", $sTopic)
 
 			Case "333" ; Who Set Channel Topic and When
-				$sChannel = $sTemp[4]
-				$sChannel = StringReplace($sChannel, "#", "p") ; Filter out # as you can't use it in Assign()
-				$sChannel = StringReplace($sChannel, "&", "a") ; Filter out & as you can't use it in Assign()
-				Assign($sChannel & "_topic_user", $sTemp[5])
-				Assign($sChannel & "_topic_time", $sTemp[6])
+				; This should only be one packet per channel
 
 			Case "353" ; Parse Channel User List
 				$sChannel = $sTemp[5]
@@ -345,7 +341,7 @@ JOIN:
 
 
 KICK:
-	You receive this when someone, including yourself, gets kicked
+	You receive this when someone gets kicked (Including yourself!)
 	Check http://tools.ietf.org/html/rfc1459#section-4.2.8 and http://tools.ietf.org/html/rfc2812#section-3.2.8 for specifics
 
 	SYNTAXES:
