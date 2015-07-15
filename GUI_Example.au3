@@ -35,8 +35,8 @@ Func Main()
 
 
 	;Create GUI
-	$hGUI = GUICreate($Server, 600, 250, -1, -1, BitXOR($GUI_SS_DEFAULT_GUI, $WS_MINIMIZEBOX))
-	$hOutput = GUICtrlCreateEdit("", 0, 0, 600, 250, $ES_READONLY+$ES_AUTOVSCROLL+$ES_MULTILINE+$WS_VSCROLL)
+	$hGUI = GUICreate($Server, 640, 480, -1, -1, BitXOR($GUI_SS_DEFAULT_GUI, $WS_MINIMIZEBOX))
+	$hOutput = GUICtrlCreateEdit("", 0, 0, 640, 480, $ES_READONLY+$ES_AUTOVSCROLL+$ES_MULTILINE+$WS_VSCROLL)
 	GUISetState(@SW_SHOW, $hGUI)
 
 	;Start Up Networking
