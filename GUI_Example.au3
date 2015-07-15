@@ -31,7 +31,7 @@ Func Main()
 
 	;Time Out Variables
 	Local $iLastPing = 0
-	Local $iTimeOut = 300000					; 5 Minutes
+	Local $iTimeOut = 300000                ; 5 Minutes
 
 	;Debug Variables
 	Local $iExit = 0
@@ -101,7 +101,7 @@ Func Main()
 
 		EndSwitch
 
-		If $sTemp[0] <= 2 Then ContinueLoop ; Error Handling
+		If $sTemp[0] <= 2 Then ContinueLoop ; Error Handling, So Next Line Doesn't Fail
 
 		Switch $sTemp[2] ; Message Handling
 
@@ -113,6 +113,18 @@ Func Main()
 				_IRCChannelJoin($Sock, $Channels, $Keys); Join the Channels Specified
 				_IRCMultiMode($Sock, $Nick, "+i")
 
+			Case "332" ; Channel Topic
+				$sChannel = $sTemp[4]
+				$sChannel = StringReplace($sChannel, "#", "p") ; Filter out # as you can't use it in Assign()
+				$sChannel = StringReplace($sChannel, "&", "a") ; Filter out & as you can't use it in Assign()
+				$sTopic = StringTrimLeft($sRecv, StringInStr($sRecv,":", 0, 2)) ; Get Channel Topic
+				$sTopic = StringStripCR($sTopic)
+				$sTopic = StringReplace($sTopic, @LF, "")
+				Assign($sChannel & "_topic", $sTopic)
+
+			Case "333" ; Who Set Channel Topic and When
+				; This should only be one packet per channel
+
 			Case "353" ; Parse Channel User List
 				$sChannel = $sTemp[5]
 				$sChannel = StringReplace($sChannel, "#", "p") ; Filter out # as you can't use it in Assign()
@@ -122,7 +134,6 @@ Func Main()
 				$sUserList = StringReplace($sUserList, @LF, "")
 				$aUsers &= StringReplace($sUserList, " ", "|")
 				$aUsers &= "|"
-				If Not IsDeclared($sChannel & "_users") Then Assign($sChannel & "_users", "") ; Create variable so the Eval in Assign doesn't fail
 
 			Case "366" ; Joined Channel (Actually End of Channel User List)
 				$aUsers = StringReplace($aUsers, "~", "")
@@ -134,7 +145,7 @@ Func Main()
 				$aUsers = StringTrimRight($aUsers, 1)
 				$aUsers = StringSplit($aUsers, "|", 2)
 				Assign($sChannel & "_users", $aUsers)
-				$aUsers = ""
+				$aUsers = "" ; Empty Array for Next Channel
 
 			Case "433" ; Nick already in use
 				_IRCSelfSetNick($Sock, $Nick2)
@@ -206,7 +217,7 @@ Func Main()
 						$aUsers = Eval($sChannel & "_users")
 						$iIndex = _ArraySearch($aUsers, $sUser)
 						If $iIndex = -1 Then ContinueLoop
-						$aUsers[$iIndex] = $sNick
+						$aUsers[$iIndex] = $sUser
 						Assign($sChannel & "_users", $aUsers)
 					Next
 				Else
@@ -254,15 +265,35 @@ Func Main()
 						$iExit = 0
 						ExitLoop
 
+					Case $sMessage = "!topic"
+						$sChannel = $sRecipient
+						$sChannel = StringReplace($sChannel, "#", "p")
+						$sChannel = StringReplace($sChannel, "&", "a")
+						_IRCMultiSendMsg($Sock, $sRecipient, Eval($sChannel & "_topic"))
+
 					Case $sMessage = "!users"
-						_IRCMultiSendMsg($Sock, $sRecipient, _ArrayToString(Eval(StringReplace($sRecipient, "#", "p") & "_users"), ", "))
+						$sChannel = $sRecipient
+						$sChannel = StringReplace($sChannel, "#", "p")
+						$sChannel = StringReplace($sChannel, "&", "a")
+						_IRCMultiSendMsg($Sock, $sRecipient, _ArrayToString(Eval($sChannel & "_users"), ", "))
 
 					Case Else
 						;;;
+
 				EndSelect
+
+			Case "TOPIC" ; Topic Change
+				$sChannel = $sTemp[3]
+				$sChannel = StringReplace($sChannel, "#", "p") ; Filter out # as you can't use it in Assign()
+				$sChannel = StringReplace($sChannel, "&", "a") ; Filter out & as you can't use it in Assign()
+				$sTopic = StringTrimLeft($sRecv, StringInStr($sRecv,":", 0, 2)) ; Get Channel Topic
+				$sTopic = StringStripCR($sTopic)
+				$sTopic = StringReplace($sTopic, @LF, "")
+				Assign($sChannel & "_topic", $sTopic)
 
 			Case Else
 				;;;
+
 		EndSwitch
 	WEnd
 	Close($iExit = 1, $hGUI)
@@ -384,5 +415,15 @@ PRIVMSG:
 	EXAMPLES:
 		:rcmaehl!~why@unaffiliated/why PRIVMSG #Channel :test message
 		:rcmaehl!~why@unaffiliated/why PRIVMSG Au3Bot :Hi Au3bot
+
+TOPIC:
+	You receive this when someone, including yourself, has changed a channel topic
+	Check http://tools.ietf.org/html/rfc1459#section-4.2.4 and http://tools.ietf.org/html/rfc2812#section-3.2.4 for specifics
+
+	SYNTAXES:
+		:Nick!Name@Host TOPIC Channel :Topic
+
+	EXAMPLES:
+		:rcmaehl!~why@unaffiliated/why TOPIC #Channel :I've set the channel topic!
 
 #ce
