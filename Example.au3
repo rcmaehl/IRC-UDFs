@@ -243,9 +243,8 @@ Func Main()
 	Close($iExit = 1)
 EndFunc
 
-Func Close($iExitCode, $hWindow)
+Func Close($iExitCode)
 	Sleep(2000)
-	GUIDelete($hWindow)
 	TCPShutdown()
 	Exit($iExitCode)
 EndFunc
