@@ -396,14 +396,14 @@ Func _IRCGetMsg($_vIRC, $_iChars = -1)
 			Local $_vRecv = ""; Required due to '&=' below
 			Do
 				$_vRecv &= TCPRecv($_vIRC, 1)
-				If @error And Not @error = -1 Then
+				If @error Then
 					$_sReturn = SetError(3, @error & @extended, 0)
 					ExitLoop
 				EndIf
 			Until AscW(StringRight($_vRecv, 1)) = 10 Or AscW(StringRight($_vRecv, 1)) = 0 ; Exit on @LF or Null
 		Else
 			$_vRecv = TCPRecv($_vIRC, $_iChars)
-			If @error And Not @error = -1 Then $_sReturn = SetError(3, @error & @extended, 0)
+			If @error Then $_sReturn = SetError(3, @error & @extended, 0)
 		EndIf
 	EndIf
 	If $_sReturn = 1 Then $_sReturn = $_vRecv
