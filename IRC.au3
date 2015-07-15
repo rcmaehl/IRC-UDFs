@@ -2,7 +2,7 @@
 
 ; #INDEX# =======================================================================================================================
 ; Title .........: IRC UDF
-; AutoIt Version : 3.3
+; AutoIt Version : 3.3.14.0+
 ; Description ...: UDF to connect to IRC using TCP Functions, as well as perform actions once connected.
 ; Author(s) .....: Robert Maehl (rcmaehl) based on work by chip/mcgod
 ; Dll ...........:
