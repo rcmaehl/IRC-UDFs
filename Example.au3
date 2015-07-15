@@ -26,6 +26,10 @@ Func Main()
     Local $aUsers = ""
 	Local $aChannels[0] = []
 
+	;Time Out Variables
+	Local $iLastPing = 0
+	Local $iTimeOut = 300000					; 5 Minutes
+
 	;Start Up Networking
     TCPStartup()
 
@@ -33,11 +37,17 @@ Func Main()
     If @error Then
         MsgBox(1, "IRC Example", "Server Connection Error: " & @error & " Extended: " & @extended); Display message on Error
         Exit(1)
+	Else
+		$iLastPing = TimerInit()
     EndIf
 
     While 1
         $sRecv = _IRCGetMsg($Sock) ; Receive Packets from the Server
         If Not $sRecv Then ContinueLoop ; If Nothing Received then Continue Checking
+		If TimerDiff($iLastPing) >= $iTimeOut Then
+			ConsoleWrite("Disconnected - Ping Timeout" & @CRLF)
+			ExitLoop
+		EndIf
 		ConsoleWrite($sRecv) ; Write Received Data to Visual Console
 		Local $sChannels = StringSplit($Channels, ",")
 		Local $sTemp = StringSplit($sRecv, " ") ; Splits Packet into Command Message and Parameters
@@ -45,6 +55,7 @@ Func Main()
 		Switch $sTemp[1] ; Server/User Handling
 
 			Case "PING"
+				$iLastPing = TimerInit()
 				_IRCServerPong($Sock, $sTemp[2]); Checks for Pings from Server and Replies
 
 			Case Else
@@ -57,7 +68,7 @@ Func Main()
 		Switch $sTemp[2] ; Message Handling
 
 			Case ":Closing" ; Connection Closed
-                ExitLoop
+				ExitLoop
 
 			Case "001" ; Connected to Server (Actually Server Welcome)
 				_IRCChannelJoin($Sock, $Channels, $Keys); Join the Channels Specified
@@ -160,7 +171,8 @@ Func Main()
 						Assign($sChannel & "_users", $aUsers)
 					Next
 				Else
-					ConsoleWrite("LOLWUT" & @CRLF)
+					ConsoleWrite("EXCEPTION: Should not see self QUIT." & @CRLF)
+                    ExitLoop
 				EndIf
 
 			Case "PART"
