@@ -20,7 +20,7 @@ Func _IRCReplyTo($_sPacketPart1, $_sPacketPart3)
 			$_sReturn = $_sPacketPart3
 	EndSwitch
 	Return $_sReturn
-EndFunc
+EndFunc   ;==>_IRCReplyTo
 
 
 ; #FUNCTION# ====================================================================================================================
@@ -47,4 +47,4 @@ Func _IRCStripSpecial($_sData, $_bNoCTCP = False)
 		$_sReturn = StringReplace($_sReturn, "", "") ; Remove CTCP Character Encodings
 	EndIf
 	Return $_sReturn
-EndFunc
+EndFunc   ;==>_IRCStripSpecial
