@@ -103,30 +103,39 @@ Func Main()
 
 		If $sTemp[0] <= 2 Then ContinueLoop ; Error Handling, So Next Line Doesn't Fail
 
-		Switch $sTemp[2] ; Message Handling
+		Switch $sTemp[2] ; What type of message did our program get?
 
 			Case ":Closing" ; Connection Closed
 				$iExit = 1
 				ExitLoop
 
-			Case "001" ; Connected to Server (Actually Server Welcome)
+			Case "001" ; Server Welcome (RFC2812)
 				_IRCChannelJoin($Sock, $Channels, $Keys); Join the Channels Specified
 				_IRCMultiMode($Sock, $Nick, "+i")
 
-			Case "002" ; Your Host
+			Case "002" ; Your Host (RFC2812)
 
-			Case "003" ; Server Created
+			Case "003" ; Server Created (RFC2812)
 
-			Case "004" ; Server Info
+			Case "004" ; Server Info (RFC2812)
 
-			Case "005" ; Try Another Server (Go To 'Case "010"') OR What Server Supports
-				If $sTemp[3] = ":Try" Then
-					; Github issue #9
-					$iExit = 1
-					ExitLoop
-				EndIf
+			Case "005" And $sTemp[3] = ":Try"; Try Another Server (See 'Case "010"') (RFC2812)
+				$iExit = 1
+				ExitLoop
 
-			Case "010" ; Easy new server format from "005"
+			Case "005" ; Server Protocol Support (Bahamut, Unreal, Ultimate)
+
+			Case "006" ; Map? (Unreal)
+
+			Case "007" ; End of Map (Unreal)
+
+			Case "008" ; Server Notice Mask (ircu)
+
+			Case "009" ; Server Memory Total? (ircu)
+
+			Case "010" And Not TCPNameToIP($Temp[3]) = "" ; Easy new server format from 'Case "005"', Possibly unreliable
+
+			Case "010" ; Server Memory Usage? (ircu)
 
 			Case "332" ; Channel Topic
 				$sChannel = $sTemp[4]
