@@ -88,6 +88,21 @@ Func Main()
 				_IRCChannelJoin($Sock, $Channels, $Keys); Join the Channels Specified
 				_IRCMultiMode($Sock, $Nick, "+i")
 
+			Case "002" ; Your Host
+
+			Case "003" ; Server Created
+
+			Case "004" ; Server Info
+
+			Case "005" ; Try Another Server (Go To 'Case "010"') OR What Server Supports
+				If $sTemp[3] = ":Try" Then
+					; Github issue #9
+					$iExit = 1
+					ExitLoop
+				EndIf
+
+			Case "010" ; Easy new server format from "005"
+
 			Case "332" ; Channel Topic
 				$sChannel = $sTemp[4]
 				$sChannel = StringReplace($sChannel, "#", "p") ; Filter out # as you can't use it in Assign()
