@@ -1,5 +1,6 @@
 #include "IRC.au3"
 #include <Array.au3>
+#include <GUIEdit.au3>
 #include <EditConstants.au3>
 #include <GUIConstantsEx.au3>
 #include <WindowsConstants.au3>
@@ -74,19 +75,24 @@ Func Main()
 			$iError = @error
 			$iExtended = @extended
 			$sCurrOutput = GUICtrlRead($hOutput)
+			$iLines = _GUICtrlEdit_GetLineCount($hOutput)
 			GUICtrlSetData($hOutput, $sCurrOutput & "Recv Error: " & $iError & " Extended: " & $iExtended & @CRLF); Display message on Error
+			_GUICtrlEdit_LineScroll($hOutput, 0, $iLines)
 			$iExit = 1
 			ExitLoop
 		EndIf
 		If Not $sRecv Then ContinueLoop ; If Nothing Received then Continue Checking
 		If TimerDiff($iLastPing) >= $iTimeOut Then
 			$sCurrOutput = GUICtrlRead($hOutput)
+			$iLines = _GUICtrlEdit_GetLineCount($hOutput)
 			GUICtrlSetData($hOutput, $sCurrOutput & "Disconnected - Ping Timeout" & @CRLF)
+			_GUICtrlEdit_LineScroll($hOutput, 0, $iLines)
 			$iExit = 1
 			ExitLoop
 		EndIf
+		$iLines = _GUICtrlEdit_GetLineCount($hOutput)
 		GUICtrlSetData($hOutput, GUICtrlRead($hOutput) & $sRecv) ; Write Received Data to GUI Console
-		ConsoleWrite($sRecv) ; Write Debug Data to Console
+		_GUICtrlEdit_LineScroll($hOutput, 0, $iLines)
 		Local $sChannels = StringSplit($Channels, ",")
 		Local $sTemp = StringSplit($sRecv, " ") ; Splits Packet into Command Message and Parameters
 
@@ -113,29 +119,29 @@ Func Main()
 				_IRCChannelJoin($Sock, $Channels, $Keys); Join the Channels Specified
 				_IRCMultiMode($Sock, $Nick, "+i")
 
-			Case "002" ; Your Host (RFC2812)
+;			Case "002" ; Your Host (RFC2812)
 
-			Case "003" ; Server Created (RFC2812)
+;			Case "003" ; Server Created (RFC2812)
 
-			Case "004" ; Server Info (RFC2812)
+;			Case "004" ; Server Info (RFC2812)
 
-			Case "005" And $sTemp[3] = ":Try"; Try Another Server (See 'Case "010"') (RFC2812)
-				$iExit = 1
-				ExitLoop
+;			Case "005" And $sTemp[3] = ":Try"; Try Another Server (See 'Case "010"') (RFC2812)
+;				$iExit = 1
+;				ExitLoop
 
-			Case "005" ; Server Protocol Support (Bahamut, Unreal, Ultimate)
+;			Case "005" ; Server Protocol Support (Bahamut, Unreal, Ultimate)
 
-			Case "006" ; Map? (Unreal)
+;			Case "006" ; Map? (Unreal)
 
-			Case "007" ; End of Map (Unreal)
+;			Case "007" ; End of Map (Unreal)
 
-			Case "008" ; Server Notice Mask (ircu)
+;			Case "008" ; Server Notice Mask (ircu)
 
-			Case "009" ; Server Memory Total? (ircu)
+;			Case "009" ; Server Memory Total? (ircu)
 
-			Case "010" And Not TCPNameToIP($Temp[3]) = "" ; Easy new server format from 'Case "005"', Possibly unreliable
+;			Case "010" And Not TCPNameToIP($sTemp[3]) = "" ; Easy new server format from 'Case "005"', Possibly unreliable
 
-			Case "010" ; Server Memory Usage? (ircu)
+;			Case "010" ; Server Memory Usage? (ircu)
 
 			Case "332" ; Channel Topic
 				$sChannel = $sTemp[4]
@@ -249,7 +255,9 @@ Func Main()
 						Assign($sChannel & "_users", $aUsers)
 					Next
 				Else
+					$iLines = _GUICtrlEdit_GetLineCount($hOutput)
 					GUICtrlSetData($hOutput, GUICtrlRead($hOutput) & "EXCEPTION: Should not see self QUIT." & @CRLF)
+					_GUICtrlEdit_LineScroll($hOutput, 0, $iLines)
 					$iExit = 1
 					ExitLoop
 				EndIf

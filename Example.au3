@@ -23,15 +23,15 @@ Func Main()
 	Local $Keys = "key1,key2"               ; Channel Passwords
 
 	;Channel User List Variables
-	Local $aUsers = ""
-	Local $aChannels[0] = []
+	Local $aUsers = ""                      ; Empty Array Used to Collect Users in a Channel on Join
+	Local $aChannels[0] = []                ; Array of Channels this Script is in
 
 	;Time Out Variables
-	Local $iLastPing = 0
-	Local $iTimeOut = 300000                ; 5 Minutes
+	Local $iLastPing = 0                    ; Variable Containing Last Ping Time
+	Local $iTimeOut = 300000                ; Ping Timeout Amount in Milliseconds
 
 	;Debug Variables
-	Local $iExit = 0
+	Local $iExit = 0                        ; Exit Code
 
 	;Start Up Networking
 	Opt("TCPTimeout", 200)
@@ -88,29 +88,29 @@ Func Main()
 				_IRCChannelJoin($Sock, $Channels, $Keys); Join the Channels Specified
 				_IRCMultiMode($Sock, $Nick, "+i")
 
-			Case "002" ; Your Host (RFC2812)
+;			Case "002" ; Your Host (RFC2812)
 
-			Case "003" ; Server Created (RFC2812)
+;			Case "003" ; Server Created (RFC2812)
 
-			Case "004" ; Server Info (RFC2812)
+;			Case "004" ; Server Info (RFC2812)
 
-			Case "005" And $sTemp[3] = ":Try"; Try Another Server (See 'Case "010"') (RFC2812)
-				$iExit = 1
-				ExitLoop
+;			Case "005" And $sTemp[3] = ":Try"; Try Another Server (See 'Case "010"') (RFC2812)
+;				$iExit = 1
+;				ExitLoop
 
-			Case "005" ; Server Protocol Support (Bahamut, Unreal, Ultimate)
+;			Case "005" ; Server Protocol Support (Bahamut, Unreal, Ultimate)
 
-			Case "006" ; Map? (Unreal)
+;			Case "006" ; Map? (Unreal)
 
-			Case "007" ; End of Map (Unreal)
+;			Case "007" ; End of Map (Unreal)
 
-			Case "008" ; Server Notice Mask (ircu)
+;			Case "008" ; Server Notice Mask (ircu)
 
-			Case "009" ; Server Memory Total? (ircu)
+;			Case "009" ; Server Memory Total? (ircu)
 
-			Case "010" And Not TCPNameToIP($Temp[3]) = "" ; Easy new server format from 'Case "005"', Possibly unreliable
+;			Case "010" And Not TCPNameToIP($sTemp[3]) = "" ; Easy new server format from 'Case "005"', Possibly unreliable
 
-			Case "010" ; Server Memory Usage? (ircu)
+;			Case "010" ; Server Memory Usage? (ircu)
 
 			Case "332" ; Channel Topic
 				$sChannel = $sTemp[4]
