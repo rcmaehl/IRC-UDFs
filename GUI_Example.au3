@@ -27,15 +27,15 @@ Func Main()
 	Local $Keys = "key1,key2"               ; Channel Passwords
 
 	;Channel User List Variables
-	Local $aUsers = ""
-	Local $aChannels[0] = []
+	Local $aUsers = ""                      ; Empty Array Used to Collect Users in a Channel on Join
+	Local $aChannels[0] = []                ; Array of Channels this Script is in
 
 	;Time Out Variables
-	Local $iLastPing = 0
-	Local $iTimeOut = 300000                ; 5 Minutes
+	Local $iLastPing = 0                    ; Variable Containing Last Ping Time
+	Local $iTimeOut = 300000                ; Ping Timeout Amount in Milliseconds
 
 	;Debug Variables
-	Local $iExit = 0
+	Local $iExit = 0                        ; Exit Code
 
 	;GUI Variables
 	Local $hGUI = ""
@@ -71,7 +71,7 @@ Func Main()
 		EndSwitch
 
 		$sRecv = _IRCGetMsg($Sock) ; Receive Packets from the Server
-		If @error Then
+		If @error Then ; If Error Getting Message
 			$iError = @error
 			$iExtended = @extended
 			$sCurrOutput = GUICtrlRead($hOutput)
@@ -80,9 +80,9 @@ Func Main()
 			_GUICtrlEdit_LineScroll($hOutput, 0, $iLines)
 			$iExit = 1
 			ExitLoop
-		EndIf
-		If Not $sRecv Then ContinueLoop ; If Nothing Received then Continue Checking
-		If TimerDiff($iLastPing) >= $iTimeOut Then
+		ElseIf Not $sRecv Then ; If Nothing Received Then Continue Checking
+			ContinueLoop
+		ElseIf TimerDiff($iLastPing) >= $iTimeOut Then
 			$sCurrOutput = GUICtrlRead($hOutput)
 			$iLines = _GUICtrlEdit_GetLineCount($hOutput)
 			GUICtrlSetData($hOutput, $sCurrOutput & "Disconnected - Ping Timeout" & @CRLF)
@@ -93,7 +93,7 @@ Func Main()
 		$iLines = _GUICtrlEdit_GetLineCount($hOutput)
 		GUICtrlSetData($hOutput, GUICtrlRead($hOutput) & $sRecv) ; Write Received Data to GUI Console
 		_GUICtrlEdit_LineScroll($hOutput, 0, $iLines)
-		Local $sChannels = StringSplit($Channels, ",")
+
 		Local $sTemp = StringSplit($sRecv, " ") ; Splits Packet into Command Message and Parameters
 
 		Switch $sTemp[1] ; Server/User Handling

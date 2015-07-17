@@ -38,6 +38,7 @@ Func Main()
 	TCPStartup()
 
 	Local $Sock = _IRCConnect($Server, $Port, $Nick, $Mode, $RealName, $Pass); Connects to IRC. Sends Password, if any. Declares User Identity.
+
 	If @error Then
 		ConsoleWrite("Server Connection Error: " & @error & " Extended: " & @extended & @CRLF); Display message on Error
 		$iExit = 1
@@ -47,22 +48,23 @@ Func Main()
 	EndIf
 
 	While 1
+
 		$sRecv = _IRCGetMsg($Sock) ; Receive Packets from the Server
-		If @error Then
+		If @error Then ; If Error Getting Message
 			$iError = @error
 			$iExtended = @extended
 			ConsoleWrite("Recv Error: " & $iError & " Extended: " & $iExtended & @CRLF); Display message on Error
 			$iExit = 1
 			ExitLoop
-		EndIf
-		If Not $sRecv Then ContinueLoop ; If Nothing Received then Continue Checking
-		If TimerDiff($iLastPing) >= $iTimeOut Then
+		ElseIf Not $sRecv Then ; If Nothing Received Then Continue Checking
+			ContinueLoop
+		ElseIf TimerDiff($iLastPing) >= $iTimeOut Then
 			ConsoleWrite("Disconnected - Ping Timeout" & @CRLF)
 			$iExit = 1
 			ExitLoop
 		EndIf
 		ConsoleWrite($sRecv) ; Write Received Data to Visual Console
-		Local $sChannels = StringSplit($Channels, ",")
+
 		Local $sTemp = StringSplit($sRecv, " ") ; Splits Packet into Command Message and Parameters
 
 		Switch $sTemp[1] ; Server/User Handling
