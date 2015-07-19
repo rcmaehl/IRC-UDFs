@@ -12,7 +12,7 @@ Func Example()
 	TCPStartup()
 
 	; Connect to IRC. Send Password, if any. Declare User Identity.
-	Local $Sock = _IRCConnect("irc.freenode.net", 6667, "Au3bot", 0, "Au3Bot", "")
+	Local $Sock = _IRCConnect("irc.freenode.net", 6667, "Au3bot" & Random(1000, 9999, 1), 0, "Au3Bot", "")
 
 	; If Error Connecting
 	If @error Then
@@ -67,7 +67,8 @@ Func Example()
 		; If Not Usable, then Skip this Data
 		If $sTemp[0] <= 2 Then ContinueLoop
 
-		Switch $sTemp[2] ; What type of message did our program get?
+		; Decide What To Do Based on Received Data
+		Switch $sTemp[2]
 
 			; On Server Welcome
 			Case "001"
