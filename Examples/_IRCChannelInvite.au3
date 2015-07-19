@@ -70,13 +70,13 @@ Func Example()
 		Switch $sTemp[2]
 
 			; On Server Welcome
-			Case "001"
+			Case $RPL_WELCOME
 
 				; Join #ircudftest
 				_IRCChannelJoin($Sock, "#ircudftest")
 
 			; On Channel Join
-			Case "366"
+			Case $RPL_ENDOFNAMES
 
 				; Invite Chanserv to #defocus
 				_IRCChannelInvite($Sock, "chanserv", "#ircudftest")

@@ -73,13 +73,13 @@ Func Example()
 		Switch $sTemp[2]
 
 			; On Server Welcome
-			Case "001"
+			Case $RPL_WELCOME
 
-				; Join a #ircudftest
+				; Join #ircudftest
 				_IRCChannelJoin($Sock, "#ircudftest")
 
 			; On Channel Join
-			Case "366"
+			Case $RPL_ENDOFNAMES
 
 				; Set Channel Topic
 				_IRCChannelTopic($Sock, "#ircudftest", $sName & " topic set test")

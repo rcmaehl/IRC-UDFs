@@ -1,5 +1,7 @@
 #include-once
 
+#include "IRCConstants.au3"
+
 ; #INDEX# =======================================================================================================================
 ; Title .........: IRC UDF
 ; AutoIt Version : 3.3.14.0+
@@ -22,11 +24,11 @@
 ;                  |3 = Invalid Channel, sets @extended: (1, if empty; 2, if not IRC compliant)
 ;                  |4 = Failure Sending, sets @extended to TCPSend error returned
 ; Author ........: Robert Maehl (rcmaehl)
-; Modified ......: 06/07/2015
+; Modified ......: 07/19/2015
 ; Remarks .......:
 ; Related .......:
 ; Link ..........:
-; Example .......: No
+; Example .......: Yes
 ; ===============================================================================================================================
 Func _IRCChannelInvite($_vIRC, $_sUser, $_sChannel)
 	Local $_sReturn = 1
@@ -70,11 +72,11 @@ EndFunc   ;==>_IRCChannelInvite
 ;                  |2 = Invalid Channel(s), sets @extended: (1, if empty; 2, if not IRC compliant)
 ;                  |3 = Error Sending, sets @extended to TCPSend error returned
 ; Author ........: Robert Maehl (rcmaehl)
-; Modified ......: 07/07/2015
+; Modified ......: 07/19/2015
 ; Remarks .......: Modified from Chips' coding, _IRCJoinChannel($_vIRC, "0") Quits all channels, To Do: Check Channel Input
 ; Related .......: _IRCChannelPart
 ; Link ..........:
-; Example .......: No
+; Example .......: Yes
 ; ===============================================================================================================================
 Func _IRCChannelJoin($_vIRC, $_sChannels, $_sKeys = "")
 	Local $_sReturn = 1
@@ -112,11 +114,11 @@ EndFunc   ;==>_IRCChannelJoin
 ;                  |3 = Invalid User, sets @extended: (1, if empty; 2, if not IRC compliant)
 ;                  |4 = Failure Sending, sets @extended to TCPSend error returned
 ; Author ........: Robert Maehl (rcmaehl)
-; Modified ......: 07/07/2015
+; Modified ......: 07/19/2015
 ; Remarks .......:
 ; Related .......:
 ; Link ..........:
-; Example .......: No
+; Example .......: Yes
 ; ===============================================================================================================================
 Func _IRCChannelKick($_vIRC, $_sChannel, $_sUser, $_sMsg = "")
 	Local $_sReturn = 1
@@ -161,11 +163,11 @@ EndFunc   ;==>_IRCChannelKick
 ;                  |2 = Invalid Channel(s), sets @extended: (1, if empty; 2, if not IRC compliant)
 ;                  |3  = Error Sending, sets @extended to TCPSend error returned
 ; Author ........: Robert Maehl (rcmaehl)
-; Modified ......: 09/28/2014
+; Modified ......: 07/19/2015
 ; Remarks .......: To Do: Check Channel Input for Errors
 ; Related .......: _IRCChannelJoin
 ; Link ..........:
-; Example .......: No
+; Example .......: Yes
 ; ===============================================================================================================================
 Func _IRCChannelPart($_vIRC, $_sChannels, $_sMsg = "")
 	Local $_sReturn = 1
@@ -201,11 +203,11 @@ EndFunc   ;==>_IRCChannelPart
 ;                  |2 = Invalid Channel, sets @extended: (1, if empty; 2, if not IRC compliant)
 ;                  |3 = Error Sending, sets @extended to TCPSend error returned
 ; Author ........: Robert Maehl (rcmaehl)
-; Modified ......: 09/28/2014
+; Modified ......: 07/19/2015
 ; Remarks .......: Queries Topic by Default.
 ; Related .......:
 ; Link ..........:
-; Example .......: No
+; Example .......: Yes
 ; ===============================================================================================================================
 Func _IRCChannelTopic($_vIRC, $_sChannel, $_sTopic = Null)
 	Local $_sReturn = 1
@@ -258,11 +260,11 @@ EndFunc   ;==>_IRCChannelTopic
 ;                  |7 = Connection Error, sets @extended to TCPConnect error returned
 ;                  |8 = Error Sending, sets @extended to TCPSend error returned
 ; Author ........: Robert Maehl (rcmaehl)
-; Modified ......: 07/07/2015
+; Modified ......: 07/19/2015
 ; Remarks .......: Modified from Chips' coding, To Do: Fix Redundant $_sReturn Checking
 ; Related .......: _IRCDisconnect
 ; Link ..........:
-; Example .......: No
+; Example .......: Yes
 ; ===============================================================================================================================s
 Func _IRCConnect($_sServer, $_iPort, $_sNick, $_sMode = 0, $_sRealName = $_sNick, $_sPass = "")
 	Local $_sReturn = 1
@@ -330,11 +332,11 @@ EndFunc   ;==>_IRCConnect
 ;                  |2 = Error Sending, sets @extended to TCPSend error returned
 ;                  |3 = Error Closing Socket, sets @extended to TCPCloseSocket error returned
 ; Author ........: Robert Maehl (rcmaehl)
-; Modified ......: 07/07/2015
+; Modified ......: 07/19/2015
 ; Remarks .......: Modified from Chips' coding
 ; Related .......: _IRCConnect
 ; Link ..........:
-; Example .......: No
+; Example .......: Yes
 ; ===============================================================================================================================
 Func _IRCDisconnect($_vIRC, $_sMsg = "IRC.au3", $_bForce = True)
 	Local $_sReturn = 1
@@ -369,13 +371,13 @@ EndFunc   ;==>_IRCDisconnect
 ;                  |2 = Invalid Character Count, sets @extended: (1, if empty; 2, if not an interger; 3, if invalid interger)
 ;                  |3 = Failure Recieving, sets @extended to TCPRecv error returned
 ; Author ........: Robert Maehl (rcmaehl)
-; Modified ......: 07/13/2015
+; Modified ......: 07/19/2015
 ; Remarks .......: Due to variable packet length, _IRCGetMsg may recieve more than 1 packet if using a non-Default $_iChars
 ;                  value. Default _iChars setting receives characters at 1 characters per loop until it gets a Line Feed or NULL
 ;                  as the last character. To Do: Have _IRCGetMsg operate similar to GUIGetMsg(1)
 ; Related .......:
 ; Link ..........:
-; Example .......: No
+; Example .......: Yes
 ; ===============================================================================================================================
 Func _IRCGetMsg($_vIRC, $_iChars = -1)
 	Local $_sReturn = 1
@@ -426,13 +428,13 @@ EndFunc   ;==>_IRCGetMsg
 ;                  |3 = Invalid Mode
 ;                  |4 = Error Sending, sets @extended to TCPSend error returned
 ; Author ........: Robert Maehl (rcmaehl)
-; Modified ......: 07/07/2015
+; Modified ......: 07/19/2015
 ; Remarks .......: Modified from Chips' coding, Queries Channel or User Mode by Default
 ;                  To Do: Check if User or Channel and Accept or Deny $_sParams accordingly
-;                  WARNING: This may or may not be split into two functions in the future
+;                  WARNING: This WILL be split into two functions in the future
 ; Related .......:
 ; Link ..........:
-; Example .......: No
+; Example .......: Yes
 ; ===============================================================================================================================
 Func _IRCMultiMode($_vIRC, $_sTarget, $_sMode = "", $_sParams = "")
 	Local $_sReturn = 1

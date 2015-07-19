@@ -73,13 +73,13 @@ Func Example()
 		Switch $sTemp[2]
 
 			; On Server Welcome
-			Case "001"
+			Case $RPL_WELCOME
 
-				; Join a #ircudftest
+				; Join #ircudftest
 				_IRCChannelJoin($Sock, "#ircudftest")
 
 			; On Channel Join
-			Case "366"
+			Case $RPL_ENDOFNAMES
 
 				; Kick Self
 				_IRCChannelKick($Sock, "#ircudftest", $sName)
