@@ -71,7 +71,8 @@ Func Main()
 
 			Case "PING"
 				$iLastPing = TimerInit()
-				_IRCServerPong($Sock, $sTemp[2]); Checks for Pings from Server and Replies
+				$sPing = StringReplace($sTemp[2], ":", "")
+				_IRCServerPong($Sock, $sPing); Checks for Pings from Server and Replies
 
 			Case Else
 				; Server/User Handling Stuff
