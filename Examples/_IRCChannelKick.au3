@@ -58,7 +58,6 @@ Func Example()
 			; Continue Checking
 			ContinueLoop
 
-
 		EndIf
 
 		; Write Received Data to Console
@@ -84,6 +83,9 @@ Func Example()
 
 				; Kick Self
 				_IRCChannelKick($Sock, "#ircudftest", $sName)
+
+				; Disconnect
+				_IRCDisconnect($Sock)
 
 				; Shutdown Networking
 				TCPShutdown()

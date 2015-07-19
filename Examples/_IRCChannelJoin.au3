@@ -55,7 +55,6 @@ Func Example()
 			; Continue Checking
 			ContinueLoop
 
-
 		EndIf
 
 		; Write Received Data to Console
@@ -78,6 +77,9 @@ Func Example()
 
 			; On Channel Join
 			Case "366"
+
+				; Disconnect
+				_IRCDisconnect($Sock)
 
 				; Shutdown Networking
 				TCPShutdown()

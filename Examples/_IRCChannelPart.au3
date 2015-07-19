@@ -55,7 +55,6 @@ Func Example()
 			; Continue Checking
 			ContinueLoop
 
-
 		EndIf
 
 		; Write Received Data to Console
@@ -81,6 +80,9 @@ Func Example()
 
 				; Leave Channel
 				_IRCChannelPart($Sock, "#ircudftest")
+
+				; Disconnect
+				_IRCDisconnect($Sock)
 
 				; Shutdown Networking
 				TCPShutdown()

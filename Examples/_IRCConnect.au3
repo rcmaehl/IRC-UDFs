@@ -58,7 +58,6 @@ Func Example()
 			; Continue Checking
 			ContinueLoop
 
-
 		EndIf
 
 		; Write Received Data to Console
@@ -66,6 +65,9 @@ Func Example()
 
 		; If We've Received Data for 15 Seconds
 		If TimerDiff($hTime) >= 15000 Then
+
+			; Disconnect
+			_IRCDisconnect($Sock)
 
 			; Shutdown Networking
 			TCPShutdown()
