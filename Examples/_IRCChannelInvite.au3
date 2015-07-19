@@ -41,7 +41,7 @@ Func Example()
 		If @error Then
 
 			; Display Message on Error
-			ConsoleWrite("Recv Error: " & @error & " Extended: " & @extended & @CRLF); Display message on Error
+			ConsoleWrite("Recv Error: " & @error & " Extended: " & @extended & @CRLF)
 
 			; Shutdown Networking
 			TCPShutdown()
