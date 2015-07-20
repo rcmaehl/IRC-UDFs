@@ -73,7 +73,7 @@ Func Example()
 			Case $RPL_WELCOME
 
 				; Ping Server
-				_IRCSelfSetStatus($Sock, "irc.freenode.net")
+				_IRCServerPing($Sock, "irc.freenode.net")
 
 				; Join #ircudftest
 				_IRCChannelJoin($Sock, "#ircudftest")
