@@ -78,7 +78,7 @@ Func Example()
 			; On Channel Join
 			Case $RPL_ENDOFNAMES
 
-				; Oper Self
+				; Make Self Operator
 				_IRCSelfOper($Sock, "admin", "password")
 
 				; Disconnect
