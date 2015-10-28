@@ -200,7 +200,6 @@ EndFunc   ;==>_IRCChannelPart
 ; Return values .: Success - Returns 1
 ;                  Failure - Returns 0 and sets @error:
 ;                  |1 = Invalid Socket, sets @extended: (1, if empty; 2, if not UDF compliant)
-
 ;                  |2 = Invalid Channel, sets @extended: (1, if empty; 2, if not IRC compliant)
 ;                  |3 = Sending Failure, sets @extended to TCPSend error returned
 ; Author ........: Robert Maehl (rcmaehl)
