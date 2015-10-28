@@ -1,4 +1,5 @@
 #include "IRC.au3"
+#include "IRCExtras.au3"
 #include <Array.au3>
 #include <GUIEdit.au3>
 #include <EditConstants.au3>
@@ -37,25 +38,34 @@ Func Main()
 	;Debug Variables
 	Local $iExit = 0                        ; Exit Code
 
-	;GUI Variables
-	Local $hGUI = ""
-	Local $hOutput = ""
+
+
+
 
 	;Create GUI
-	$hGUI = GUICreate($Server, 640, 480, -1, -1, BitXOR($GUI_SS_DEFAULT_GUI, $WS_MINIMIZEBOX))
-	$hOutput = GUICtrlCreateEdit("", 0, 0, 640, 480, $ES_READONLY+$ES_AUTOVSCROLL+$ES_MULTILINE+$WS_VSCROLL)
+	Local $hGUI = GUICreate($Server, 640, 480, -1, -1, BitXOR($GUI_SS_DEFAULT_GUI, $WS_MINIMIZEBOX))
+
+		Local $hFileMenu = GUICtrlCreateMenu("File")
+			Local $hExitItem = GUICtrlCreateMenuItem("Exit", $hFileMenu)
+
+;		Local $hServerMenu = GUICtrlCreateMenu("Server")
+;			Local $hConnect = GUICtrlCreateMenuItem("Connect", $hServerMenu)
+
+		Local $hOutput = GUICtrlCreateEdit("", 0, 0, 640, 460, $ES_READONLY+$ES_AUTOVSCROLL+$ES_MULTILINE+$WS_VSCROLL)
+
 	GUISetState(@SW_SHOW, $hGUI)
 
 	;Start Up Networking
 	Opt("TCPTimeout", 200)
 	TCPStartup()
 
+
 	Local $Sock = _IRCConnect($Server, $Port, $Nick, $Mode, $RealName, $Pass); Connects to IRC. Sends Password, if any. Declares User Identity.
 	If @error Then
 		$sCurrOutput = GUICtrlRead($hOutput)
 		GUICtrlSetData($hOutput, $sCurrOutput &  "Server Connection Error: " & @error & " Extended: " & @extended & @CRLF); Display message on Error
-		$iExit = 1
-		Close($iExit, $hGUI)
+
+
 	Else
 		$iLastPing = TimerInit()
 	EndIf
@@ -64,7 +74,7 @@ Func Main()
 
 		Switch GUIGetMsg()
 
-				Case $GUI_EVENT_CLOSE
+				Case $GUI_EVENT_CLOSE Or $hExitItem
 					$iExit = 0
 					ExitLoop
 
@@ -333,7 +343,7 @@ Func Main()
 
 		EndSwitch
 	WEnd
-	Close($iExit = 1, $hGUI)
+	Close($iExit, $hGUI)
 EndFunc
 
 Func Close($iExitCode, $hWindow)
