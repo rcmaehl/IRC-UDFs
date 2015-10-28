@@ -1,3 +1,15 @@
+#include-once
+
+#include "IRCConstants.au3"
+
+; #INDEX# =======================================================================================================================
+; Title .........: IRC Extras UDF
+; AutoIt Version : 3.3.14.0+
+; Description ...: UDF to perform extra useful functions in coorindination with the IRC UDF
+; Author(s) .....: Robert Maehl (rcmaehl) based on work by chip/mcgod
+; Dll ...........:
+; ===============================================================================================================================
+
 ; #FUNCTION# ====================================================================================================================
 ; Name ..........: _IRCReplyTo
 ; Description ...: Used to Determine Where to Reply a PRIVMsg
@@ -28,23 +40,27 @@ EndFunc   ;==>_IRCReplyTo
 ; Description ...: Cleans special characters sometimes seen in IRC
 ; Syntax ........: _IRCStripSpecial($_sData[, $_bNoCTCP = False])
 ; Parameters ....: $_sData              - Data to clean up.
-;                  $_bNoCTCP            - [optional] Cleans CTCP characters if True. Default is False.
+;                  $_bFlags             - Flags for Characters to strip
 ; Return values .: Returns cleaned up message.
 ; Author ........: Robert Maehl (rcmaehl)
-; Modified ......: 10/14/2014
+; Modified ......: 08/06/2015
 ; Related .......:
 ; Link ..........:
 ; Example .......: No
 ; ===============================================================================================================================
-Func _IRCStripSpecial($_sData, $_bNoCTCP = False)
+Func _IRCStripSpecial($_sData, $_bFlags)
 	Local $_sReturn = $_sData ; By Default Return Original Data
-	$_sReturn = StringReplace($_sReturn, "", "") ; Remove Character Reset Encodings
-	$_sReturn = StringReplace($_sReturn, "", "") ; Remove Underline Character Encodings
-	$_sReturn = StringReplace($_sReturn, "", "") ; Remove Bold Character Encodings
-	$_sReturn = StringReplace($_sReturn, "", "") ; Remove End Of Character Coloring Encodings
-	$_sReturn = StringRegExpReplace($_sReturn, "\d\d(?:,\d\d)?", "") ; Remove Character Coloring Encodings
-	If $_bNoCTCP Then
-		$_sReturn = StringReplace($_sReturn, "", "") ; Remove CTCP Character Encodings
+	If BitAND($_bFlags, 1) Then ; If $RM_FORMAT
+		$_sReturn = StringReplace($_sReturn, ChrW(15), "") ; Remove Character Reset Encodings
+		$_sReturn = StringReplace($_sReturn, ChrW(31), "") ; Remove Underline Character Encodings
+		$_sReturn = StringReplace($_sReturn, ChrW(29), "") ; Remove Bold Character Encodings
+	EndIf
+	If BitAND($_bFlags, 2) Then ; If $RM_COLOR
+		$_sReturn = StringReplace($_sReturn, ChrW(2), "") ; Remove End Of Character Coloring Encodings
+		$_sReturn = StringRegExpReplace($_sReturn, ChrW(3) & "\d\d(?:,\d\d)?", "") ; Remove Character Coloring Encodings
+	EndIf
+	If BitAND($_bFlags, 4) Then ; If $RM_CTCP
+		$_sReturn = StringReplace($_sReturn, ChrW(1), "") ; Remove CTCP Character Encodings
 	EndIf
 	Return $_sReturn
 EndFunc   ;==>_IRCStripSpecial

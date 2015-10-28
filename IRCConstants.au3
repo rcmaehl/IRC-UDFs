@@ -56,4 +56,8 @@ Global Const $RPL_NAMREPLY = 353
 Global Const $RPL_ENDOFNAMES = 366
 
 Global Const $ERR_NICKNAMEINUSE = 433
+
+Global Const $RM_FORMAT = 1
+Global Const $RM_COLOR = 2
+Global Const $RM_CTCP = 4
 ; ===============================================================================================================================
