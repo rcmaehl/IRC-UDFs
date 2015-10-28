@@ -13,34 +13,30 @@ Func Main()
 	;Connection Variables
 
 	;Server Specific Connection Variables
-	Local $Server = "irc.freenode.net"      ; IRC Server
-	Local $Port = 6667                      ; IRC Server Port
-	Local $Pass = ""                        ; IRC Server Password
+	Local $Server = "irc.freenode.net"     		; IRC Server
+	Local $Port = 6667                     		; IRC Server Port
+	Local $Pass = ""                        	; IRC Server Password
 
 	;User Specific Connection Variables
-	Local $Nick = "Au3Bot"                  ; Nick Name to Use
-	Local $Nick2 = "Au3Bot2"                ; Nick Name to Use if First Choice isn't available
-	Local $Mode = 0                         ; User Mode to Use
-	Local $RealName = "Au3Bot"              ; Real Name to Use
+	Local $Nick = "Au3Bot" & Random(0, 9999, 1)	; Nick Name to Use
+	Local $Nick2 = "Au3Bot2"& Random(0,9999, 1) ; Nick Name to Use if First Choice isn't available
+	Local $Mode = 0                        		; User Mode to Use
+	Local $RealName = "Au3Bot"              	; Real Name to Use
 
 	;Channel Variables
-	Local $Channels = "#channel1,#channel2" ; Channels to Join
-	Local $Keys = "key1,key2"               ; Channel Passwords
+	Local $Channels = "#channel1,#channel2" 	; Channels to Join
+	Local $Keys = "key1,key2"               	; Channel Passwords
 
 	;Channel User List Variables
-	Local $aUsers = ""                      ; Empty Array Used to Collect Users in a Channel on Join
-	Local $aChannels[0] = []                ; Array of Channels this Script is in
+	Local $aUsers = ""                      	; Empty Array Used to Collect Users in a Channel on Join
+	Local $aChannels[0] = []                	; Array of Channels this Script is in
 
 	;Time Out Variables
-	Local $iLastPing = 0                    ; Variable Containing Last Ping Time
-	Local $iTimeOut = 300000                ; Ping Timeout Amount in Milliseconds
+	Local $iLastPing = 0                    	; Variable Containing Last Ping Time
+	Local $iTimeOut = 300000               		; Ping Timeout Amount in Milliseconds
 
 	;Debug Variables
-	Local $iExit = 0                        ; Exit Code
-
-
-
-
+	Local $iExit = 0							; Exit Code
 
 	;Create GUI
 	Local $hGUI = GUICreate($Server, 640, 480, -1, -1, BitXOR($GUI_SS_DEFAULT_GUI, $WS_MINIMIZEBOX))
@@ -64,19 +60,22 @@ Func Main()
 	If @error Then
 		$sCurrOutput = GUICtrlRead($hOutput)
 		GUICtrlSetData($hOutput, $sCurrOutput &  "Server Connection Error: " & @error & " Extended: " & @extended & @CRLF); Display message on Error
-
-
 	Else
 		$iLastPing = TimerInit()
 	EndIf
 
 	While 1
-
 		Switch GUIGetMsg()
 
-				Case $GUI_EVENT_CLOSE Or $hExitItem
+				Case $GUI_EVENT_CLOSE
 					$iExit = 0
 					ExitLoop
+
+				Case $hExitItem
+					$iExit = 0
+					ExitLoop
+
+				Case Else
 
 		EndSwitch
 
