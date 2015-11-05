@@ -1,6 +1,6 @@
 #include-once
 
-#include "IRCConstants.au3"
+#include <IRCConstants.au3>
 
 ; #INDEX# =======================================================================================================================
 ; Title .........: IRC UDF
