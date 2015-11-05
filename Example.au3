@@ -1,5 +1,5 @@
 #include <Array.au3>
-#include "IRC.au3"
+#include <IRC.au3>
 
 Main()
 
