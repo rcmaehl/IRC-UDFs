@@ -362,51 +362,36 @@ EndFunc   ;==>_IRCDisconnect
 ; #FUNCTION# ====================================================================================================================
 ; Name ..........: _IRCGetMsg
 ; Description ...: Receive Packets from an IRC server
-; Syntax ........: _IRCGetMsg($_vIRC[, $_iChars = -1])
+; Syntax ........: _IRCGetMsg($_vIRC)
 ; Parameters ....: $_vIRC               - Socket Identifier from _IRCConnect().
-;                  $_iChars             - [optional] Number of Characters to Receive. Default is -1.
 ; Return values .: Success - Returns data received
 ;                  Failure - Returns 0 and sets @error:
 ;                  |1 = Invalid Socket Identifier, sets @extended: (1, if empty; 2, if -1)
-;                  |2 = Invalid Character Count, sets @extended: (1, if empty; 2, if not an interger; 3, if invalid interger)
-;                  |3 = Recieving Failure, sets @extended to TCPRecv error returned
+;                  |2 = Recieving Failure, sets @extended to TCPRecv error returned
 ; Author ........: Robert Maehl (rcmaehl)
-; Modified ......: 07/19/2015
-; Remarks .......: Due to variable packet length, _IRCGetMsg may recieve more than 1 packet if using a non-Default $_iChars
-;                  value. Default _iChars setting receives characters at 1 characters per loop until it gets a Line Feed or NULL
-;                  as the last character. To Do: Have _IRCGetMsg operate similar to GUIGetMsg(1)
+; Modified ......: 11/09/2015
+; Remarks .......: 
 ; Related .......:
 ; Link ..........:
 ; Example .......: Yes
 ; ===============================================================================================================================
-Func _IRCGetMsg($_vIRC, $_iChars = -1)
+Func _IRCGetMsg($_vIRC)
 	Local $_sReturn = 1
 	Select ;Parameter Checking, Trust No One
 		Case $_vIRC = ""
 			$_sReturn = SetError(1, 1, 0)
 		Case $_vIRC = -1
 			$_sReturn = SetError(1, 2, 0)
-		Case $_iChars = ""
-			$_sReturn = SetError(2, 1, 0)
-		Case Not IsInt($_iChars)
-			$_sReturn = SetError(2, 2, 0)
-		Case $_iChars = 0 Or $_iChars < -1
-			$_sReturn = SetError(2, 3, 0)
 	EndSelect
 	If $_sReturn = 1 Then
-		If $_iChars = -1 Then
-			Local $_vRecv = ""; Required due to '&=' below
-			Do
-				$_vRecv &= TCPRecv($_vIRC, 1)
-				If @error Then
-					$_sReturn = SetError(3, @error & @extended, 0)
-					ExitLoop
-				EndIf
-			Until AscW(StringRight($_vRecv, 1)) = 10 Or AscW(StringRight($_vRecv, 1)) = 0 ; Exit on @LF or Null
-		Else
-			$_vRecv = TCPRecv($_vIRC, $_iChars)
-			If @error Then $_sReturn = SetError(3, @error & @extended, 0)
-		EndIf
+		Local $_vRecv = ""; Required due to '&=' below
+		Do
+			$_vRecv &= TCPRecv($_vIRC, 1)
+			If @error Then
+				$_sReturn = SetError(3, @error & @extended, 0)
+				ExitLoop
+			EndIf
+		Until AscW(StringRight($_vRecv, 1)) = 10 Or AscW(StringRight($_vRecv, 1)) = 0 ; Exit on @LF or Null
 	EndIf
 	If $_sReturn = 1 Then $_sReturn = $_vRecv
 	Return $_sReturn
