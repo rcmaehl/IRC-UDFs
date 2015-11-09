@@ -74,3 +74,14 @@ Func _ValidIP($sIP)
             Return $adIPAddressInfo
     EndSwitch
 EndFunc   ;==>_ValidIP
+
+; Outputting Colors to Console
+
+; SCITE
+; ConsoleWrite('! = Bold Red' & @LF)
+; ConsoleWrite('> = Blue' & @LF)
+; ConsoleWrite('- = Orange' & @LF)
+; ConsoleWrite('+ = Green' & @LF)
+; ConsoleWrite('(5) : = Red (jump to line 5 when double-clicked)' & @LF)
+; ConsoleWrite('Start with String or Integer then ' & @TAB & '6' & ' = Pink (jump to line 6 when double-clicked)' & @LF)
+; ConsoleWrite('(' & @ScriptLineNumber & ') : = Red (jump to line ' & @ScriptLineNumber & ' when double-clicked)' & @CRLF)
