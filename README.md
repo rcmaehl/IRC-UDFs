@@ -3,6 +3,11 @@ IRC-UDFs
 
 AutoIt IRC UDFs, UDFs to connect to IRC using TCP Functions, as well as perform actions once connected.
 
+Installation Instructions:
+
+    1. Unzip
+    2. Merge Includes folder with AutoIt Includes
+    3. Merge Example folder with AutoIt Examples
 
 Notes:
 
