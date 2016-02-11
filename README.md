@@ -8,6 +8,7 @@ Installation Instructions:
     1. Unzip
     2. Merge Includes folder with AutoIt Includes
     3. Merge Example folder with AutoIt Examples
+    4. (OPTIONAL) Use a Client from Clients folder as your main IRC Client!
 
 Notes:
 
@@ -18,12 +19,12 @@ Notes:
     These commands should work on every server following either RFC 1459 (legacy) or RFC 2812 (preferred).  
     The majority of the old functions have been modified. It will break most, if not all, scripts using the old UDF.  
 
-Future Goals: 
+Additional Milestones: 
 
-    Config File (To Be Forked)
-    User Ranks
-    Single Network IRC Client (To Be Forked)
-    Multi Network IRC Client
+    IRC Client (In the works)
+        Config File
+        GUI Example
+        Multiple Networks At Once
 
 Last Commit Shared with AutoIt Forums:
 
