@@ -4,7 +4,7 @@
 ; Title .........: IRC_Constants
 ; AutoIt Version : 3.3.14.0
 ; Language ......: English
-; Description ...: Constants to be included in an AutoIt v3 script when using IRC functions.
+; Description ...: Constants to be included when using IRC functions. Based on: https://www.alien.net.au/irc/irc2numerics.html
 ; Author(s) .....: rcmaehl
 ; ===============================================================================================================================
 
@@ -56,6 +56,7 @@ Global Const $RPL_NAMREPLY = 353
 Global Const $RPL_ENDOFNAMES = 366
 
 Global Const $ERR_NICKNAMEINUSE = 433
+Global Const $ERR_UNAVAILRESOURCE = 437
 
 Global Const $RM_FORMAT = 1
 Global Const $RM_COLOR = 2
