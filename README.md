@@ -28,4 +28,4 @@ Additional Milestones:
 
 Last Commit Shared with AutoIt Forums:
 
-    b75678685439b5bd306f307dc35ef27d31c65419
+    b32dfaaf707d67dd2b1666a111cfb610f950c6fb
