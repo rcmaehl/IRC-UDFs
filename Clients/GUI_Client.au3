@@ -1,6 +1,5 @@
 #include <IRC.au3>
 #include <IRCExtras.au3>
-#include <IRCConstants.au3>
 #include <Array.au3>
 #include <GUIEdit.au3>
 #include <EditConstants.au3>
@@ -39,6 +38,7 @@ Func Main()
 	Local $iTimeOut = 300000                ; Ping Timeout Amount in Milliseconds
 
 	;Debug Variables
+	Local $sSplit = ""                      ; Message Split Storage
 	Local $iExit = 0                        ; Exit Code
 
 	;Create GUI
@@ -55,7 +55,7 @@ Func Main()
 	GUISetState(@SW_SHOW, $hGUI)
 
 	;Start Up Networking
-	Opt("TCPTimeout", 200)
+	Opt("TCPTimeout", 500)
 	TCPStartup()
 
 	Local $Sock = _IRCConnect($Server, $Port, $Nick, $Mode, $RealName, $Pass); Connects to IRC. Sends Password, if any. Declares User Identity.
@@ -106,13 +106,13 @@ Func Main()
 		GUICtrlSetData($hOutput, GUICtrlRead($hOutput) & $sRecv) ; Write Received Data to GUI Console
 		_GUICtrlEdit_LineScroll($hOutput, 0, $iLines)
 
-		Local $sTemp = StringSplit($sRecv, " ") ; Splits Packet into Command Message and Parameters
+		$sSplit = StringSplit($sRecv, " ") ; Splits Packet into Command Message and Parameters
 
-		Switch $sTemp[1] ; Server/User Handling
+		Switch $sSplit[1] ; Server/User Handling
 
 			Case "PING"
 				$iLastPing = TimerInit()
-				$sPing = StringReplace($sTemp[2], ":", "")
+				$sPing = StringReplace($sSplit[2], ":", "")
 				_IRCServerPong($Sock, $sPing); Checks for Pings from Server and Replies
 
 			Case Else
@@ -120,9 +120,9 @@ Func Main()
 
 		EndSwitch
 
-		If $sTemp[0] <= 2 Then ContinueLoop ; Error Handling, So Next Line Doesn't Fail
+		If $sSplit[0] <= 2 Then ContinueLoop ; Error Handling, So Next Line Doesn't Fail
 
-		Switch $sTemp[2] ; What type of message did our program get?
+		Switch $sSplit[2] ; What type of message did our program get?
 
 			Case ":Closing" ; Connection Closed
 				$iExit = 1
@@ -139,7 +139,7 @@ Func Main()
 
 ;			Case "004" ; Server Info (RFC2812)
 
-;			Case "005" And $sTemp[3] = ":Try"; Try Another Server (See 'Case "010"') (RFC2812)
+;			Case "005" And $sSplit[3] = ":Try"; Try Another Server (See 'Case "010"') (RFC2812)
 ;				$iExit = 1
 ;				ExitLoop
 
@@ -153,12 +153,12 @@ Func Main()
 
 ;			Case "009" ; Server Memory Total? (ircu)
 
-;			Case "010" And Not TCPNameToIP($sTemp[3]) = "" ; Easy new server format from 'Case "005"', Possibly unreliable
+;			Case "010" And Not TCPNameToIP($sSplit[3]) = "" ; Easy new server format from 'Case "005"', Possibly unreliable
 
 ;			Case "010" ; Server Memory Usage? (ircu)
 
 			Case $RPL_TOPIC ; Channel Topic
-				$sChannel = $sTemp[4]
+				$sChannel = $sSplit[4]
 				$sChannel = StringReplace($sChannel, "#", "p") ; Filter out # as you can't use it in Assign()
 				$sChannel = StringReplace($sChannel, "&", "a") ; Filter out & as you can't use it in Assign()
 				$sTopic = StringTrimLeft($sRecv, StringInStr($sRecv,":", 0, 2)) ; Get Channel Topic
@@ -167,14 +167,14 @@ Func Main()
 				Assign($sChannel & "_topic", $sTopic)
 
 			Case $RPL_TOPICWHOTIME ; Who Set Channel Topic and When
-				$sChannel = $sTemp[4]
+				$sChannel = $sSplit[4]
 				$sChannel = StringReplace($sChannel, "#", "p") ; Filter out # as you can't use it in Assign()
 				$sChannel = StringReplace($sChannel, "&", "a") ; Filter out & as you can't use it in Assign()
-				Assign($sChannel & "_topic_user", $sTemp[5])
-				Assign($sChannel & "_topic_time", $sTemp[6])
+				Assign($sChannel & "_topic_user", $sSplit[5])
+				Assign($sChannel & "_topic_time", $sSplit[6])
 
 			Case $RPL_NAMREPLY ; Parse Channel User List
-				$sChannel = $sTemp[5]
+				$sChannel = $sSplit[5]
 				$sChannel = StringReplace($sChannel, "#", "p") ; Filter out # as you can't use it in Assign()
 				$sChannel = StringReplace($sChannel, "&", "a") ; Filter out & as you can't use it in Assign()
 				$sUserList = StringTrimLeft($sRecv, StringInStr($sRecv,":", 0, 2)) ; Get User List
@@ -209,7 +209,7 @@ Func Main()
 				EndIf
 
 			Case "JOIN"
-				$sUser = StringMid($sTemp[1], 2, StringInStr($sTemp[1], "!") - 2); Get User Who Joined
+				$sUser = StringMid($sSplit[1], 2, StringInStr($sSplit[1], "!") - 2); Get User Who Joined
 
 				If $sUser <> $Nick Then ; Not Myself
 					$sChannel = StringReplace($sChannel, "#", "p")
@@ -218,15 +218,15 @@ Func Main()
 					_ArrayAdd($aUsers, $sUser)
 					Assign($sChannel & "_users", $aUsers)
 				Else
-					$sTemp[3] = StringReplace($sTemp[3], ":", "")
-					$sTemp[3] = StringReplace($sTemp[3], @CR, "")
-					$sTemp[3] = StringReplace($sTemp[3], @LF, "")
-					_ArrayAdd($aChannels, $sTemp[3])
+					$sSplit[3] = StringReplace($sSplit[3], ":", "")
+					$sSplit[3] = StringReplace($sSplit[3], @CR, "")
+					$sSplit[3] = StringReplace($sSplit[3], @LF, "")
+					_ArrayAdd($aChannels, $sSplit[3])
 				EndIf
 
 			Case "KICK"
-				$sUser = $sTemp[4]
-				$sChannel = $sTemp[3]
+				$sUser = $sSplit[4]
+				$sChannel = $sSplit[3]
 
 				If $sUser <> $Nick Then ; Not Myself
 					$sChannel = StringReplace($sChannel, "#", "p") ; Update username tracker
@@ -236,14 +236,14 @@ Func Main()
 					_ArrayDelete($aUsers, $iIndex)
 					Assign($sChannel & "_users", $aUsers)
 				Else
-					$sTemp[3] = StringReplace(StringReplace($sTemp[3], @CR, ""), @LF, "") ; Update username tracker
-					$iIndex = _ArraySearch($aChannels, $sTemp[3])
+					$sSplit[3] = StringReplace(StringReplace($sSplit[3], @CR, ""), @LF, "") ; Update username tracker
+					$iIndex = _ArraySearch($aChannels, $sSplit[3])
 					_ArrayDelete($aChannels, $iIndex)
 				EndIf
 
 			Case "NICK"
-				$sUser = StringMid($sTemp[1], 2, StringInStr($sTemp[1], "!") - 2); Get User Who Changed Nicks
-				$sNick = StringReplace($sTemp[3], @LF, "")
+				$sUser = StringMid($sSplit[1], 2, StringInStr($sSplit[1], "!") - 2); Get User Who Changed Nicks
+				$sNick = StringReplace($sSplit[3], @LF, "")
 				$sNick = StringReplace($sNick, @CR, "")
 				$sNick = StringTrimLeft($sNick, 1)
 
@@ -262,7 +262,7 @@ Func Main()
 				If $sUser = $Nick Then $Nick = $sNick ; My Nick Changed
 
 			Case "QUIT"
-				$sUser = StringMid($sTemp[1], 2, StringInStr($sTemp[1], "!") - 2); Get User Who Left
+				$sUser = StringMid($sSplit[1], 2, StringInStr($sSplit[1], "!") - 2); Get User Who Left
 
 				If $sUser <> $Nick Then ; Not Myself
 					$iIndex = UBound($aChannels)
@@ -284,7 +284,7 @@ Func Main()
 				EndIf
 
 			Case "PART"
-				$sUser = StringMid($sTemp[1], 2, StringInStr($sTemp[1], "!") - 2); Get User Who Left
+				$sUser = StringMid($sSplit[1], 2, StringInStr($sSplit[1], "!") - 2); Get User Who Left
 
 				If $sUser <> $Nick Then ; Not Myself
 					$aUsers = Eval($sChannel & "_users")
@@ -292,17 +292,17 @@ Func Main()
 					_ArrayDelete($aUsers, $iIndex)
 					Assign($sChannel & "_users", $aUsers)
 				Else
-					$sTemp[3] = StringReplace(StringReplace($sTemp[3], @CR, ""), @LF, "")
-					$iIndex = _ArraySearch($aChannels, $sTemp[3])
+					$sSplit[3] = StringReplace(StringReplace($sSplit[3], @CR, ""), @LF, "")
+					$iIndex = _ArraySearch($aChannels, $sSplit[3])
 					_ArrayDelete($aChannels, $iIndex)
 				EndIf
 
 			Case "PRIVMSG" ; Message Received in a Channel or PM
-				$sUser = StringMid($sTemp[1], 2, StringInStr($sTemp[1], "!") - 2); Get User Who Sent the Message
+				$sUser = StringMid($sSplit[1], 2, StringInStr($sSplit[1], "!") - 2); Get User Who Sent the Message
 				$sMessage = StringMid($sRecv, StringInStr($sRecv, ":", 0, 2) + 1); Get Full Message
 				$sMessage = StringReplace(StringReplace($sMessage, @CR, ""), @LF, ""); Strip Carrage Returns and Line Feeds
 				$aMessage = StringSplit($sMessage, " ")
-				$sRecipient = _IRCReplyTo($sTemp[1], $sTemp[3])
+				$sRecipient = _IRCReplyTo($sSplit[1], $sSplit[3])
 
 				Select
 
@@ -343,7 +343,7 @@ Func Main()
 				EndSelect
 
 			Case "TOPIC" ; Topic Change
-				$sChannel = $sTemp[3]
+				$sChannel = $sSplit[3]
 				$sChannel = StringReplace($sChannel, "#", "p") ; Filter out # as you can't use it in Assign()
 				$sChannel = StringReplace($sChannel, "&", "a") ; Filter out & as you can't use it in Assign()
 				$sTopic = StringTrimLeft($sRecv, StringInStr($sRecv,":", 0, 2)) ; Get Channel Topic
