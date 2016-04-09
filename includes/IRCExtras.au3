@@ -16,7 +16,7 @@
 ;                  $_sPacketPart3       - Parameter 3 of the PRIVMSG Packet Recieved (Recipent)
 ; Return values .: Returns who to reply to for a PRIVMsg
 ; Author ........: Robert Maehl (rcmaehl)
-; Modified ......: 06/07/2015
+; Modified ......: 04/09/2016
 ; Remarks .......: Also cleans up the Username for replying
 ; Related .......:
 ; Link ..........:
