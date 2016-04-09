@@ -1,5 +1,6 @@
 #include <Array.au3>
 #include <IRC.au3>
+#include <IRCExtras.au3>
 #include <IRCConstants.au3>
 
 Main()
@@ -262,7 +263,7 @@ Func Main()
 				$sMessage = StringMid($sRecv, StringInStr($sRecv, ":", 0, 2) + 1); Get Full Message
 				$sMessage = StringReplace(StringReplace($sMessage, @CR, ""), @LF, ""); Strip Carrage Returns and Line Feeds
 				$aMessage = StringSplit($sMessage, " ")
-				$sRecipient = $sTemp[3]
+				$sRecipient = _IRCReplyTo($sTemp[1], $sTemp[3])
 
 				Select
 
