@@ -57,13 +57,13 @@ Func Main()
 		If @error Then ; If Error Getting Message
 			$iError = @error
 			$iExtended = @extended
-			ConsoleWrite("Recv Error: " & $iError & " Extended: " & $iExtended & @CRLF); Display message on Error
+			ConsoleWriteError("Recv Error: " & $iError & " Extended: " & $iExtended & @CRLF); Display message on Error
 			$iExit = 1
 			ExitLoop
 		ElseIf Not $sRecv Then ; If Nothing Received Then Continue Checking
 			ContinueLoop
 		ElseIf TimerDiff($iLastPing) >= $iTimeOut Then
-			ConsoleWrite("Disconnected - Ping Timeout" & @CRLF)
+			ConsoleWriteError("Disconnected - Ping Timeout" & @CRLF)
 			$iExit = 1
 			ExitLoop
 		EndIf
@@ -239,7 +239,7 @@ Func Main()
 						Assign($sChannel & "_users", $aUsers)
 					Next
 				Else
-					ConsoleWrite("EXCEPTION: Should not see self QUIT." & @CRLF)
+					ConsoleWriteError("EXCEPTION: Should not see self QUIT." & @CRLF)
 					$iExit = 1
 					ExitLoop
 				EndIf
