@@ -370,7 +370,7 @@ EndFunc   ;==>_IRCDisconnect
 ;                  |2 = Recieving Failure, sets @extended to TCPRecv error returned
 ; Author ........: Robert Maehl (rcmaehl)
 ; Modified ......: 11/09/2015
-; Remarks .......: 
+; Remarks .......:
 ; Related .......:
 ; Link ..........:
 ; Example .......: Yes
