@@ -50,6 +50,7 @@ Global Const $RPL_STATSBLINE = 247
 Global Const $RPL_STATSDLINE = 250
 
 Global Const $RPL_TOPIC	= 332
+Global Const $RPL_TOPICWHOTIME = 333
 
 Global Const $RPL_NAMREPLY = 353
 

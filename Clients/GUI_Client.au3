@@ -157,7 +157,7 @@ Func Main()
 
 ;			Case "010" ; Server Memory Usage? (ircu)
 
-			Case "332" ; Channel Topic
+			Case $RPL_TOPIC ; Channel Topic
 				$sChannel = $sTemp[4]
 				$sChannel = StringReplace($sChannel, "#", "p") ; Filter out # as you can't use it in Assign()
 				$sChannel = StringReplace($sChannel, "&", "a") ; Filter out & as you can't use it in Assign()
@@ -166,7 +166,7 @@ Func Main()
 				$sTopic = StringReplace($sTopic, @LF, "")
 				Assign($sChannel & "_topic", $sTopic)
 
-			Case "333" ; Who Set Channel Topic and When
+			Case $RPL_TOPICWHOTIME ; Who Set Channel Topic and When
 				$sChannel = $sTemp[4]
 				$sChannel = StringReplace($sChannel, "#", "p") ; Filter out # as you can't use it in Assign()
 				$sChannel = StringReplace($sChannel, "&", "a") ; Filter out & as you can't use it in Assign()
