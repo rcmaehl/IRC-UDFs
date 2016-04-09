@@ -1,5 +1,6 @@
 #include <Array.au3>
 #include <IRC.au3>
+#include <IRCConstants.au3>
 
 Main()
 
@@ -17,6 +18,8 @@ Func Main()
 	Local $Nick2 = "Au3Bot2"                ; Nick Name to Use if First Choice isn't available
 	Local $Mode = 0                         ; User Mode to Use
 	Local $RealName = "Au3Bot"              ; Real Name to Use
+	Local $UserPass = ""                    ; Username Password to Use
+	Local $GhostInUse = True                ; Ghost Username if in Use
 
 	;Channel Variables
 	Local $Channels = "#channel1,#channel2" ; Channels to Join
@@ -87,7 +90,8 @@ Func Main()
 				$iExit = 1
 				ExitLoop
 
-			Case "001" ; Server Welcome (RFC2812)
+			Case $RPL_WELCOME ; Server Welcome (RFC2812)
+				If Not $UserPass = "" Then _IRCMultiSendMsg($Sock, "NICKSERV", "IDENTIFY " & $Nick & " " & $UserPass)
 				_IRCChannelJoin($Sock, $Channels, $Keys); Join the Channels Specified
 				_IRCMultiMode($Sock, $Nick, "+i")
 
@@ -131,7 +135,7 @@ Func Main()
 				Assign($sChannel & "_topic_user", $sTemp[5])
 				Assign($sChannel & "_topic_time", $sTemp[6])
 
-			Case "353" ; Parse Channel User List
+			Case $RPL_NAMREPLY ; Parse Channel User List
 				$sChannel = $sTemp[5]
 				$sChannel = StringReplace($sChannel, "#", "p") ; Filter out # as you can't use it in Assign()
 				$sChannel = StringReplace($sChannel, "&", "a") ; Filter out & as you can't use it in Assign()
@@ -141,7 +145,7 @@ Func Main()
 				$aUsers &= StringReplace($sUserList, " ", "|")
 				$aUsers &= "|"
 
-			Case "366" ; Joined Channel (Actually End of Channel User List)
+			Case $RPL_ENDOFNAMES ; Joined Channel (Actually End of Channel User List)
 				$aUsers = StringReplace($aUsers, "~", "")
 				$aUsers = StringReplace($aUsers, "&", "")
 				$aUsers = StringReplace($aUsers, "!", "")
@@ -153,9 +157,18 @@ Func Main()
 				Assign($sChannel & "_users", $aUsers)
 				$aUsers = "" ; Empty Array for Next Channel
 
-			Case "433" ; Nick already in use
+			Case $ERR_UNAVAILRESOURCE ; Nick unavailable
 				_IRCSelfSetNick($Sock, $Nick2)
 				$Nick = $Nick2
+
+			Case "443" ; Nick already in use
+				_IRCSelfSetNick($Sock, $Nick2)
+				$Nick = $Nick2
+				If $GhostInUse Then
+					_IRCMultiSendMsg($Sock, "NICKSERV", "GHOST " & $Nick & " " & $Pass)
+					_IRCSelfSetNick($Sock, $Nick)
+					$Nick = $Nick
+				EndIf
 
 			Case "JOIN"
 				$sUser = StringMid($sTemp[1], 2, StringInStr($sTemp[1], "!") - 2); Get User Who Joined
@@ -178,14 +191,14 @@ Func Main()
 				$sChannel = $sTemp[3]
 
 				If $sUser <> $Nick Then ; Not Myself
-					$sChannel = StringReplace($sChannel, "#", "p")
+					$sChannel = StringReplace($sChannel, "#", "p") ; Update username tracker
 					$sChannel = StringReplace($sChannel, "&", "a")
 					$aUsers = Eval($sChannel & "_users")
 					$iIndex = _ArraySearch($aUsers, $sUser)
 					_ArrayDelete($aUsers, $iIndex)
 					Assign($sChannel & "_users", $aUsers)
 				Else
-					$sTemp[3] = StringReplace(StringReplace($sTemp[3], @CR, ""), @LF, "")
+					$sTemp[3] = StringReplace(StringReplace($sTemp[3], @CR, ""), @LF, "") ; Update username tracker
 					$iIndex = _ArraySearch($aChannels, $sTemp[3])
 					_ArrayDelete($aChannels, $iIndex)
 				EndIf
@@ -196,21 +209,19 @@ Func Main()
 				$sNick = StringReplace($sNick, @CR, "")
 				$sNick = StringTrimLeft($sNick, 1)
 
-				If $sUser <> $Nick Then ; Not Myself
-					$iIndex = UBound($aChannels)
-					For $i = 0 To $iIndex - 1 Step 1
-						$sChannel = $aChannels[$i]
-						$sChannel = StringReplace($sChannel, "#", "p")
-						$sChannel = StringReplace($sChannel, "&", "a")
-						$aUsers = Eval($sChannel & "_users")
-						$iIndex = _ArraySearch($aUsers, $sUser)
-						If $iIndex = -1 Then ContinueLoop
-						$aUsers[$iIndex] = $sNick
-						Assign($sChannel & "_users", $aUsers)
-					Next
-				Else
-					$Nick = $sNick
-				EndIf
+				$iIndex = UBound($aChannels) ; Update username tracker
+				For $i = 0 To $iIndex - 1 Step 1
+					$sChannel = $aChannels[$i]
+					$sChannel = StringReplace($sChannel, "#", "p")
+					$sChannel = StringReplace($sChannel, "&", "a")
+					$aUsers = Eval($sChannel & "_users")
+					$iIndex = _ArraySearch($aUsers, $sUser)
+					If $iIndex = -1 Then ContinueLoop
+					$aUsers[$iIndex] = $sNick
+					Assign($sChannel & "_users", $aUsers)
+				Next
+
+				If $sUser = $Nick Then $Nick = $sNick ; My Nick Changed
 
 			Case "QUIT"
 				$sUser = StringMid($sTemp[1], 2, StringInStr($sTemp[1], "!") - 2); Get User Who Left
@@ -257,6 +268,9 @@ Func Main()
 
 					Case $sMessage = "!channels"
 						_IRCMultiSendMsg($Sock, $sRecipient, _ArrayToString($aChannels, ", "))
+
+					Case $sMessage = "!help"
+						_IRCMultiSendMsg($Sock, $sRecipient, "I'm sorry, I don't have a help file yet!")
 
 					Case $sMessage = "!nick"
 						_IRCSelfSetNick($Sock, "Au2Bot")
