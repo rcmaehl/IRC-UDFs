@@ -36,28 +36,31 @@ EndFunc   ;==>_IRCReplyTo
 ; #FUNCTION# ====================================================================================================================
 ; Name ..........: _IRCStripSpecial
 ; Description ...: Cleans special characters sometimes seen in IRC
-; Syntax ........: _IRCStripSpecial($_sData[, $_bNoCTCP = False])
+; Syntax ........: _IRCStripSpecial($_sData, $_dFlags)
 ; Parameters ....: $_sData              - Data to clean up.
-;                  $_bFlags             - Flags for Characters to strip
+;                  $_dFlags             - Flags for Characters to strip
 ; Return values .: Returns cleaned up message.
 ; Author ........: Robert Maehl (rcmaehl)
-; Modified ......: 08/06/2015
+; Modified ......: 04/10/2016
 ; Related .......:
 ; Link ..........:
 ; Example .......: No
 ; ===============================================================================================================================
-Func _IRCStripSpecial($_sData, $_bFlags)
+Func _IRCStripSpecial($_sData, $_dFlags)
 	Local $_sReturn = $_sData ; By Default Return Original Data
-	If BitAND($_bFlags, 1) Then ; If $RM_FORMAT
+	If $_dFlags > 7 Then ; Should never be more than all flags
+		$_dFlags = 7
+	EndIf
+	If BitAND($_dFlags, 1) Then ; If $RM_FORMAT
 		$_sReturn = StringReplace($_sReturn, ChrW(15), "") ; Remove Character Reset Encodings
 		$_sReturn = StringReplace($_sReturn, ChrW(31), "") ; Remove Underline Character Encodings
 		$_sReturn = StringReplace($_sReturn, ChrW(29), "") ; Remove Bold Character Encodings
 	EndIf
-	If BitAND($_bFlags, 2) Then ; If $RM_COLOR
+	If BitAND($_dFlags, 2) Then ; If $RM_COLOR
 		$_sReturn = StringReplace($_sReturn, ChrW(2), "") ; Remove End Of Character Coloring Encodings
 		$_sReturn = StringRegExpReplace($_sReturn, ChrW(3) & "\d\d(?:,\d\d)?", "") ; Remove Character Coloring Encodings
 	EndIf
-	If BitAND($_bFlags, 4) Then ; If $RM_CTCP
+	If BitAND($_dFlags, 4) Then ; If $RM_CTCP
 		$_sReturn = StringReplace($_sReturn, ChrW(1), "") ; Remove CTCP Character Encodings
 	EndIf
 	Return $_sReturn

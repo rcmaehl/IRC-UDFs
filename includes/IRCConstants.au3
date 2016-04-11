@@ -59,6 +59,13 @@ Global Const $RPL_ENDOFNAMES = 366
 Global Const $ERR_NICKNAMEINUSE = 433
 Global Const $ERR_UNAVAILRESOURCE = 437
 
+; _IRCSendMessage Globals
+Global Const $MSG_TRIM = 1
+Global Const $MSG_PRIVMSG = 2
+Global Const $MSG_NOTICE = 4
+Global Const $MSG_RAW = 8
+
+; _IRCStripSpecial Globals
 Global Const $RM_FORMAT = 1
 Global Const $RM_COLOR = 2
 Global Const $RM_CTCP = 4
