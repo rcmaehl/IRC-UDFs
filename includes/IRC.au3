@@ -453,17 +453,17 @@ EndFunc   ;==>_IRCMultiMode
 ; #FUNCTION# ====================================================================================================================
 ; Name ..........: _IRCMultiSendMsg
 ; Description ...: Sends a Message to a Channel or User
-; Syntax ........: _IRCMultiSendMsg($_vIRC, $_sTarget, $_sMsg[, $_bTrim = True])
+; Syntax ........: _IRCMultiSendMsg($_vIRC, $_sTarget, $_sMsg[, $_dFlags = $MSG_PRIVMSG])
 ; Parameters ....: $_vIRC               - Socket Identifier from _IRCConnect().
 ;                  $_sTarget            - Channel or User to Send Message.
 ;                  $_sMsg               - Message to Send.
-;                  $_bTrim              - [optional] Message Trimming. Default is True.
+;                  $_dFlags             - [optional] Flags for Message Type. Default is $MSG_PRIVMSG.
 ; Return values .: Success - Returns 1
 ;                  Failure - Returns 0 and sets @error:
 ;                  |1 = Invalid Socket Identifier, sets @extended: (1, if empty; 2, if -1)
 ;                  |2 = Invalid Channel or User, sets @extended: (1, if empty; 2, if not IRC compliant)
 ;                  |3 = Invalid Message
-;                  |4 = Invalid Trim Optional, sets @extended: (1, if empty; 2, if not boolean)
+;                  |4 = Invalid Trim Optional, sets @extended: (1, if empty; 2, if not binary)
 ;                  |5 = Sending Failure, sets @extended to TCPSend error returned
 ; Author ........: Robert Maehl (rcmaehl)
 ; Modified ......: 07/20/2015
@@ -473,8 +473,9 @@ EndFunc   ;==>_IRCMultiMode
 ; Link ..........:
 ; Example .......: Yes
 ; ===============================================================================================================================
-Func _IRCMultiSendMsg($_vIRC, $_sTarget, $_sMsg, $_bTrim = True)
+Func _IRCMultiSendMsg($_vIRC, $_sTarget, $_sMsg, $_dFlags = $MSG_PRIVMSG)
 	Local $_sReturn = 1
+	Local $_sType = "ERR"
 	Select ;Parameter Checking, Trust No One
 		Case $_vIRC = ""
 			$_sReturn = SetError(1, 1, 0)
@@ -491,28 +492,38 @@ Func _IRCMultiSendMsg($_vIRC, $_sTarget, $_sMsg, $_bTrim = True)
 			$_sReturn = SetError(2, 2, 0)
 		Case $_sMsg = ""
 			$_sReturn = SetError(3, 0, 0)
-		Case $_bTrim = ""
+		Case $_dFlags = ""
 			$_sReturn = SetError(4, 1, 0)
-		Case Not IsBool($_bTrim)
+		Case Not IsBinary($_dFlags)
 			$_sReturn = SetError(4, 2, 0)
+		Case $_dFlags > 5
+			$_sReturn = SetError(4, 0, 0)
 	EndSelect
 	If $_sReturn = 1 Then
-		If $_bTrim Then $_sMsg = StringLeft($_sMsg, 368)
-		If (StringLen($_sTarget) + StringLen($_sMsg) + 16 + 16 + 64 + 32) > 512 Then
-			Local $_sSend = ""
-			Do
-				$_sSend = StringLeft($_sMsg, 368)
-				$_sMsg = StringTrimLeft($_sMsg, 368)
-				TCPSend($_vIRC, "PRIVMSG " & $_sTarget & " :" & $_sSend & @CRLF)
-				If @error Then
-					$_sReturn = SetError(5, @error & @extended, 0)
-					ExitLoop
-				EndIf
-			Until StringLen($_sMsg) = 0
-		Else
-			TCPSend($_vIRC, "PRIVMSG " & $_sTarget & " :" & $_sMsg & @CRLF)
-			If @error Then $_sReturn = SetError(5, @error & @extended, 0)
+		If BitAND($_dFlags, 1) Then ; If $MSG_TRIM
+			$_sMsg = StringLeft($_sMsg, 436)
 		EndIf
+		If BitAND($_dFlags, 2) Then ; If $MSG_PRIVMSG
+			$_sType = "PRIVMSG "
+		ElseIf BitAND($_dFlags, 4) Then ; If $MSG_NOTICE
+			$_sType = "NOTICE "
+		EndIf
+;		If (StringLen($_sTarget) + StringLen($_sMsg) + 16 + 16 + 64 + 32) > 512 Then ; Find out why I chose these amounts and readd if needed
+		Local $_sSend = ""
+		Do
+			$_sSend = StringLeft($_sMsg, 436)
+			$_sMsg = StringTrimLeft($_sMsg, 436)
+			ConsoleWrite($_sType & $_sTarget & " :" & $_sSend & @CRLF)
+			TCPSend($_vIRC, $_sType & $_sTarget & " :" & $_sSend & @CRLF)
+			If @error Then
+				$_sReturn = SetError(5, @error & @extended, 0)
+				ExitLoop
+			EndIf
+		Until StringLen($_sMsg) = 0
+;		Else
+;			TCPSend($_vIRC, $Prefix & $_sTarget & " :" & $_sMsg & @CRLF)
+;			If @error Then $_sReturn = SetError(5, @error & @extended, 0)
+;		EndIf
 	EndIf
 	Return $_sReturn
 EndFunc   ;==>_IRCMultiSendMsg

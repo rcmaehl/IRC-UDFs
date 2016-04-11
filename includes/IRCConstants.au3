@@ -63,7 +63,6 @@ Global Const $ERR_UNAVAILRESOURCE = 437
 Global Const $MSG_TRIM = 1
 Global Const $MSG_PRIVMSG = 2
 Global Const $MSG_NOTICE = 4
-Global Const $MSG_RAW = 8
 
 ; _IRCStripSpecial Globals
 Global Const $RM_FORMAT = 1
