@@ -184,7 +184,7 @@ Func Main()
 				$aUsers &= "|"
 
 			Case $RPL_ENDOFNAMES ; Joined Channel (Actually End of Channel User List)
-				$aUsers = StringReplace($aUsers, "~", "")
+				$aUsers = StringReplace($aUsers, "~", "") ; Strip out Channel Statuses
 				$aUsers = StringReplace($aUsers, "&", "")
 				$aUsers = StringReplace($aUsers, "!", "")
 				$aUsers = StringReplace($aUsers, "@", "")
@@ -193,6 +193,7 @@ Func Main()
 				$aUsers = StringTrimRight($aUsers, 1)
 				$aUsers = StringSplit($aUsers, "|", 2)
 				Assign($sChannel & "_users", $aUsers)
+				$sChannel = "" ; Empty Channel for Next Channel, Just in Case
 				$aUsers = "" ; Empty Array for Next Channel
 
 			Case $ERR_UNAVAILRESOURCE ; Nick unavailable
@@ -210,6 +211,7 @@ Func Main()
 
 			Case "JOIN"
 				$sUser = StringMid($sSplit[1], 2, StringInStr($sSplit[1], "!") - 2); Get User Who Joined
+				$sChannel = $sSplit[3] ; Get Channel They Joined
 
 				If $sUser <> $Nick Then ; Not Myself
 					$sChannel = StringReplace($sChannel, "#", "p")
@@ -225,8 +227,8 @@ Func Main()
 				EndIf
 
 			Case "KICK"
-				$sUser = $sSplit[4]
-				$sChannel = $sSplit[3]
+				$sUser = $sSplit[4] ; Get User Who Got Kicked
+				$sChannel = $sSplit[3] ; Get Channel They Got Kicked From
 
 				If $sUser <> $Nick Then ; Not Myself
 					$sChannel = StringReplace($sChannel, "#", "p") ; Update username tracker
@@ -284,7 +286,8 @@ Func Main()
 				EndIf
 
 			Case "PART"
-				$sUser = StringMid($sSplit[1], 2, StringInStr($sSplit[1], "!") - 2); Get User Who Left
+				$sUser = StringMid($sSplit[1], 2, StringInStr($sSplit[1], "!") - 2); Get User Who Parted
+				$sChannel = $sSplit[3] ; Get Channel They Parted
 
 				If $sUser <> $Nick Then ; Not Myself
 					$aUsers = Eval($sChannel & "_users")
