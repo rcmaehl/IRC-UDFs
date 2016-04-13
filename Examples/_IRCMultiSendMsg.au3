@@ -81,6 +81,9 @@ Func Example()
 				; Send Message
 				_IRCMultiSendMsg($Sock, "#ircudftest", "This is a test message")
 
+				; Send Notice
+				_IRCMultiSendMsg($Sock, "#ircudftest", "This is a test notice", $MSG_NOTICE)
+
 				; Disconnect
 				_IRCDisconnect($Sock)
 
