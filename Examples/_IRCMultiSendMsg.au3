@@ -1,7 +1,7 @@
 #include <IRC.au3>
 
 ; Allow some TCP lag
-Opt("TCPTimeout", 200)
+Opt("TCPTimeout", 500)
 
 ; Start Example
 Example()
@@ -80,9 +80,19 @@ Func Example()
 
 				; Send Message
 				_IRCMultiSendMsg($Sock, "#ircudftest", "This is a test message")
+				Sleep(500)
 
 				; Send Notice
 				_IRCMultiSendMsg($Sock, "#ircudftest", "This is a test notice", $MSG_NOTICE)
+				Sleep(500)
+
+				; Send a Colorful Message
+				_IRCMultiSendMsg($Sock, "#ircudftest", $MSG_LIGHTRED & "R" & $MSG_ORANGE & "A" & $MSG_YELLOW & "I" & $MSG_GREEN & "N" & $MSG_LIGHTBLUE & "B" & $MSG_PINK & "O" & $MSG_PURPLE & "W")
+				Sleep(500)
+
+				; Send a SERIOUS Message
+				_IRCMultiSendMsg($Sock, "#ircudftest", "I'm " & $MSG_BOLD & $MSG_UNDERLINE & $MSG_ITALIC & "SERIOUS")
+				Sleep(500)
 
 				; Disconnect
 				_IRCDisconnect($Sock)

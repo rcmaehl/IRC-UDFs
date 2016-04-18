@@ -59,10 +59,33 @@ Global Const $RPL_ENDOFNAMES = 366
 Global Const $ERR_NICKNAMEINUSE = 433
 Global Const $ERR_UNAVAILRESOURCE = 437
 
-; _IRCSendMessage Globals
+; _IRCSendMsg Globals
+; Message Type
 Global Const $MSG_TRIM = 1
 Global Const $MSG_PRIVMSG = 2
 Global Const $MSG_NOTICE = 4
+; Message Formatting
+Global Const $MSG_BOLD = ChrW(2)
+Global Const $MSG_UNDERLINE = ChrW(31)
+Global Const $MSG_ITALIC = ChrW(29)
+Global Const $MSG_RESET = ChrW(15)
+; Message Colors
+Global Const $MSG_WHITE = ChrW(3) & "0"
+Global Const $MSG_BLACK = ChrW(3) & "1"
+Global Const $MSG_BLUE = ChrW(3) & "2"
+Global Const $MSG_GREEN = ChrW(3) & "3"
+Global Const $MSG_LIGHTRED = ChrW(3) & "4"
+Global Const $MSG_BROWN = ChrW(3) & "5"
+Global Const $MSG_PURPLE = ChrW(3) & "6"
+Global Const $MSG_ORANGE = ChrW(3) & "7"
+Global Const $MSG_YELLOW = ChrW(3) & "8"
+Global Const $MSG_LIGHTGREEN = ChrW(3) & "9"
+Global Const $MSG_CYAN = ChrW(3) & "10"
+Global Const $MSG_LIGHTCYAN = ChrW(3) & "11"
+Global Const $MSG_LIGHTBLUE = ChrW(3) & "12"
+Global Const $MSG_PINK = ChrW(3) & "13"
+Global Const $MSG_GRAY = ChrW(3) & "14"
+Global Const $MSG_LIGHTGRAY = ChrW(3) & "15"
 
 ; _IRCStripSpecial Globals
 Global Const $RM_FORMAT = 1

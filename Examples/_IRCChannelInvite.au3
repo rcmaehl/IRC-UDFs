@@ -1,7 +1,7 @@
 #include <IRC.au3>
 
 ; Allow some TCP lag
-Opt("TCPTimeout", 200)
+Opt("TCPTimeout", 500)
 
 ; Start Example
 Example()
