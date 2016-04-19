@@ -340,7 +340,7 @@ Host = Host Mask (Can be your IP or something that represents it)
 
 Any 3 digit Code:
 	Contains information based on various events
-	Check https://www.alien.net.au/irc/irc2numerics.html for specifics
+	Check http://defs.ircdocs.horse/defs/numerics.html for specifics
 
 	SYNTAXES:
 		:Server ### Recipient
