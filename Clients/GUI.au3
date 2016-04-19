@@ -13,33 +13,33 @@ Func Main()
 	;Connection Variables
 
 	;Server Specific Connection Variables
-	Local $Server = "irc.freenode.net"      ; IRC Server
-	Local $Port = 6667                      ; IRC Server Port
-	Local $Pass = ""                        ; IRC Server Password
+	Local $Server = "irc.freenode.net"       ; IRC Server
+	Local $Port = 6667                       ; IRC Server Port
+	Local $Pass = ""                         ; IRC Server Password
 
 	;User Specific Connection Variables
-	Local $Nick = "Au3Bot"                  ; Nick Name to Use
-	Local $Nick2 = "Au3Bot2"                ; Nick Name to Use if First Choice isn't available
-	Local $Mode = 0                         ; User Mode to Use
-	Local $RealName = "Au3Bot"              ; Real Name to Use
-	Local $UserPass = ""                    ; Username Password to Use
-	Local $GhostInUse = True                ; Ghost Username if in Use
+	Local $Nick = "Au3Bot" & Random(0,999,1) ; Nick Name to Use
+	Local $Nick2 = "Au3Bot" & Random(0,999,1); Nick Name to Use if First Choice isn't available
+	Local $Mode = 0                          ; User Mode to Use
+	Local $RealName = "Au3Bot"               ; Real Name to Use
+	Local $UserPass = ""                     ; Username Password to Use
+	Local $GhostInUse = True                 ; Ghost Username if in Use
 
 	;Channel Variables
-	Local $Channels = "#channel1,#channel2" ; Channels to Join
-	Local $Keys = "key1,key2"               ; Channel Passwords
+	Local $Channels = "#channel1,#channel2"  ; Channels to Join
+	Local $Keys = "key1,key2"                ; Channel Passwords
 
 	;Channel User List Variables
-	Local $aUsers = ""                      ; Empty Array Used to Collect Users in a Channel on Join
-	Local $aChannels[0] = []                ; Array of Channels this Script is in
+	Local $aUsers = ""                       ; Empty Array Used to Collect Users in a Channel on Join
+	Local $aChannels[0] = []                 ; Array of Channels this Script is in
 
 	;Time Out Variables
-	Local $iLastPing = 0                    ; Variable Containing Last Ping Time
-	Local $iTimeOut = 300000                ; Ping Timeout Amount in Milliseconds
+	Local $iLastPing = 0                     ; Variable Containing Last Ping Time
+	Local $iTimeOut = 300000                 ; Ping Timeout Amount in Milliseconds
 
 	;Debug Variables
-	Local $sSplit = ""                      ; Message Split Storage
-	Local $iExit = 0                        ; Exit Code
+	Local $sSplit = ""                       ; Message Split Storage
+	Local $iExit = 0                         ; Exit Code
 
 	;Create GUI
 	Local $hGUI = GUICreate($Server, 640, 480, -1, -1, BitXOR($GUI_SS_DEFAULT_GUI, $WS_MINIMIZEBOX))
@@ -50,7 +50,8 @@ Func Main()
 ;		Local $hServerMenu = GUICtrlCreateMenu("Server")
 ;			Local $hConnect = GUICtrlCreateMenuItem("Connect", $hServerMenu)
 
-		Local $hOutput = GUICtrlCreateEdit("", 0, 0, 640, 460, $ES_READONLY+$ES_AUTOVSCROLL+$ES_MULTILINE+$WS_VSCROLL)
+		Local $hOutput = GUICtrlCreateEdit("", 0, 0, 640, 440, $ES_READONLY+$ES_AUTOVSCROLL+$ES_MULTILINE+$WS_VSCROLL)
+		Local $hInput = GUICtrlCreateInput("", 0, 460, 640, 20)
 
 	GUISetState(@SW_SHOW, $hGUI)
 
@@ -380,7 +381,7 @@ Host = Host Mask (Can be your IP or something that represents it)
 
 Any 3 digit Code:
 	Contains information based on various events
-	Check https://www.alien.net.au/irc/irc2numerics.html for specifics
+	Check http://defs.ircdocs.horse/defs/numerics.html for specifics
 
 	SYNTAXES:
 		:Server ### Recipient
