@@ -24,7 +24,7 @@
 ;                  |3 = Invalid Channel, sets @extended: (1, if empty; 2, if not IRC compliant)
 ;                  |4 = Sending Failure, sets @extended to TCPSend error returned
 ; Author ........: Robert Maehl (rcmaehl)
-; Modified ......: 07/19/2015
+; Modified ......: 06/10/2016
 ; Remarks .......:
 ; Related .......:
 ; Link ..........:
@@ -50,11 +50,10 @@ Func _IRCChannelInvite($_vIRC, $_sUser, $_sChannel)
 			EndSwitch
 		Case StringInStr($_sChannel, " ")
 			$_sReturn = SetError(3, 2, 0)
+		Case Else
+			TCPSend($_vIRC, "INVITE " & $_sUser & " " & $_sChannel & @CRLF)
+			If @error Then $_sReturn = SetError(4, @error & @extended, 0)
 	EndSelect
-	If $_sReturn = 1 Then
-		TCPSend($_vIRC, "INVITE " & $_sUser & " " & $_sChannel & @CRLF)
-		If @error Then $_sReturn = SetError(4, @error & @extended, 0)
-	EndIf
 	Return $_sReturn
 EndFunc   ;==>_IRCChannelInvite
 
@@ -72,7 +71,7 @@ EndFunc   ;==>_IRCChannelInvite
 ;                  |2 = Invalid Channel(s), sets @extended: (1, if empty; 2, if not IRC compliant)
 ;                  |3 = Sending Failure, sets @extended to TCPSend error returned
 ; Author ........: Robert Maehl (rcmaehl)
-; Modified ......: 07/19/2015
+; Modified ......: 06/10/2016
 ; Remarks .......: Modified from Chips' coding, _IRCJoinChannel($_vIRC, "0") Quits all channels, To Do: Check Channel Input
 ; Related .......: _IRCChannelPart
 ; Link ..........:
@@ -89,12 +88,11 @@ Func _IRCChannelJoin($_vIRC, $_sChannels, $_sKeys = "")
 			$_sReturn = SetError(2, 1, 0)
 		Case StringInStr($_sChannels, " ")
 			$_sReturn = SetError(2, 2, 0)
+		Case Else
+			If Not $_sKeys = "" Then $_sKeys = " " & $_sKeys
+			TCPSend($_vIRC, "JOIN " & $_sChannels & $_sKeys & @CRLF)
+			If @error Then $_sReturn = SetError(3, @error & @extended, 0)
 	EndSelect
-	If $_sReturn = 1 Then
-		If Not $_sKeys = "" Then $_sKeys = " " & $_sKeys
-		TCPSend($_vIRC, "JOIN " & $_sChannels & $_sKeys & @CRLF)
-		If @error Then $_sReturn = SetError(3, @error & @extended, 0)
-	EndIf
 	Return $_sReturn
 EndFunc   ;==>_IRCChannelJoin
 
@@ -114,7 +112,7 @@ EndFunc   ;==>_IRCChannelJoin
 ;                  |3 = Invalid User, sets @extended: (1, if empty; 2, if not IRC compliant)
 ;                  |4 = Sending Failure, sets @extended to TCPSend error returned
 ; Author ........: Robert Maehl (rcmaehl)
-; Modified ......: 07/19/2015
+; Modified ......: 06/10/2016
 ; Remarks .......:
 ; Related .......:
 ; Link ..........:
@@ -140,12 +138,11 @@ Func _IRCChannelKick($_vIRC, $_sChannel, $_sUser, $_sMsg = "")
 			$_sReturn = SetError(3, 1, 0)
 		Case StringInStr($_sUser, " ")
 			$_sReturn = SetError(3, 2, 0)
+		Case Else
+			If Not $_sMsg = "" Then $_sMsg = " :" & $_sMsg
+			TCPSend($_vIRC, "KICK " & $_sChannel & " " & $_sUser & $_sMsg & @CRLF)
+			If @error Then Return SetError(4, @error & @extended, 0)
 	EndSelect
-	If $_sReturn = 1 Then
-		If Not $_sMsg = "" Then $_sMsg = " :" & $_sMsg
-		TCPSend($_vIRC, "KICK " & $_sChannel & " " & $_sUser & $_sMsg & @CRLF)
-		If @error Then Return SetError(4, @error & @extended, 0)
-	EndIf
 	Return $_sReturn
 EndFunc   ;==>_IRCChannelKick
 
@@ -163,7 +160,7 @@ EndFunc   ;==>_IRCChannelKick
 ;                  |2 = Invalid Channel(s), sets @extended: (1, if empty; 2, if not IRC compliant)
 ;                  |3 = Sending Failure, sets @extended to TCPSend error returned
 ; Author ........: Robert Maehl (rcmaehl)
-; Modified ......: 07/19/2015
+; Modified ......: 06/10/2016
 ; Remarks .......: To Do: Check Channel Input for Errors
 ; Related .......: _IRCChannelJoin
 ; Link ..........:
@@ -180,12 +177,11 @@ Func _IRCChannelPart($_vIRC, $_sChannels, $_sMsg = "")
 			$_sReturn = SetError(2, 1, 0)
 		Case StringInStr($_sChannels, " ")
 			$_sReturn = SetError(2, 2, 0)
+		Case Else
+			If Not $_sMsg = "" Then $_sMsg = " :" & $_sMsg
+			TCPSend($_vIRC, "PART " & $_sChannels & $_sMsg & @CRLF)
+			If @error Then $_sReturn = SetError(3, @error & @extended, 0)
 	EndSelect
-	If $_sReturn = 1 Then
-		If Not $_sMsg = "" Then $_sMsg = " :" & $_sMsg
-		TCPSend($_vIRC, "PART " & $_sChannels & $_sMsg & @CRLF)
-		If @error Then $_sReturn = SetError(3, @error & @extended, 0)
-	EndIf
 	Return $_sReturn
 EndFunc   ;==>_IRCChannelPart
 
@@ -203,7 +199,7 @@ EndFunc   ;==>_IRCChannelPart
 ;                  |2 = Invalid Channel, sets @extended: (1, if empty; 2, if not IRC compliant)
 ;                  |3 = Sending Failure, sets @extended to TCPSend error returned
 ; Author ........: Robert Maehl (rcmaehl)
-; Modified ......: 07/19/2015
+; Modified ......: 06/10/2016
 ; Remarks .......: Queries Topic by Default.
 ; Related .......:
 ; Link ..........:
@@ -225,16 +221,15 @@ Func _IRCChannelTopic($_vIRC, $_sChannel, $_sTopic = Null)
 			EndSwitch
 		Case StringInStr($_sChannel, " ")
 			$_sReturn = SetError(2, 2, 0)
+		Case Else
+			If $_sTopic = Null Then
+				TCPSend($_vIRC, "TOPIC " & $_sChannel & @CRLF)
+				If @error Then $_sReturn = SetError(3, @error & @extended, 0)
+			Else
+				TCPSend($_vIRC, "TOPIC " & $_sChannel & " :" & $_sTopic & @CRLF)
+				If @error Then $_sReturn = SetError(3, @error & @extended, 0)
+			EndIf
 	EndSelect
-	If $_sReturn = 1 Then
-		If $_sTopic = Null Then
-			TCPSend($_vIRC, "TOPIC " & $_sChannel & @CRLF)
-			If @error Then $_sReturn = SetError(3, @error & @extended, 0)
-		Else
-			TCPSend($_vIRC, "TOPIC " & $_sChannel & " :" & $_sTopic & @CRLF)
-			If @error Then $_sReturn = SetError(3, @error & @extended, 0)
-		EndIf
-	EndIf
 	Return $_sReturn
 EndFunc   ;==>_IRCChannelTopic
 
@@ -260,7 +255,7 @@ EndFunc   ;==>_IRCChannelTopic
 ;                  |7 = Connection Failure, sets @extended to TCPConnect error returned
 ;                  |8 = Sending Failure, sets @extended to TCPSend error returned
 ; Author ........: Robert Maehl (rcmaehl)
-; Modified ......: 07/19/2015
+; Modified ......: 06/10/2016
 ; Remarks .......: Modified from Chips' coding, To Do: Fix Redundant $_sReturn Checking
 ; Related .......: _IRCDisconnect
 ; Link ..........:
@@ -291,29 +286,28 @@ Func _IRCConnect($_sServer, $_iPort, $_sNick, $_sMode = 0, $_sRealName = $_sNick
 			$_sReturn = SetError(4, 2, 0)
 		Case $_sRealName = ""
 			$_sReturn = SetError(5, 0, 0)
-	EndSelect
-	If $_sReturn = 1 Then
-		Local $_sIP = TCPNameToIP($_sServer)
-		If @error Then $_sReturn = SetError(6, @error & @extended, 0)
-		If $_sReturn = 1 Then
-			Local $_vSock = TCPConnect($_sIP, $_iPort)
-			If $_vSock = -1 Or $_vSock = 0 Then $_sReturn = SetError(7, @error & @extended, 0)
+		Case Else
+			Local $_sIP = TCPNameToIP($_sServer)
+			If @error Then $_sReturn = SetError(6, @error & @extended, 0)
 			If $_sReturn = 1 Then
-				If Not $_sPass = "" Then
-					TCPSend($_vSock, "PASS " & $_sPass & @CRLF)
-					If @error Then $_sReturn = SetError(8, @error & @extended, 0)
-				EndIf
+				Local $_vSock = TCPConnect($_sIP, $_iPort)
+				If $_vSock = -1 Or $_vSock = 0 Then $_sReturn = SetError(7, @error & @extended, 0)
 				If $_sReturn = 1 Then
-					TCPSend($_vSock, "NICK " & $_sNick & @CRLF)
-					If @error Then $_sReturn = SetError(8, @error & @extended, 0)
-					If $_sReturn = 1 Then
-						TCPSend($_vSock, "USER " & $_sNick & " " & $_sMode & " 0 :" & $_sRealName & @CRLF)
+					If Not $_sPass = "" Then
+						TCPSend($_vSock, "PASS " & $_sPass & @CRLF)
 						If @error Then $_sReturn = SetError(8, @error & @extended, 0)
+					EndIf
+					If $_sReturn = 1 Then
+						TCPSend($_vSock, "NICK " & $_sNick & @CRLF)
+						If @error Then $_sReturn = SetError(8, @error & @extended, 0)
+						If $_sReturn = 1 Then
+							TCPSend($_vSock, "USER " & $_sNick & " " & $_sMode & " 0 :" & $_sRealName & @CRLF)
+							If @error Then $_sReturn = SetError(8, @error & @extended, 0)
+						EndIf
 					EndIf
 				EndIf
 			EndIf
-		EndIf
-	EndIf
+	EndSelect
 	If $_sReturn = 1 Then $_sReturn = $_vSock
 	Return $_sReturn
 EndFunc   ;==>_IRCConnect
@@ -332,7 +326,7 @@ EndFunc   ;==>_IRCConnect
 ;                  |2 = Sending Failure, sets @extended to TCPSend error returned
 ;                  |3 = Closing Socket Failure, sets @extended to TCPCloseSocket error returned
 ; Author ........: Robert Maehl (rcmaehl)
-; Modified ......: 07/19/2015
+; Modified ......: 06/10/2016
 ; Remarks .......: Modified from Chips' coding
 ; Related .......: _IRCConnect
 ; Link ..........:
@@ -345,16 +339,15 @@ Func _IRCDisconnect($_vIRC, $_sMsg = "IRC.au3", $_bForce = True)
 			$_sReturn = SetError(1, 1, 0)
 		Case $_vIRC = -1
 			$_sReturn = SetError(1, 2, 0)
+		Case Else
+			If Not $_sMsg = "" Then $_sMsg = " :" & $_sMsg
+			TCPSend($_vIRC, "QUIT" & $_sMsg & @CRLF)
+			If @error Then $_sReturn = SetError(2, @error & @extended, 0)
+			If $_bForce = True Or $_sReturn = 1 Then
+				TCPCloseSocket($_vIRC)
+				If @error Then $_sReturn = SetError(3, @error & @extended, 0)
+			EndIf
 	EndSelect
-	If $_sReturn = 1 Then
-		If Not $_sMsg = "" Then $_sMsg = " :" & $_sMsg
-		TCPSend($_vIRC, "QUIT" & $_sMsg & @CRLF)
-		If @error Then $_sReturn = SetError(2, @error & @extended, 0)
-		If $_bForce = True Or $_sReturn = 1 Then
-			TCPCloseSocket($_vIRC)
-			If @error Then $_sReturn = SetError(3, @error & @extended, 0)
-		EndIf
-	EndIf
 	Return $_sReturn
 EndFunc   ;==>_IRCDisconnect
 
@@ -369,7 +362,7 @@ EndFunc   ;==>_IRCDisconnect
 ;                  |1 = Invalid Socket Identifier, sets @extended: (1, if empty; 2, if -1)
 ;                  |2 = Recieving Failure, sets @extended to TCPRecv error returned
 ; Author ........: Robert Maehl (rcmaehl)
-; Modified ......: 11/09/2015
+; Modified ......: 06/10/2016
 ; Remarks .......:
 ; Related .......:
 ; Link ..........:
@@ -382,17 +375,16 @@ Func _IRCGetMsg($_vIRC)
 			$_sReturn = SetError(1, 1, 0)
 		Case $_vIRC = -1
 			$_sReturn = SetError(1, 2, 0)
+		Case Else
+			Local $_vRecv = ""; Required due to '&=' below
+			Do
+				$_vRecv &= TCPRecv($_vIRC, 1)
+				If @error Then
+					$_sReturn = SetError(3, @error & @extended, 0)
+					ExitLoop
+				EndIf
+			Until AscW(StringRight($_vRecv, 1)) = 10 Or AscW(StringRight($_vRecv, 1)) = 0 ; Exit on @LF or Null
 	EndSelect
-	If $_sReturn = 1 Then
-		Local $_vRecv = ""; Required due to '&=' below
-		Do
-			$_vRecv &= TCPRecv($_vIRC, 1)
-			If @error Then
-				$_sReturn = SetError(3, @error & @extended, 0)
-				ExitLoop
-			EndIf
-		Until AscW(StringRight($_vRecv, 1)) = 10 Or AscW(StringRight($_vRecv, 1)) = 0 ; Exit on @LF or Null
-	EndIf
 	If $_sReturn = 1 Then $_sReturn = $_vRecv
 	Return $_sReturn
 EndFunc   ;==>_IRCGetMsg
@@ -413,7 +405,7 @@ EndFunc   ;==>_IRCGetMsg
 ;                  |3 = Invalid Mode
 ;                  |4 = Sending Failure, sets @extended to TCPSend error returned
 ; Author ........: Robert Maehl (rcmaehl)
-; Modified ......: 07/19/2015
+; Modified ......: 06/10/2016
 ; Remarks .......: Modified from Chips' coding, Queries Channel or User Mode by Default
 ;                  To Do: Check if User or Channel and Accept or Deny $_sParams accordingly
 ;                  WARNING: This WILL be split into four functions in the future
@@ -439,13 +431,12 @@ Func _IRCMultiMode($_vIRC, $_sTarget, $_sMode = "", $_sParams = "")
 			$_sReturn = SetError(2, 2, 0)
 		Case $_sMode = "" And Not $_sParams = ""
 			$_sReturn = SetError(3, 0, 0)
+		Case Else
+			If Not $_sMode = "" Then $_sMode = " " & $_sMode
+			If Not $_sParams = "" Then $_sParams = " " & $_sParams
+			TCPSend($_vIRC, "MODE " & $_sTarget & $_sMode & $_sParams & @CRLF)
+			If @error Then $_sReturn = SetError(3, @error & @extended, 0)
 	EndSelect
-	If $_sReturn = 1 Then
-		If Not $_sMode = "" Then $_sMode = " " & $_sMode
-		If Not $_sParams = "" Then $_sParams = " " & $_sParams
-		TCPSend($_vIRC, "MODE " & $_sTarget & $_sMode & $_sParams & @CRLF)
-		If @error Then $_sReturn = SetError(3, @error & @extended, 0)
-	EndIf
 	Return $_sReturn
 EndFunc   ;==>_IRCMultiMode
 
@@ -466,7 +457,7 @@ EndFunc   ;==>_IRCMultiMode
 ;                  |4 = Invalid Trim Optional, sets @extended: (1, if empty; 2, if not binary)
 ;                  |5 = Sending Failure, sets @extended to TCPSend error returned
 ; Author ........: Robert Maehl (rcmaehl)
-; Modified ......: 07/20/2015
+; Modified ......: 06/10/2016
 ; Remarks .......: Modified from Chips' coding; To Do: Better message length calculations
 ;                  WARNING: This may or may not be split into two functions in the future
 ; Related .......:
@@ -498,33 +489,32 @@ Func _IRCMultiSendMsg($_vIRC, $_sTarget, $_sMsg, $_dFlags = $MSG_PRIVMSG)
 			$_sReturn = SetError(4, 2, 0)
 		Case $_dFlags > 5
 			$_sReturn = SetError(4, 0, 0)
-	EndSelect
-	If $_sReturn = 1 Then
-		If BitAND($_dFlags, 1) Then ; If $MSG_TRIM
-			$_sMsg = StringLeft($_sMsg, 436)
-		EndIf
-		If BitAND($_dFlags, 2) Then ; If $MSG_PRIVMSG
-			$_sType = "PRIVMSG "
-		ElseIf BitAND($_dFlags, 4) Then ; If $MSG_NOTICE
-			$_sType = "NOTICE "
-		EndIf
-;		If (StringLen($_sTarget) + StringLen($_sMsg) + 16 + 16 + 64 + 32) > 512 Then ; Find out why I chose these amounts and readd if needed
-		Local $_sSend = ""
-		Do
-			$_sSend = StringLeft($_sMsg, 436)
-			$_sMsg = StringTrimLeft($_sMsg, 436)
-			ConsoleWrite($_sType & $_sTarget & " :" & $_sSend & @CRLF)
-			TCPSend($_vIRC, $_sType & $_sTarget & " :" & $_sSend & @CRLF)
-			If @error Then
-				$_sReturn = SetError(5, @error & @extended, 0)
-				ExitLoop
+		Case Else
+			If BitAND($_dFlags, 1) Then ; If $MSG_TRIM
+				$_sMsg = StringLeft($_sMsg, 436)
 			EndIf
-		Until StringLen($_sMsg) = 0
-;		Else
-;			TCPSend($_vIRC, $Prefix & $_sTarget & " :" & $_sMsg & @CRLF)
-;			If @error Then $_sReturn = SetError(5, @error & @extended, 0)
-;		EndIf
-	EndIf
+			If BitAND($_dFlags, 2) Then ; If $MSG_PRIVMSG
+				$_sType = "PRIVMSG "
+			ElseIf BitAND($_dFlags, 4) Then ; If $MSG_NOTICE
+				$_sType = "NOTICE "
+			EndIf
+	;		If (StringLen($_sTarget) + StringLen($_sMsg) + 16 + 16 + 64 + 32) > 512 Then ; Find out why I chose these amounts and readd if needed
+			Local $_sSend = ""
+			Do
+				$_sSend = StringLeft($_sMsg, 436)
+				$_sMsg = StringTrimLeft($_sMsg, 436)
+				ConsoleWrite($_sType & $_sTarget & " :" & $_sSend & @CRLF)
+				TCPSend($_vIRC, $_sType & $_sTarget & " :" & $_sSend & @CRLF)
+				If @error Then
+					$_sReturn = SetError(5, @error & @extended, 0)
+					ExitLoop
+				EndIf
+			Until StringLen($_sMsg) = 0
+	;		Else
+	;			TCPSend($_vIRC, $Prefix & $_sTarget & " :" & $_sMsg & @CRLF)
+	;			If @error Then $_sReturn = SetError(5, @error & @extended, 0)
+	;		EndIf
+	EndSelect
 	Return $_sReturn
 EndFunc   ;==>_IRCMultiSendMsg
 
@@ -541,7 +531,7 @@ EndFunc   ;==>_IRCMultiSendMsg
 ;                  |2 = Invalid Message
 ;                  |3 = Sending Failure, sets @extended to TCPSend error returned
 ; Author ........: Robert Maehl (rcmaehl)
-; Modified ......: 07/20/2015
+; Modified ......: 06/10/2016
 ; Remarks .......: Stripped from Chips' _IRCSendMessage, Use this to bypass UDF IRC Compliance
 ; Related .......:
 ; Link ..........:
@@ -556,11 +546,10 @@ Func _IRCRaw($_vIRC, $_sMsg)
 			$_sReturn = SetError(1, 2, 0)
 		Case $_sMsg = ""
 			$_sReturn = SetError(2, 0, 0)
+		Case Else
+			TCPSend($_vIRC, $_sMsg & @CRLF)
+			If @error Then $_sReturn = SetError(3, @error & @extended, 0)
 	EndSelect
-	If $_sReturn = 1 Then
-		TCPSend($_vIRC, $_sMsg & @CRLF)
-		If @error Then $_sReturn = SetError(3, @error & @extended, 0)
-	EndIf
 	Return $_sReturn
 EndFunc   ;==>_IRCRaw
 
@@ -579,7 +568,7 @@ EndFunc   ;==>_IRCRaw
 ;                  |3 = Invalid Password, sets @extended: (1, if empty; 2, if not IRC compliant)
 ;                  |4 = Sending Failure, sets @extended to TCPSend error returned
 ; Author ........: Robert Maehl (rcmaehl)
-; Modified ......: 07/20/2015
+; Modified ......: 06/10/2016
 ; Remarks .......:
 ; Related .......:
 ; Link ..........:
@@ -600,11 +589,10 @@ Func _IRCSelfOper($_vIRC, $_sUser, $_sPass)
 			$_sReturn = SetError(3, 1, 0)
 		Case StringInStr($_sPass, " ")
 			$_sReturn = SetError(3, 2, 0)
+		Case Else
+			TCPSend($_vIRC, "OPER " & $_sUser & " " & $_sPass & @CRLF)
+			If @error Then $_sReturn = SetError(4, @error & @extended, 0)
 	EndSelect
-	If $_sReturn = 1 Then
-		TCPSend($_vIRC, "OPER " & $_sUser & " " & $_sPass & @CRLF)
-		If @error Then $_sReturn = SetError(4, @error & @extended, 0)
-	EndIf
 	Return $_sReturn
 EndFunc   ;==>_IRCSelfOper
 
@@ -621,7 +609,7 @@ EndFunc   ;==>_IRCSelfOper
 ;                  |2 = Invalid Nick, sets @extended: (1, if empty; 2, if not IRC compliant)
 ;                  |3 = Sending Failure, sets @extended to TCPSend error returned
 ; Author ........: Robert Maehl (rcmaehl)
-; Modified ......: 07/20/2015
+; Modified ......: 06/10/2016
 ; Remarks .......:
 ; Related .......:
 ; Link ..........:
@@ -638,11 +626,10 @@ Func _IRCSelfSetNick($_vIRC, $_sNick)
 			$_sReturn = SetError(2, 1, 0)
 		Case StringInStr($_sNick, " ")
 			$_sReturn = SetError(2, 2, 0)
+		Case Else
+			TCPSend($_vIRC, "NICK " & $_sNick & @CRLF)
+			If @error Then $_sReturn = SetError(3, @error & @extended, 0)
 	EndSelect
-	If $_sReturn = 1 Then
-		TCPSend($_vIRC, "NICK " & $_sNick & @CRLF)
-		If @error Then $_sReturn = SetError(3, @error & @extended, 0)
-	EndIf
 	Return $_sReturn
 EndFunc   ;==>_IRCSelfSetNick
 
@@ -658,7 +645,7 @@ EndFunc   ;==>_IRCSelfSetNick
 ;                  |1 = Invalid Socket Identifier, sets @extended: (1, if empty; 2, if -1)
 ;                  |2 = Sending Failure, sets @extended to TCPSend error returned
 ; Author ........: Robert Maehl (rcmaehl)
-; Modified ......: 07/20/2015
+; Modified ......: 06/10/2016
 ; Remarks .......: Defaults to setting the User Not AFK
 ; Related .......:
 ; Link ..........:
@@ -671,12 +658,11 @@ Func _IRCSelfSetStatus($_vIRC, $_sMsg = "")
 			$_sReturn = SetError(1, 1, 0)
 		Case $_vIRC = -1
 			$_sReturn = SetError(1, 2, 0)
+		Case Else
+			If Not $_sMsg = "" Then $_sMsg = " :" & $_sMsg
+			TCPSend($_vIRC, "AWAY" & $_sMsg & @CRLF)
+			If @error Then $_sReturn = SetError(2, @error & @extended, 0)
 	EndSelect
-	If $_sReturn = 1 Then
-		If Not $_sMsg = "" Then $_sMsg = " :" & $_sMsg
-		TCPSend($_vIRC, "AWAY" & $_sMsg & @CRLF)
-		If @error Then $_sReturn = SetError(2, @error & @extended, 0)
-	EndIf
 	Return $_sReturn
 EndFunc   ;==>_IRCSelfSetStatus
 
@@ -693,7 +679,7 @@ EndFunc   ;==>_IRCSelfSetStatus
 ;                  |2 = Invalid Server
 ;                  |3 = Sending Failure, sets @extended to TCPSend error returned
 ; Author ........: Robert Maehl (rcmaehl)
-; Modified ......: 07/20/2015
+; Modified ......: 06/10/2016
 ; Remarks .......: Modified from Chips' coding
 ; Related .......: _IRCServerPong
 ; Link ..........:
@@ -708,11 +694,10 @@ Func _IRCServerPing($_vIRC, $_sServer)
 			$_sReturn = SetError(1, 2, 0)
 		Case $_sServer = ""
 			$_sReturn = SetError(2, 0, 0)
+		Case Else
+			TCPSend($_vIRC, "PING " & $_sServer & @CRLF)
+			If @error Then $_sReturn = SetError(3, @error & @extended, 0)
 	EndSelect
-	If $_sReturn = 1 Then
-		TCPSend($_vIRC, "PING " & $_sServer & @CRLF)
-		If @error Then $_sReturn = SetError(3, @error & @extended, 0)
-	EndIf
 	Return $_sReturn
 EndFunc   ;==>_IRCServerPing
 
@@ -729,7 +714,7 @@ EndFunc   ;==>_IRCServerPing
 ;                  |2 = Invalid Server
 ;                  |3 = Sending Failure, sets @extended to TCPSend error returned
 ; Author ........: Robert Maehl (rcmaehl)
-; Modified ......: 07/20/2015
+; Modified ......: 06/10/2016
 ; Remarks .......: Modified from Chips' coding
 ; Related .......: _IRCServerPing
 ; Link ..........:
@@ -744,11 +729,10 @@ Func _IRCServerPong($_vIRC, $_sServer)
 			$_sReturn = SetError(1, 2, 0)
 		Case $_sServer = ""
 			$_sReturn = SetError(2, 0, 0)
+		Case Else
+			TCPSend($_vIRC, "PONG " & $_sServer & @CRLF)
+			If @error Then $_sReturn = SetError(3, @error & @extended, 0)
 	EndSelect
-	If $_sReturn = 1 Then
-		TCPSend($_vIRC, "PONG " & $_sServer & @CRLF)
-		If @error Then $_sReturn = SetError(3, @error & @extended, 0)
-	EndIf
 	Return $_sReturn
 EndFunc   ;==>_IRCServerPong
 
@@ -765,7 +749,7 @@ EndFunc   ;==>_IRCServerPong
 ;                  |2 = Invalid Server
 ;                  |3 = Sending Failure, sets @extended to TCPSend error returned
 ; Author ........: Robert Maehl (rcmaehl)
-; Modified ......: 07/20/2015
+; Modified ......: 06/10/2016
 ; Remarks .......:
 ; Related .......:
 ; Link ..........:
@@ -780,12 +764,11 @@ Func _IRCServerTime($_vIRC, $_sServer = "")
 			$_sReturn = SetError(1, 2, 0)
 		Case StringInStr($_sServer, " ")
 			$_sReturn = SetError(2, 0, 0)
+		Case Else
+			If Not $_sServer = "" Then $_sServer = " " & $_sServer
+			TCPSend($_vIRC, "TIME" & $_sServer & @CRLF)
+			If @error Then $_sReturn = SetError(3, @error & @extended, 0)
 	EndSelect
-	If $_sReturn = 1 Then
-		If Not $_sServer = "" Then $_sServer = " " & $_sServer
-		TCPSend($_vIRC, "TIME" & $_sServer & @CRLF)
-		If @error Then $_sReturn = SetError(3, @error & @extended, 0)
-	EndIf
 	Return $_sReturn
 EndFunc   ;==>_IRCServerTime
 
@@ -802,7 +785,7 @@ EndFunc   ;==>_IRCServerTime
 ;                  |2 = Invalid Server
 ;                  |3 = Sending Failure, sets @extended to TCPSend error returned
 ; Author ........: Robert Maehl (rcmaehl)
-; Modified ......: 07/07/2015
+; Modified ......: 06/10/2016
 ; Remarks .......:
 ; Related .......:
 ; Link ..........:
@@ -817,11 +800,10 @@ Func _IRCServerVersion($_vIRC, $_sServer = "")
 			$_sReturn = SetError(1, 2, 0)
 		Case StringInStr($_sServer, " ")
 			$_sReturn = SetError(2, 0, 0)
+		Case Else
+			If Not $_sServer = "" Then $_sServer = " " & $_sServer
+			TCPSend($_vIRC, "VERSION" & $_sServer & @CRLF)
+			If @error Then $_sReturn = SetError(3, @error & @extended, 0)
 	EndSelect
-	If $_sReturn = 1 Then
-		If Not $_sServer = "" Then $_sServer = " " & $_sServer
-		TCPSend($_vIRC, "VERSION" & $_sServer & @CRLF)
-		If @error Then $_sReturn = SetError(3, @error & @extended, 0)
-	EndIf
 	Return $_sReturn
 EndFunc   ;==>_IRCServerVersion
