@@ -1,3 +1,4 @@
+#include "includes\IRC.au3"
 
 ; Allow some TCP lag
 Opt("TCPTimeout", 500)
