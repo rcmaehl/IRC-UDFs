@@ -16,7 +16,7 @@
 ;                  $_sPacketPart3       - Parameter 3 of the PRIVMSG Packet Recieved (Recipent)
 ; Return values .: Returns who to reply to for a PRIVMsg
 ; Author ........: Robert Maehl (rcmaehl)
-; Modified ......: 04/09/2016
+; Modified ......: 08/23/2016
 ; Remarks .......: Also cleans up the Username for replying
 ; Related .......:
 ; Link ..........:
@@ -24,12 +24,12 @@
 ; ===============================================================================================================================
 Func _IRCReplyTo($_sPacketPart1, $_sPacketPart3)
 	$_sPacketPart1 = StringMid($_sPacketPart1, 2, StringInStr($_sPacketPart1, "!") - 2)
-	Local $_sReturn = $_sPacketPart1 ; By Default, Return Source
 	Switch AscW(StringLeft($_sPacketPart3, 1))
 		Case 33, 35, 38, 43 ; If Recipent was a Channel, Return Channel
-			$_sReturn = $_sPacketPart3
+			Return $_sPacketPart3
+		Case Else
+			Return $_sPacketPart1 ; By Default, Return Source	
 	EndSwitch
-	Return $_sReturn
 EndFunc   ;==>_IRCReplyTo
 
 
