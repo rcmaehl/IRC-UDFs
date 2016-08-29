@@ -444,9 +444,19 @@ EndFunc   ;==>_IRCMultiMode
 ;                  |4 = Invalid Trim Optional, sets @extended: (1, if empty; 2, if not binary)
 ;                  |5 = Sending Failure, sets @extended to TCPSend error returned
 ; Author ........: Robert Maehl (rcmaehl)
-; Modified ......: 08/26/2016
-; Remarks .......: Modified from Chips' coding; To Do: Better message length calculations
+; Modified ......: 08/29/2016
+; Remarks .......: Modified from Chips' coding; To Do: Better message length calculations (NICK, TYPE, TARGET)
 ;                  WARNING: This may or may not be split into two functions in the future
+;
+;                  Based on https://forums.unrealircd.org/viewtopic.php?t=6811
+;                  Max TOTAL Length = 512
+;
+;                  Format when receiving:
+;                  : + NICK + ! + USER + @ + HOST + <SPACE> + TYPE + <SPACE> + TARGET + SPACE + : + <MESSAGE> + @CR + @LF
+;                  1 + MAX 30 + 1 + MAX 10 + 1 + MAX 63 + 1 + MAX 8 + 1 + MAX 32 + 1 + 1 + Max ? + 1 + 1 = ? + 152
+;
+;                  512 - 151 = 361
+;                  MAX - REQUIRED = LEFT OVER
 ; Related .......:
 ; Link ..........:
 ; Example .......: Yes
@@ -478,18 +488,17 @@ Func _IRCMultiSendMsg($_vIRC, $_sTarget, $_sMsg, $_dFlags = $MSG_PRIVMSG)
 			Return SetError(4, 0, 0)
 		Case Else
 			If BitAND($_dFlags, 1) Then ; If $MSG_TRIM
-				$_sMsg = StringLeft($_sMsg, 436)
+				$_sMsg = StringLeft($_sMsg, 360)
 			EndIf
 			If BitAND($_dFlags, 2) Then ; If $MSG_PRIVMSG
 				$_sType = "PRIVMSG "
 			ElseIf BitAND($_dFlags, 4) Then ; If $MSG_NOTICE
 				$_sType = "NOTICE "
 			EndIf
-	;		If (StringLen($_sTarget) + StringLen($_sMsg) + 16 + 16 + 64 + 32) > 512 Then ; Find out why I chose these amounts and readd if needed
 			Local $_sSend = ""
 			Do
-				$_sSend = StringLeft($_sMsg, 436)
-				$_sMsg = StringTrimLeft($_sMsg, 436)
+				$_sSend = StringLeft($_sMsg, 360)
+				$_sMsg = StringTrimLeft($_sMsg, 360)
 				ConsoleWrite($_sType & $_sTarget & " :" & $_sSend & @CRLF)
 				$_sReturn += TCPSend($_vIRC, $_sType & $_sTarget & " :" & $_sSend & @CRLF)
 				If @error Then
@@ -497,10 +506,6 @@ Func _IRCMultiSendMsg($_vIRC, $_sTarget, $_sMsg, $_dFlags = $MSG_PRIVMSG)
 					ExitLoop
 				EndIf
 			Until StringLen($_sMsg) = 0
-	;		Else
-	;			TCPSend($_vIRC, $Prefix & $_sTarget & " :" & $_sMsg & @CRLF)
-	;			If @error Then Return SetError(5, @error & @extended, 0)
-	;		EndIf
 	EndSelect
 	Return $_sReturn
 EndFunc   ;==>_IRCMultiSendMsg
