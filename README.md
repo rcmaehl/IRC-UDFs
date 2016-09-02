@@ -3,12 +3,17 @@ IRC-UDFs
 
 AutoIt IRC UDFs, UDFs to connect to IRC using TCP Functions, as well as perform actions once connected.
 
-Installation Instructions:
+Permanent Installation Instructions:
 
     1. Unzip
-    2. Merge Includes folder with AutoIt Includes
-    3. Merge Example folder with AutoIt Examples
-    4. (OPTIONAL) Use a Client from Clients folder as your main IRC Client!
+    2a. Open All Examples Files in SciTE
+    2b. Search -> Replace
+        Set find what: #include "..\includes\IRC.au3"
+        Set replace with: #include <IRC.au3>
+        Choose Replace in Buffers
+    3. Merge Examples folder with AutoIt3\Examples in Program Files
+    4. Merge Includes folder with AutoIt3\Include in Program Files
+    5. (OPTIONAL) Use a Client from Clients folder as your main IRC Client!
 
 Notes:
 
