@@ -19,12 +19,12 @@
 ;                  $_sChannel           - Channel to Invite $_sUser to.
 ; Return values .: Success - Returns number of bytes sent
 ;                  Failure - Returns 0 and sets @error:
-;                  |1 = Invalid Socket Identifier, sets @extended: (1, if empty; 2, if -1)
-;                  |2 = Invalid User, sets @extended: (1, if empty; 2, if not IRC compliant)
-;                  |3 = Invalid Channel, sets @extended: (1, if empty; 2, if not IRC compliant)
-;                  |4 = Sending Failure, sets @extended to TCPSend error returned
+;                  |1 - Invalid Socket Identifier, sets @extended: (1, if empty; 2, if -1)
+;                  |2 - Invalid User, sets @extended: (1, if empty; 2, if not IRC compliant)
+;                  |3 - Invalid Channel, sets @extended: (1, if empty; 2, if not IRC compliant)
+;                  |4 - Sending Failure, sets @extended to TCPSend error returned
 ; Author ........: Robert Maehl (rcmaehl)
-; Modified ......: 08/26/2016
+; Modified ......: 09/02/2016
 ; Remarks .......:
 ; Related .......:
 ; Link ..........:
@@ -67,11 +67,11 @@ EndFunc   ;==>_IRCChannelInvite
 ;                  $_sKeys              - [optional] Key(s) for the Channel(s); If a list, it is comma seperated.
 ; Return values .: Success - Returns number of bytes sent
 ;                  Failure - Returns 0 and sets @error:
-;                  |1 = Invalid Socket Identifier, sets @extended: (1, if empty; 2, if -1)
-;                  |2 = Invalid Channel(s), sets @extended: (1, if empty; 2, if not IRC compliant)
-;                  |3 = Sending Failure, sets @extended to TCPSend error returned
+;                  |1 - Invalid Socket Identifier, sets @extended: (1, if empty; 2, if -1)
+;                  |2 - Invalid Channel(s), sets @extended: (1, if empty; 2, if not IRC compliant)
+;                  |3 - Sending Failure, sets @extended to TCPSend error returned
 ; Author ........: Robert Maehl (rcmaehl)
-; Modified ......: 08/26/2016
+; Modified ......: 09/02/2016
 ; Remarks .......: Modified from Chips' coding, _IRCJoinChannel($_vIRC, "0") Quits all channels, To Do: Check Channel Input
 ; Related .......: _IRCChannelPart
 ; Link ..........:
@@ -107,12 +107,12 @@ EndFunc   ;==>_IRCChannelJoin
 ;                  $_sMsg               - [optional] Kick Message. Default is "".
 ; Return values .: Success - Returns number of bytes sent
 ;                  Failure - Returns 0 and sets @error:
-;                  |1 = Invalid Socket Identifier, sets @extended: (1, if empty; 2, if -1)
-;                  |2 = Invalid Channel, sets @extended: (1, if empty; 2, if not IRC compliant)
-;                  |3 = Invalid User, sets @extended: (1, if empty; 2, if not IRC compliant)
-;                  |4 = Sending Failure, sets @extended to TCPSend error returned
+;                  |1 - Invalid Socket Identifier, sets @extended: (1, if empty; 2, if -1)
+;                  |2 - Invalid Channel, sets @extended: (1, if empty; 2, if not IRC compliant)
+;                  |3 - Invalid User, sets @extended: (1, if empty; 2, if not IRC compliant)
+;                  |4 - Sending Failure, sets @extended to TCPSend error returned
 ; Author ........: Robert Maehl (rcmaehl)
-; Modified ......: 08/26/2016
+; Modified ......: 09/02/2016
 ; Remarks .......:
 ; Related .......:
 ; Link ..........:
@@ -156,11 +156,11 @@ EndFunc   ;==>_IRCChannelKick
 ;                  $_sMsg               - [optional] Part Message. Default is "".
 ; Return values .: Success - Returns number of bytes sent
 ;                  Failure - Returns 0 and sets @error:
-;                  |1 = Invalid Socket Identifier, sets @extended: (1, if empty; 2, if -1)
-;                  |2 = Invalid Channel(s), sets @extended: (1, if empty; 2, if not IRC compliant)
-;                  |3 = Sending Failure, sets @extended to TCPSend error returned
+;                  |1 - Invalid Socket Identifier, sets @extended: (1, if empty; 2, if -1)
+;                  |2 - Invalid Channel(s), sets @extended: (1, if empty; 2, if not IRC compliant)
+;                  |3 - Sending Failure, sets @extended to TCPSend error returned
 ; Author ........: Robert Maehl (rcmaehl)
-; Modified ......: 08/26/2016
+; Modified ......: 09/02/2016
 ; Remarks .......: To Do: Check Channel Input for Errors
 ; Related .......: _IRCChannelJoin
 ; Link ..........:
@@ -195,11 +195,11 @@ EndFunc   ;==>_IRCChannelPart
 ;                  $_sTopic             - [optional] Topic to Set. Default is Null.
 ; Return values .: Success - Returns number of bytes sent
 ;                  Failure - Returns 0 and sets @error:
-;                  |1 = Invalid Socket, sets @extended: (1, if empty; 2, if not UDF compliant)
-;                  |2 = Invalid Channel, sets @extended: (1, if empty; 2, if not IRC compliant)
-;                  |3 = Sending Failure, sets @extended to TCPSend error returned
+;                  |1 - Invalid Socket, sets @extended: (1, if empty; 2, if not UDF compliant)
+;                  |2 - Invalid Channel, sets @extended: (1, if empty; 2, if not IRC compliant)
+;                  |3 - Sending Failure, sets @extended to TCPSend error returned
 ; Author ........: Robert Maehl (rcmaehl)
-; Modified ......: 08/26/2016
+; Modified ......: 09/02/2016
 ; Remarks .......: Queries Topic by Default.
 ; Related .......:
 ; Link ..........:
@@ -246,16 +246,16 @@ EndFunc   ;==>_IRCChannelTopic
 ;                  $_sPass              - [optional] Password for the IRC server. Default is "".
 ; Return values .: Success - Returns Socket Identifier
 ;                  Failure - Returns 0 and sets @error:
-;                  |1 = Invalid Server, sets @extended: (1, if blank; 2 if invalid address/IP)
-;                  |2 = Invalid Port, sets @extended: (1, if blank; 2, if not a 1-5 digit interger; 3, if out of range)
-;                  |3 = Invalid Nick, sets @extended: (1, if empty; 2, if not IRC compliant)
-;                  |4 = Invalid Mode, sets @extended: (1, if blank; 2, if not an interger)
-;                  |5 = Invalid Real Name
-;                  |6 = IP Conversion Failure, sets @extened to TCPNameToIP error returned
-;                  |7 = Connection Failure, sets @extended to TCPConnect error returned
-;                  |8 = Sending Failure, sets @extended to TCPSend error returned
+;                  |1 - Invalid Server, sets @extended: (1, if blank; 2 if invalid address/IP)
+;                  |2 - Invalid Port, sets @extended: (1, if blank; 2, if not a 1-5 digit interger; 3, if out of range)
+;                  |3 - Invalid Nick, sets @extended: (1, if empty; 2, if not IRC compliant)
+;                  |4 - Invalid Mode, sets @extended: (1, if blank; 2, if not an interger)
+;                  |5 - Invalid Real Name
+;                  |6 - IP Conversion Failure, sets @extened to TCPNameToIP error returned
+;                  |7 - Connection Failure, sets @extended to TCPConnect error returned
+;                  |8 - Sending Failure, sets @extended to TCPSend error returned
 ; Author ........: Robert Maehl (rcmaehl)
-; Modified ......: 08/26/2016
+; Modified ......: 09/02/2016
 ; Remarks .......: Modified from Chips' coding, To Do: Improve $_sNick checking
 ; Related .......: _IRCDisconnect
 ; Link ..........:
@@ -311,11 +311,11 @@ EndFunc   ;==>_IRCConnect
 ;                  $_bForce             - [optional] Force Disconnect even on error. Default is True
 ; Return values .: Success - Returns number of bytes sent
 ;                  Failure - Returns 0 and sets @error:
-;                  |1 = Invalid Socket Identifier, sets @extended: (1, if empty; 2, if -1)
-;                  |2 = Sending Failure, sets @extended to TCPSend error returned
-;                  |3 = Closing Socket Failure, sets @extended to TCPCloseSocket error returned
+;                  |1 - Invalid Socket Identifier, sets @extended: (1, if empty; 2, if -1)
+;                  |2 - Sending Failure, sets @extended to TCPSend error returned
+;                  |3 - Closing Socket Failure, sets @extended to TCPCloseSocket error returned
 ; Author ........: Robert Maehl (rcmaehl)
-; Modified ......: 08/26/2016
+; Modified ......: 09/02/2016
 ; Remarks .......: Modified from Chips' coding
 ; Related .......: _IRCConnect
 ; Link ..........:
@@ -348,10 +348,10 @@ EndFunc   ;==>_IRCDisconnect
 ; Parameters ....: $_vIRC               - Socket Identifier from _IRCConnect().
 ; Return values .: Success - Returns data received
 ;                  Failure - Returns 0 and sets @error:
-;                  |1 = Invalid Socket Identifier, sets @extended: (1, if empty; 2, if -1)
-;                  |2 = Recieving Failure, sets @extended to TCPRecv error returned
+;                  |1 - Invalid Socket Identifier, sets @extended: (1, if empty; 2, if -1)
+;                  |2 - Recieving Failure, sets @extended to TCPRecv error returned
 ; Author ........: Robert Maehl (rcmaehl)
-; Modified ......: 08/26/2016
+; Modified ......: 09/02/2016
 ; Remarks .......:
 ; Related .......:
 ; Link ..........:
@@ -368,7 +368,7 @@ Func _IRCGetMsg($_vIRC)
 			Do
 				$_vRecv &= TCPRecv($_vIRC, 1)
 				If @error Then
-					Return SetError(3, @error & @extended, 0)
+					Return SetError(2, @error & @extended, 0)
 					ExitLoop
 				EndIf
 			Until AscW(StringRight($_vRecv, 1)) = 10 Or AscW(StringRight($_vRecv, 1)) = 0 ; Exit on @LF or Null
@@ -387,15 +387,15 @@ EndFunc   ;==>_IRCGetMsg
 ;                  $_sParams            - [optional] Parameters for Mode(s). Default is "".
 ; Return values .: Success - Returns number of bytes sent
 ;                  Failure - Returns 0 and sets @error:
-;                  |1 = Invalid Socket Identifier, sets @extended: (1, if empty; 2, if -1)
-;                  |2 = Invalid Channel or User; sets @extended: (1, if empty; 2, if not IRC compliant)
-;                  |3 = Invalid Mode
-;                  |4 = Sending Failure, sets @extended to TCPSend error returned
+;                  |1 - Invalid Socket Identifier, sets @extended: (1, if empty; 2, if -1)
+;                  |2 - Invalid Channel or User; sets @extended: (1, if empty; 2, if not IRC compliant)
+;                  |3 - Invalid Mode
+;                  |4 - Sending Failure, sets @extended to TCPSend error returned
 ; Author ........: Robert Maehl (rcmaehl)
-; Modified ......: 08/26/2016
+; Modified ......: 09/02/2016
 ; Remarks .......: Modified from Chips' coding, Queries Channel or User Mode by Default
 ;                  To Do: Check if User or Channel and Accept or Deny $_sParams accordingly
-;                  WARNING: This WILL be split into four functions in the future
+;                  WARNING: This may be split into four functions in the future
 ; Related .......:
 ; Link ..........:
 ; Example .......: No
@@ -422,7 +422,7 @@ Func _IRCMultiMode($_vIRC, $_sTarget, $_sMode = "", $_sParams = "")
 			If Not $_sMode = "" Then $_sMode = " " & $_sMode
 			If Not $_sParams = "" Then $_sParams = " " & $_sParams
 			$_sReturn = TCPSend($_vIRC, "MODE " & $_sTarget & $_sMode & $_sParams & @CRLF)
-			If @error Then Return SetError(3, @error & @extended, 0)
+			If @error Then Return SetError(4, @error & @extended, 0)
 	EndSelect
 	Return $_sReturn
 EndFunc   ;==>_IRCMultiMode
@@ -431,20 +431,23 @@ EndFunc   ;==>_IRCMultiMode
 ; #FUNCTION# ====================================================================================================================
 ; Name ..........: _IRCMultiSendMsg
 ; Description ...: Sends a Message to a Channel or User
-; Syntax ........: _IRCMultiSendMsg($_vIRC, $_sTarget, $_sMsg[, $_dFlags = $MSG_PRIVMSG])
+; Syntax ........: _IRCMultiSendMsg($_vIRC, $_sTarget, $_sMsg[, $_dFlags = $MSG_PRIVMSG + $MSG_TRIM])
 ; Parameters ....: $_vIRC               - Socket Identifier from _IRCConnect().
 ;                  $_sTarget            - Channel or User to Send Message.
 ;                  $_sMsg               - Message to Send.
-;                  $_dFlags             - [optional] Flags for Message Type. Default is $MSG_PRIVMSG, alternative is $MSG_NOTICE
+;                  $_dFlags             - [optional] Flags for Message Type.Valid Flags
+;                  |$MSG_TRIM    - Trims the Message to 360 Characters to prevent bans for huge messages (default)
+;                  |$MSG_NOTICE  - Send an Action type message to a User or Channel
+;                  |$MSG_PRIVMSG - Send a Message type message to a User or Channel (default)
 ; Return values .: Success - Returns number of bytes sent
 ;                  Failure - Returns 0 and sets @error:
-;                  |1 = Invalid Socket Identifier, sets @extended: (1, if empty; 2, if -1)
-;                  |2 = Invalid Channel or User, sets @extended: (1, if empty; 2, if not IRC compliant)
-;                  |3 = Invalid Message
-;                  |4 = Invalid Trim Optional, sets @extended: (1, if empty; 2, if not binary)
-;                  |5 = Sending Failure, sets @extended to TCPSend error returned
+;                  |1 - Invalid Socket Identifier, sets @extended: (1, if empty; 2, if -1)
+;                  |2 - Invalid Channel or User, sets @extended: (1, if empty; 2, if not IRC compliant)
+;                  |3 - Invalid Message
+;                  |4 - Invalid Flags, sets @extended: (1, if empty; 2, if not binary; 3, if more than one message type defined)
+;                  |5 - Sending Failure, sets @extended to TCPSend error returned
 ; Author ........: Robert Maehl (rcmaehl)
-; Modified ......: 08/29/2016
+; Modified ......: 09/02/2016
 ; Remarks .......: Modified from Chips' coding; To Do: Better message length calculations (NICK, TYPE, TARGET)
 ;                  WARNING: This may or may not be split into two functions in the future
 ;
@@ -455,13 +458,13 @@ EndFunc   ;==>_IRCMultiMode
 ;                  : + NICK + ! + USER + @ + HOST + <SPACE> + TYPE + <SPACE> + TARGET + SPACE + : + <MESSAGE> + @CR + @LF
 ;                  1 + MAX 30 + 1 + MAX 10 + 1 + MAX 63 + 1 + MAX 8 + 1 + MAX 32 + 1 + 1 + Max ? + 1 + 1 = ? + 152
 ;
-;                  512 - 151 = 361
+;                  512 - 152 = 360
 ;                  MAX - REQUIRED = LEFT OVER
 ; Related .......:
 ; Link ..........:
 ; Example .......: Yes
 ; ===============================================================================================================================
-Func _IRCMultiSendMsg($_vIRC, $_sTarget, $_sMsg, $_dFlags = $MSG_PRIVMSG)
+Func _IRCMultiSendMsg($_vIRC, $_sTarget, $_sMsg, $_dFlags = $MSG_PRIVMSG + $MSG_TRIM)
 	Local $_sReturn = 0
 	Local $_sType = "ERR"
 	Select ;Parameter Checking, Trust No One
@@ -485,7 +488,7 @@ Func _IRCMultiSendMsg($_vIRC, $_sTarget, $_sMsg, $_dFlags = $MSG_PRIVMSG)
 		Case Not IsBinary($_dFlags)
 			Return SetError(4, 2, 0)
 		Case $_dFlags > 5
-			Return SetError(4, 0, 0)
+			Return SetError(4, 3, 0)
 		Case Else
 			If BitAND($_dFlags, 1) Then ; If $MSG_TRIM
 				$_sMsg = StringLeft($_sMsg, 360)
@@ -519,11 +522,11 @@ EndFunc   ;==>_IRCMultiSendMsg
 ;                  $_sMsg               - Message to Send.
 ; Return values .: Success - Returns number of bytes sent
 ;                  Failure - Returns 0 and sets @error:
-;                  |1 = Invalid Socket Identifier, sets @extended: (1, if empty; 2, if -1)
-;                  |2 = Invalid Message
-;                  |3 = Sending Failure, sets @extended to TCPSend error returned
+;                  |1 - Invalid Socket Identifier, sets @extended: (1, if empty; 2, if -1)
+;                  |2 - Invalid Message
+;                  |3 - Sending Failure, sets @extended to TCPSend error returned
 ; Author ........: Robert Maehl (rcmaehl)
-; Modified ......: 08/26/2016
+; Modified ......: 09/02/2016
 ; Remarks .......: Stripped from Chips' _IRCSendMessage, Use this to bypass UDF IRC Compliance
 ; Related .......:
 ; Link ..........:
@@ -555,12 +558,12 @@ EndFunc   ;==>_IRCRaw
 ;                  $_sPass              - Password to use.
 ; Return values .: Success - Returns number of bytes sent
 ;                  Failure - Returns 0 and sets @error:
-;                  |1 = Invalid Socket Identifier, sets @extended: (1, if empty; 2, if -1)
-;                  |2 = Invalid Username, sets @extended: (1, if empty; 2, if not IRC compliant)
-;                  |3 = Invalid Password, sets @extended: (1, if empty; 2, if not IRC compliant)
-;                  |4 = Sending Failure, sets @extended to TCPSend error returned
+;                  |1 - Invalid Socket Identifier, sets @extended: (1, if empty; 2, if -1)
+;                  |2 - Invalid Username, sets @extended: (1, if empty; 2, if not IRC compliant)
+;                  |3 - Invalid Password, sets @extended: (1, if empty; 2, if not IRC compliant)
+;                  |4 - Sending Failure, sets @extended to TCPSend error returned
 ; Author ........: Robert Maehl (rcmaehl)
-; Modified ......: 08/26/2016
+; Modified ......: 09/02/2016
 ; Remarks .......:
 ; Related .......:
 ; Link ..........:
@@ -597,12 +600,12 @@ EndFunc   ;==>_IRCSelfOper
 ;                  $_sNick              - Nick to use.
 ; Return values .: Success - Returns number of bytes sent
 ;                  Failure - Returns 0 and sets @error:
-;                  |1 = Invalid Socket Identifier, sets @extended: (1, if empty; 2, if -1)
-;                  |2 = Invalid Nick, sets @extended: (1, if empty; 2, if not IRC compliant)
-;                  |3 = Sending Failure, sets @extended to TCPSend error returned
+;                  |1 - Invalid Socket Identifier, sets @extended: (1, if empty; 2, if -1)
+;                  |2 - Invalid Nick, sets @extended: (1, if empty; 2, if not IRC compliant)
+;                  |3 - Sending Failure, sets @extended to TCPSend error returned
 ; Author ........: Robert Maehl (rcmaehl)
-; Modified ......: 08/26/2016
-; Remarks .......:
+; Modified ......: 09/02/2016
+; Remarks .......: TO DO: Have UDF Check for more through IRC nick RFC compliance
 ; Related .......:
 ; Link ..........:
 ; Example .......: Yes
@@ -634,10 +637,10 @@ EndFunc   ;==>_IRCSelfSetNick
 ;                  $_sMsg               - [optional] Away Message. Default is "".
 ; Return values .: Success - Returns number of bytes sent
 ;                  Failure - Returns 0 and sets @error:
-;                  |1 = Invalid Socket Identifier, sets @extended: (1, if empty; 2, if -1)
-;                  |2 = Sending Failure, sets @extended to TCPSend error returned
+;                  |1 - Invalid Socket Identifier, sets @extended: (1, if empty; 2, if -1)
+;                  |2 - Sending Failure, sets @extended to TCPSend error returned
 ; Author ........: Robert Maehl (rcmaehl)
-; Modified ......: 08/26/2016
+; Modified ......: 09/02/2016
 ; Remarks .......: Defaults to setting the User Not AFK, TODO: Check Modes setting on self
 ; Related .......:
 ; Link ..........:
@@ -667,11 +670,11 @@ EndFunc   ;==>_IRCSelfSetStatus
 ;                  $_sServer            - Server to Ping.
 ; Return values .: Success - Returns number of bytes sent
 ;                  Failure - Returns 0 and sets @error:
-;                  |1 = Invalid Socket Identifier, sets @extended: (1, if empty; 2, if -1)
-;                  |2 = Invalid Server
-;                  |3 = Sending Failure, sets @extended to TCPSend error returned
+;                  |1 - Invalid Socket Identifier, sets @extended: (1, if empty; 2, if -1)
+;                  |2 - Invalid Server
+;                  |3 - Sending Failure, sets @extended to TCPSend error returned
 ; Author ........: Robert Maehl (rcmaehl)
-; Modified ......: 08/26/2016
+; Modified ......: 09/02/2016
 ; Remarks .......: Modified from Chips' coding
 ; Related .......: _IRCServerPong
 ; Link ..........:
@@ -702,11 +705,11 @@ EndFunc   ;==>_IRCServerPing
 ;                  $_sServer              - Server to Reply to.
 ; Return values .: Success - Returns number of bytes sent
 ;                  Failure - Returns 0 and sets @error:
-;                  |1 = Invalid Socket Identifier, sets @extended: (1, if empty; 2, if -1)
-;                  |2 = Invalid Server
-;                  |3 = Sending Failure, sets @extended to TCPSend error returned
+;                  |1 - Invalid Socket Identifier, sets @extended: (1, if empty; 2, if -1)
+;                  |2 - Invalid Server
+;                  |3 - Sending Failure, sets @extended to TCPSend error returned
 ; Author ........: Robert Maehl (rcmaehl)
-; Modified ......: 08/26/2016
+; Modified ......: 09/02/2016
 ; Remarks .......: Modified from Chips' coding
 ; Related .......: _IRCServerPing
 ; Link ..........:
@@ -737,11 +740,11 @@ EndFunc   ;==>_IRCServerPong
 ;                  $_sServer            - [optional] Server to get time from. Default is "".
 ; Return values .: Success - Returns number of bytes sent
 ;                  Failure - Returns 0 and sets @error:
-;                  |1 = Invalid Socket Identifier, sets @extended: (1, if empty; 2, if -1)
-;                  |2 = Invalid Server
-;                  |3 = Sending Failure, sets @extended to TCPSend error returned
+;                  |1 - Invalid Socket Identifier, sets @extended: (1, if empty; 2, if -1)
+;                  |2 - Invalid Server
+;                  |3 - Sending Failure, sets @extended to TCPSend error returned
 ; Author ........: Robert Maehl (rcmaehl)
-; Modified ......: 08/26/2016
+; Modified ......: 09/02/2016
 ; Remarks .......:
 ; Related .......:
 ; Link ..........:
@@ -773,11 +776,11 @@ EndFunc   ;==>_IRCServerTime
 ;                  $_sServer            - [optional] Server to get Version from. Default is "".
 ; Return values .: Success - Returns number of bytes sent
 ;                  Failure - Returns 0 and sets @error:
-;                  |1 = Invalid Socket Identifier, sets @extended: (1, if empty; 2, if -1)
-;                  |2 = Invalid Server
-;                  |3 = Sending Failure, sets @extended to TCPSend error returned
+;                  |1 - Invalid Socket Identifier, sets @extended: (1, if empty; 2, if -1)
+;                  |2 - Invalid Server
+;                  |3 - Sending Failure, sets @extended to TCPSend error returned
 ; Author ........: Robert Maehl (rcmaehl)
-; Modified ......: 08/26/2016
+; Modified ......: 09/02/2016
 ; Remarks .......:
 ; Related .......:
 ; Link ..........:
