@@ -1,6 +1,6 @@
 #include <Array.au3>
-#include <IRC.au3>
-#include <IRCExtras.au3>
+#include "..\includes\IRC.au3"
+#include "..\includes\IRCExtras.au3"
 
 Main()
 

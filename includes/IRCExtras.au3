@@ -1,3 +1,4 @@
+#AutoIt3Wrapper_Au3Check_Parameters=-q -d -w 1 -w 2 -w 3 -w- 4 -w 5 -w 6 -w- 7
 #include-once
 
 ; #INDEX# =======================================================================================================================
@@ -28,7 +29,7 @@ Func _IRCReplyTo($_sPacketPart1, $_sPacketPart3)
 		Case 33, 35, 38, 43 ; If Recipent was a Channel, Return Channel
 			Return $_sPacketPart3
 		Case Else
-			Return $_sPacketPart1 ; By Default, Return Source	
+			Return $_sPacketPart1 ; By Default, Return Source
 	EndSwitch
 EndFunc   ;==>_IRCReplyTo
 
@@ -39,9 +40,12 @@ EndFunc   ;==>_IRCReplyTo
 ; Syntax ........: _IRCStripSpecial($_sData, $_dFlags)
 ; Parameters ....: $_sData              - Data to clean up.
 ;                  $_dFlags             - Flags for Characters to strip
+;                  |$RM_CTCP   - Remove CTCP Formatting
+;                  |$RM_COLOR  - Remove Colorization
+;                  |$RM_FORMAT - Remove Bolds and Underlines
 ; Return values .: Returns cleaned up message.
 ; Author ........: Robert Maehl (rcmaehl)
-; Modified ......: 04/10/2016
+; Modified ......: 09/02/2016
 ; Related .......:
 ; Link ..........:
 ; Example .......: No

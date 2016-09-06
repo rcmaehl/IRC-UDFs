@@ -1,4 +1,4 @@
-#include <IRC.au3>
+#include "..\includes\IRC.au3"
 
 ; Allow some TCP lag
 Opt("TCPTimeout", 500)
@@ -92,4 +92,4 @@ Func Example()
 
 		EndSwitch
 	WEnd
-EndFunc
+EndFunc   ;==>Example
