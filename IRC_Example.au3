@@ -61,4 +61,4 @@ Func Example()
 		ConsoleWrite($sRecv)
 
 	WEnd
-EndFunc
+EndFunc   ;==>Example
