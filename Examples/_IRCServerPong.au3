@@ -91,4 +91,4 @@ Func Example()
 		EndIf
 
 	WEnd
-EndFunc
+EndFunc   ;==>Example

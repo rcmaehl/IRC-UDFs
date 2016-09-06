@@ -89,4 +89,4 @@ Func Example()
 
 		EndSwitch
 	WEnd
-EndFunc
+EndFunc   ;==>Example

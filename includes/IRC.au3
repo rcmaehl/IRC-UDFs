@@ -1,3 +1,4 @@
+#AutoIt3Wrapper_Au3Check_Parameters=-q -d -w 1 -w 2 -w 3 -w- 4 -w 5 -w 6 -w- 7
 #include-once
 
 #include "IRCConstants.au3"
@@ -364,7 +365,7 @@ Func _IRCGetMsg($_vIRC)
 		Case $_vIRC = -1
 			Return SetError(1, 2, 0)
 		Case Else
-			Local $_vRecv = ""; Required due to '&=' below
+			Local $_vRecv = "" ; Required due to '&=' below
 			Do
 				$_vRecv &= TCPRecv($_vIRC, 1)
 				If @error Then
@@ -690,7 +691,7 @@ Func _IRCServerPing($_vIRC, $_sServer)
 		Case $_sServer = ""
 			Return SetError(2, 0, 0)
 		Case Else
-			$_sReturn TCPSend($_vIRC, "PING " & $_sServer & @CRLF)
+			$_sReturn = TCPSend($_vIRC, "PING " & $_sServer & @CRLF)
 			If @error Then Return SetError(3, @error & @extended, 0)
 	EndSelect
 	Return $_sReturn
