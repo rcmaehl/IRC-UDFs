@@ -1,10 +1,13 @@
 #include "..\includes\IRC.au3"
 #include "..\includes\IRCExtras.au3"
 #include <Array.au3>
+#include <String.au3>
 #include <GUIEdit.au3>
 #include <EditConstants.au3>
 #include <GUIConstantsEx.au3>
 #include <WindowsConstants.au3>
+#include <TreeViewConstants.au3>
+
 
 Main()
 
@@ -14,7 +17,7 @@ Func Main()
 
 	;Server Specific Connection Variables
 	Local $Server = "irc.freenode.net"       ; IRC Server
-	Local $Port = 6667                       ; IRC Server Port
+	Local $Port = 8000                       ; IRC Server Port
 	Local $Pass = ""                         ; IRC Server Password
 
 	;User Specific Connection Variables
@@ -41,8 +44,13 @@ Func Main()
 	Local $sSplit = ""                       ; Message Split Storage
 	Local $iExit = 0                         ; Exit Code
 
+	;TreeView Variables
+	Local $Servers[1] = [0]                  ; Server Array
+	Local $CurrentS = 0					     ; Current server index
+	Local $Channel[1][100]					 ; Channel Array
+
 	;Create GUI
-	Local $hGUI = GUICreate($Server, 640, 480, -1, -1, BitXOR($GUI_SS_DEFAULT_GUI, $WS_MINIMIZEBOX))
+	Local $hGUI = GUICreate($Server, 800, 600, -1, -1, BitXOR($GUI_SS_DEFAULT_GUI, $WS_MINIMIZEBOX))
 
 		Local $hFileMenu = GUICtrlCreateMenu("File")
 			Local $hExitItem = GUICtrlCreateMenuItem("Exit", $hFileMenu)
@@ -50,8 +58,9 @@ Func Main()
 ;		Local $hServerMenu = GUICtrlCreateMenu("Server")
 ;			Local $hConnect = GUICtrlCreateMenuItem("Connect", $hServerMenu)
 
-		Local $hOutput = GUICtrlCreateEdit("", 0, 0, 640, 440, $ES_READONLY+$ES_AUTOVSCROLL+$ES_MULTILINE+$WS_VSCROLL)
-		Local $hInput = GUICtrlCreateInput("", 0, 460, 640, 20)
+		Local $hTree = GUICtrlCreateTreeView(0, 0, 100, 600, BitOR($TVS_HASBUTTONS, $TVS_HASLINES, $TVS_LINESATROOT, $TVS_DISABLEDRAGDROP))
+		Local $hOutput = GUICtrlCreateEdit("", 100, 0, 700, 540, $ES_READONLY+$ES_AUTOVSCROLL+$ES_MULTILINE+$WS_VSCROLL)
+		Local $hInput = GUICtrlCreateInput("", 100, 560, 700, 20)
 
 	GUISetState(@SW_SHOW, $hGUI)
 
@@ -117,7 +126,7 @@ Func Main()
 				_IRCServerPong($Sock, $sPing); Checks for Pings from Server and Replies
 
 			Case Else
-				; Server/User Handling Stuff
+				$sServer = _StringBetween($sSplit[1], ".", ".")
 
 		EndSwitch
 
@@ -130,6 +139,12 @@ Func Main()
 				ExitLoop
 
 			Case $RPL_WELCOME ; Server Welcome (RFC2812)
+				$sServer = StringSplit($Server, ".")[2]
+				ConsoleWrite($Server & " became: " & $sServer)
+				$Servers[0] += 1
+				$Current = $Servers[0]
+				ReDim $Servers[$Servers[0] + 1]
+				$Servers[$Current] = GUICtrlCreateTreeViewItem($sServer, $hTree)
 				If Not $UserPass = "" Then _IRCMultiSendMsg($Sock, "NICKSERV", "IDENTIFY " & $Nick & " " & $UserPass)
 				_IRCChannelJoin($Sock, $Channels, $Keys); Join the Channels Specified
 				_IRCMultiMode($Sock, $Nick, "+i")
@@ -221,6 +236,7 @@ Func Main()
 					_ArrayAdd($aUsers, $sUser)
 					Assign($sChannel & "_users", $aUsers)
 				Else
+					$Channels = GUICtrlCreateTreeViewItem($sChannel, $Servers[0])
 					$sSplit[3] = StringReplace($sSplit[3], ":", "")
 					$sSplit[3] = StringReplace($sSplit[3], @CR, "")
 					$sSplit[3] = StringReplace($sSplit[3], @LF, "")

@@ -49,7 +49,7 @@ Func _IRCChannelInvite($_vIRC, $_sUser, $_sChannel)
 				Case Not 33 And Not 35 And Not 38 And Not 43
 					Return SetError(3, 2, 0)
 			EndSwitch
-		Case StringInStr($_sChannel, " ")
+		Case StringInStr($_sChannel, " ") Or StringInStr($_sChannel, ",") Or StringInStr($_sChannel, Chr(7))
 			Return SetError(3, 2, 0)
 		Case Else
 			$_sReturn = TCPSend($_vIRC, "INVITE " & $_sUser & " " & $_sChannel & @CRLF)
@@ -87,7 +87,7 @@ Func _IRCChannelJoin($_vIRC, $_sChannels, $_sKeys = "")
 			Return SetError(1, 2, 0)
 		Case $_sChannels = ""
 			Return SetError(2, 1, 0)
-		Case StringInStr($_sChannels, " ")
+		Case StringInStr($_sChannels, " ") Or StringInStr($_sChannels, Chr(7))
 			Return SetError(2, 2, 0)
 		Case Else
 			If Not $_sKeys = "" Then $_sKeys = " " & $_sKeys
@@ -100,10 +100,10 @@ EndFunc   ;==>_IRCChannelJoin
 
 ; #FUNCTION# ====================================================================================================================
 ; Name ..........: _IRCChannelKick
-; Description ...: Kicks a User from a Channel
-; Syntax ........: _IRCChannelKick($_vIRC, $_sChannel, $_sUser[, $_sMsg = ""])
+; Description ...: Kicks a User from a Channel(s)
+; Syntax ........: _IRCChannelKick($_vIRC, $_sChannels, $_sUser[, $_sMsg = ""])
 ; Parameters ....: $_vIRC               - Socket Identifier from _IRCConnect().
-;                  $_sChannel           - Channel to Kick $_sUser From.
+;                  $_sChannels          - Channel(s) to Kick $_sUser From.
 ;                  $_sUser              - User to Kick.
 ;                  $_sMsg               - [optional] Kick Message. Default is "".
 ; Return values .: Success - Returns number of bytes sent
@@ -119,21 +119,21 @@ EndFunc   ;==>_IRCChannelJoin
 ; Link ..........:
 ; Example .......: Yes
 ; ===============================================================================================================================
-Func _IRCChannelKick($_vIRC, $_sChannel, $_sUser, $_sMsg = "")
+Func _IRCChannelKick($_vIRC, $_sChannels, $_sUser, $_sMsg = "")
 	Local $_sReturn = 0
 	Select ;Parameter Checking, Trust No One
 		Case $_vIRC = ""
 			Return SetError(1, 1, 0)
 		Case $_vIRC = -1
 			Return SetError(1, 2, 0)
-		Case $_sChannel = ""
+		Case $_sChannels = ""
 			Return SetError(2, 1, 0)
-		Case Not $_sChannel = ""
-			Switch AscW(StringLeft($_sChannel, 1))
+		Case Not $_sChannels = ""
+			Switch AscW(StringLeft($_sChannels, 1))
 				Case Not 33 And Not 35 And Not 38 And Not 43
 					Return SetError(2, 2, 0)
 			EndSwitch
-		Case StringInStr($_sChannel, " ")
+		Case StringInStr($_sChannels, " ") Or StringInStr($_sChannels, Chr(7))
 			Return SetError(2, 2, 0)
 		Case $_sUser = ""
 			Return SetError(3, 1, 0)
@@ -141,7 +141,7 @@ Func _IRCChannelKick($_vIRC, $_sChannel, $_sUser, $_sMsg = "")
 			Return SetError(3, 2, 0)
 		Case Else
 			If Not $_sMsg = "" Then $_sMsg = " :" & $_sMsg
-			$_sReturn = TCPSend($_vIRC, "KICK " & $_sChannel & " " & $_sUser & $_sMsg & @CRLF)
+			$_sReturn = TCPSend($_vIRC, "KICK " & $_sChannels & " " & $_sUser & $_sMsg & @CRLF)
 			If @error Then Return SetError(4, @error & @extended, 0)
 	EndSelect
 	Return $_sReturn
@@ -176,7 +176,7 @@ Func _IRCChannelPart($_vIRC, $_sChannels, $_sMsg = "")
 			Return SetError(1, 2, 0)
 		Case $_sChannels = ""
 			Return SetError(2, 1, 0)
-		Case StringInStr($_sChannels, " ")
+		Case StringInStr($_sChannels, " ") Or StringInStr($_sChannels, Chr(7))
 			Return SetError(2, 2, 0)
 		Case Else
 			If Not $_sMsg = "" Then $_sMsg = " :" & $_sMsg
@@ -220,7 +220,7 @@ Func _IRCChannelTopic($_vIRC, $_sChannel, $_sTopic = Null)
 				Case Not 33 And Not 35 And Not 38 And Not 43
 					Return SetError(2, 2, 0)
 			EndSwitch
-		Case StringInStr($_sChannel, " ")
+		Case StringInStr($_sChannel, " ") Or StringInStr($_sChannel, ",") Or StringInStr($_sChannel, Chr(7))
 			Return SetError(2, 2, 0)
 		Case Else
 			If $_sTopic = Null Then
@@ -436,7 +436,7 @@ EndFunc   ;==>_IRCMultiMode
 ; Parameters ....: $_vIRC               - Socket Identifier from _IRCConnect().
 ;                  $_sTarget            - Channel or User to Send Message.
 ;                  $_sMsg               - Message to Send.
-;                  $_dFlags             - [optional] Flags for Message Type.Valid Flags
+;                  $_dFlags             - [optional] Flags for Message Type. Valid Flags:
 ;                  |$MSG_TRIM    - Trims the Message to 360 Characters to prevent bans for huge messages (default)
 ;                  |$MSG_NOTICE  - Send an Action type message to a User or Channel
 ;                  |$MSG_PRIVMSG - Send a Message type message to a User or Channel (default)

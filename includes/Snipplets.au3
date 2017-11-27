@@ -26,17 +26,17 @@
 ; =====================================================================================================================
 Func _ValidIP($sIP)
     Local $adIPAddressInfo[6]
- 
+
     Local $aArray = StringSplit($sIP, ".", 2)
- 
+
     If Not IsArray($aArray) Or UBound($aArray) <> 4 Then Return SetError(3, 0, -1)
- 
+
     Local $dString = "0x"
- 
+
     If $aArray[0] <= 0 Or $aArray[0] > 239 Or $aArray[0] = 127 Or $aArray[0] = 169 Then
         Return SetError(1, 0, -1)
     EndIf
- 
+
     For $I = 0 To 3
         If $I < 3 Then
             If $aArray[$I] < 0 Or $aArray[$I] > 255 Or Not StringIsDigit($aArray[$I]) Then
@@ -46,19 +46,19 @@ Func _ValidIP($sIP)
             If Not StringIsDigit($aArray[$I]) Then
                 Return SetError(2, 0, -1)
             EndIf
- 
+
             If $aArray[$I] < 1 Or $aArray[$I] > 254 Then
                 Return SetError(4, 0, -1)
             EndIf
         EndIf
- 
+
         $dString &= StringRight(Hex($aArray[$I]), 2)
- 
+
         $adIPAddressInfo[$I] = $aArray[$I]
     Next
- 
+
     $adIPAddressInfo[4] = $dString
- 
+
     Switch $aArray[0]
         Case 1 To 126
             $adIPAddressInfo[5] = "A"
@@ -85,3 +85,7 @@ EndFunc   ;==>_ValidIP
 ; ConsoleWrite('(5) : = Red (jump to line 5 when double-clicked)' & @LF)
 ; ConsoleWrite('Start with String or Integer then ' & @TAB & '6' & ' = Pink (jump to line 6 when double-clicked)' & @LF)
 ; ConsoleWrite('(' & @ScriptLineNumber & ') : = Red (jump to line ' & @ScriptLineNumber & ' when double-clicked)' & @CRLF)
+
+; Sorting a TreeView
+
+; DllCall('user32.dll','int','SendMessage','hwnd',$hWnd,'uint',$TVM_SORTCHILDREN,'wparam',true,'lparam',$hItem)
