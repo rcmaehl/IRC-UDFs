@@ -445,7 +445,7 @@ EndFunc   ;==>_IRCMultiMode
 ;                  |1 - Invalid Socket Identifier, sets @extended: (1, if empty; 2, if -1)
 ;                  |2 - Invalid Channel or User, sets @extended: (1, if empty; 2, if not IRC compliant)
 ;                  |3 - Invalid Message
-;                  |4 - Invalid Flags, sets @extended: (1, if empty; 2, if not binary; 3, if more than one message type defined)
+;                  |4 - Invalid Flags, sets @extended: (1, if empty; 2, if invalid; 3, if more than one message type defined)
 ;                  |5 - Sending Failure, sets @extended to TCPSend error returned
 ; Author ........: Robert Maehl (rcmaehl)
 ; Modified ......: 09/02/2016
@@ -480,38 +480,40 @@ Func _IRCMultiSendMsg($_vIRC, $_sTarget, $_sMsg, $_dFlags = $MSG_PRIVMSG + $MSG_
 				Case 0 To 32, 34, 36, 37, 39 To 42, 44 To 47, 58 To 64, 91 To 96, 123 To 1114111 ; AKA Not 33,35,38,43,48 To 57,65 To 90,97 To 122
 					Return SetError(2, 2, 0)
 			EndSwitch
-		Case StringInStr($_sTarget, " ")
-			Return SetError(2, 2, 0)
-		Case $_sMsg = ""
-			Return SetError(3, 0, 0)
-		Case $_dFlags = ""
-			Return SetError(4, 1, 0)
-		Case Not IsBinary($_dFlags)
-			Return SetError(4, 2, 0)
-		Case $_dFlags > 5
-			Return SetError(4, 3, 0)
-		Case Else
-			If BitAND($_dFlags, 1) Then ; If $MSG_TRIM
-				$_sMsg = StringLeft($_sMsg, 360)
-			EndIf
-			If BitAND($_dFlags, 2) Then ; If $MSG_PRIVMSG
-				$_sType = "PRIVMSG "
-			ElseIf BitAND($_dFlags, 4) Then ; If $MSG_NOTICE
-				$_sType = "NOTICE "
-			EndIf
-			Local $_sSend = ""
-			Do
-				$_sSend = StringLeft($_sMsg, 360)
-				$_sMsg = StringTrimLeft($_sMsg, 360)
-				ConsoleWrite($_sType & $_sTarget & " :" & $_sSend & @CRLF)
-				$_sReturn += TCPSend($_vIRC, $_sType & $_sTarget & " :" & $_sSend & @CRLF)
-				If @error Then
-					Return SetError(5, @error & @extended, 0)
-					ExitLoop
-				EndIf
-			Until StringLen($_sMsg) = 0
+			Select
+				Case StringInStr($_sTarget, " ")
+					Return SetError(2, 2, 0)
+				Case $_sMsg = ""
+					Return SetError(3, 0, 0)
+				Case $_dFlags = ""
+					Return SetError(4, 1, 0)
+				Case Not IsInt($_dFlags)
+					Return SetError(4, 2, 0)
+				Case $_dFlags > 5
+					Return SetError(4, 3, 0)
+				Case Else
+					If BitAND($_dFlags, 1) Then ; If $MSG_TRIM
+						$_sMsg = StringLeft($_sMsg, 360)
+					EndIf
+					If BitAND($_dFlags, 2) Then ; If $MSG_PRIVMSG
+						$_sType = "PRIVMSG "
+					ElseIf BitAND($_dFlags, 4) Then ; If $MSG_NOTICE
+						$_sType = "NOTICE "
+					EndIf
+					Local $_sSend = ""
+					Do
+						$_sSend = StringLeft($_sMsg, 360)
+						$_sMsg = StringTrimLeft($_sMsg, 360)
+						ConsoleWrite($_sType & $_sTarget & " :" & $_sSend & @CRLF)
+						$_sReturn += TCPSend($_vIRC, $_sType & $_sTarget & " :" & $_sSend & @CRLF)
+						If @error Then
+							Return SetError(5, @error & @extended, 0)
+							ExitLoop
+						EndIf
+					Until StringLen($_sMsg) = 0
+			EndSelect
+			Return $_sReturn
 	EndSelect
-	Return $_sReturn
 EndFunc   ;==>_IRCMultiSendMsg
 
 
